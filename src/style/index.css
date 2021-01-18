@@ -1,0 +1,92 @@
+.el-select .el-input__inner:focus {
+  border-color:#1369C2 !important;
+}
+.el-menu {
+  border: 0 !important;
+}
+.el-menu-item-group__title {
+  padding: 0;
+}
+.el-menu-item.is-active {
+  background: #1369c2 !important;
+}
+ .el-select .el-input.is-focus .el-input__inner {
+  border-color:#1369C2;
+}
+
+.el-select-dropdown__item.selected {
+  color: #1369C2;
+}
+.el-select-dropdown__item.selected:hover {
+  color: #1369C2;
+}
+.el-menu {
+  border-right: 0;
+}
+.el-menu-item-group__title {
+  padding: 0;
+}
+.el-button--danger {
+  color: #fff;
+  background-color: #f56c6c !important;
+  /* border-color: #F56C6C; */
+}
+#inputStyle :focus-within {
+  border-color: #1369C2;
+  border-width: 1px;
+}
+
+.el-input--small .el-input__inner {
+  height: 40px !important;
+}
+.el-form--inline .el-form-item {
+  margin-right: 24px !important;
+}
+.el-menu-item.is-active {
+  background:#eee !important;
+}
+.el-table td,
+.el-table th {
+  text-align: center !important;
+}
+.el-button--primary  {
+  color: #FFF;
+  background-color: #1369C2 !important;
+  border-color: #1369C2 !important;
+}
+.el-dialog__title {
+  font-family: Microsoft YaHei;
+font-weight: bold;
+line-height: 19px;
+color: #1369C2;
+opacity: 1;
+}
+.el-button .el-button--primary {
+  width: 80px !important;
+  color: #fff !important;
+}
+.el-input__inner{
+  height: 35px !important;
+  width: 100%;
+}
+.el-pagination {
+  padding: 9px 57px;
+  text-align: right;
+}
+.mainContent {
+  width: 85%;
+  margin: 3% 7%;
+  background-color: #fff;
+  border: 1px solid #eee;
+}
+.el-textarea {
+  width: 200px !important;
+  margin-right: 20px;
+}
+.el-input {
+  width: 200px !important;
+  margin-right: 20px;
+}
+.el-dialog__body {
+  padding: 0px 20px 20px 20px !important;
+}

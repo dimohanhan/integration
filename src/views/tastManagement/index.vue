@@ -994,6 +994,7 @@ export default {
     },
     // 创建页面第一页点击保存按钮
     save () {
+      this.idValue = []
       console.log(this.toData, '点击保存拿到的穿梭框的选中值')
       for (var i = 0; i < this.toData.length; i++) {
         for (var j = 0; j < this.toData[i].children.length; j++) {
@@ -1001,10 +1002,8 @@ export default {
           this.idValue.push(this.toData[i].children[j].id)
         }
         console.log(this.idValue)
-      }
-      if (this.idValue) {
         this.$http.getTaskAdd(this.formInline.taskname, this.formInline.description, this.formInline.moduleid, this.idValue).then((res) => {
-          console.log(res.data.data);
+          console.log(res.data);
           if (res.data.code == '0000') {
             this.$router.go(0)
             this.dialogCreatVisible = false
@@ -1012,6 +1011,7 @@ export default {
 
         });
       }
+
 
     },
     // 创建页面第二页点击保存按钮

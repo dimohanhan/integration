@@ -228,8 +228,7 @@
       <!-- 点击修改按钮环境，弹出输入的文本 -->
       <el-dialog title="测试环境信息修改"
                  :visible.sync="dialogReaert"
-                 :show-close='false'
-                 @close='closeMessageD()'>
+                 :show-close='false'>
         <el-form :model="formEnvironmentResert"
                  style="width: 300px;">
           <el-form-item label="环境名称:"
@@ -285,6 +284,9 @@
                          type="index"
                          label="序号"
                          width="70">
+          <template slot-scope="scope">
+            <span>{{scope.$index+(currpage - 1) * pagesize + 1}}</span>
+          </template>
         </el-table-column>
         <el-table-column prop="product"
                          label="归属产品"
@@ -329,6 +331,7 @@
                width="50%"
                :inline="true"
                top="10vh"
+               @close='closeMessageD()'
                :visible.sync="dialogFormVisible">
       <!-- 编辑页面第一页内容 -->
       <div class="firstEditPage"
@@ -922,7 +925,10 @@ export default {
     handlePreview1 (file) {
       console.log(file, '修改选中文件列表中获得的文件');
       if (file.status == 'success') {
+        console.log(file.url)
         window.open(file.url)
+      } else {
+        this.$message.warning('文件未上传,请上传成功后进行下载！')
       }
     },
     remove (file, fileList) {

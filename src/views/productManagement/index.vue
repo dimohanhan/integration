@@ -107,11 +107,13 @@
                          ref="upload"
                          :action="baseUrl+'/module/v1/manage/'"
                          multiple
-                         :data="{optype:'0',productid:this.formInline.productid,modulename:this.formInline.modulename,desc:this.formInline.desc,username:this.updateuser}"
+                         :data="formInline"
                          :on-preview="handlePreview"
                          :on-remove="remove"
                          :on-success="success"
+                         :on-change="getFile"
                          :file-list="fileList"
+                         :http-request="httpRequest"
                          :limit="1"
                          :before-upload="beforeAvatarUpload"
                          :on-exceed="handleExceed"
@@ -152,7 +154,7 @@
                             :key="(domain.environmentid)"
                             :label-width="formLabelWidth"
                             style="margin-top: 30px">
-                <el-card>
+                <el-card style="width:450px">
                   <div style="width:auto;height:100px;overflow:auto;white-space: pre-wrap">
                     {{'环境名称:'+domain.environmentname+'\n'}}
                     {{'服务器host:'+domain.host+'\n'}}
@@ -163,7 +165,7 @@
                     {{'代码部署路径:'+domain.contents+'\n'}}
                   </div>
                 </el-card>
-                <div style="position: relative;left: 300px;bottom: 90px;">
+                <div style="position: relative;left: 514px;bottom: 90px;">
                   <el-button type=""
                              @click.prevent="resertDomain(domain)">修改</el-button>
                   <el-button type="danger"
@@ -429,7 +431,7 @@
                           :key="domain.key"
                           :label-width="formLabelWidth"
                           :prop="'domains1.' + index + '.value'">
-              <el-card>
+              <el-card style="width:450px">
                 <div style="width:auto;height:100px;overflow:auto;white-space: pre-wrap">
                   {{'环境名称:'+domain.environmentname+'\n'}}
                   {{'服务器host:'+domain.host+'\n'}}
@@ -440,7 +442,7 @@
                   {{'代码部署路径:'+domain.contents+'\n'}}
                 </div>
               </el-card>
-              <div style="position: relative;left: 300px;bottom: 90px;">
+              <div style="position: relative;left: 514px;bottom: 90px;">
                 <el-button type=""
                            @click.prevent="resDomain(domain)">修改</el-button>
                 <el-button type="danger"
@@ -476,6 +478,7 @@ export default {
       type: 'A',
       type1: 'a',
       fileList: [],
+      fd: {},
       fileList1: [],
       formInline: {
         productid: '',//产品id
@@ -840,9 +843,34 @@ export default {
         }
       });
     },
-    //新增页面仅保存按钮
+    // //新增页面仅保存按钮
     submitUpload () {
       this.$refs.upload.submit();
+      // console.log(file)
+      // this.fd.append('productid', this.formInline.productid)
+      // this.fd.append('modulename', this.formInline.modulename)
+      // this.fd.append('desc', this.formInline.desc)
+      // console.log(this.fd, '890')
+      // this.$http.add(this.fd).then((res) => {
+      //   console.log(res.data.data);
+
+      // });
+    },
+    //自定义文件上传事件
+    httpRequest (param) {
+      console.log(param, '000')
+      const fileObj = param.file // 相当于input里取得的files
+      this.fd.append('file', fileObj)// 文件对象
+      console.log(this.fd, 'zhuijiahou ')
+      console.log(this.fd.get("file"), '选中文件后')
+    },
+    //新增页面文件改变的事件
+    getFile (file, fileList) {
+      console.log(file, fileList)
+      const fd = new FormData()// FormData 对象
+      this.fd = fd
+
+
     },
     //编辑页面中仅保存上传
     submitUpload1 () {
@@ -869,10 +897,6 @@ export default {
         }).then(() => {
           this.type = 'B'
         }).catch(() => {
-          // this.$message({
-          //   type: 'info',
-          //   message: '已取消删除'
-          // });          
         });
 
       } else {

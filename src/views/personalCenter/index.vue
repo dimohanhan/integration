@@ -99,7 +99,7 @@ export default {
   width: 5px;
   height: 22px;
   position: absolute;
-  top: 60px;
+  top: 73px;
   background-color: #1369c2;
 }
 .mainContent {

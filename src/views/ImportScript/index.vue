@@ -93,6 +93,14 @@
 
         </el-form-item>
       </el-form>
+      <div v-if="show"
+           style="text-align:left;margin-left:30px;margin-bottom:30px">
+        <el-button type="danger"
+                   size=""
+                   :disabled="openIsDisabled"
+                   @click="handleDelete()"
+                   icon="el-icon-delete">删除</el-button>
+      </div>
       <!-- 主页的内容表格 -->
       <el-table :data="tableData"
                 style="width: 94%;margin-left:30px"
@@ -151,14 +159,6 @@
                      @current-change="handleCurrentChange"
                      @size-change="handleSizeChange">
       </el-pagination>
-      <div v-if="show"
-           style="text-align:left;margin-left:30px;margin-bottom:30px">
-        <el-button type="danger"
-                   size=""
-                   :disabled="openIsDisabled"
-                   @click="handleDelete()"
-                   icon="el-icon-delete">删除</el-button>
-      </div>
 
     </div>
 
@@ -209,7 +209,7 @@ export default {
   created () {
     this.handleimportProduct()
     this.headers = { Authorization: localStorage.getItem('Authorization') }
-
+    this.onSubmit()
   },
   methods: {
 
@@ -444,7 +444,7 @@ export default {
   width: 5px;
   height: 22px;
   position: absolute;
-  top: 60px;
+  top: 73px;
   background-color: #1369c2;
 }
 .mainContent {

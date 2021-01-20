@@ -103,20 +103,20 @@ const getEnvironmentSearch = (moduleid,ordering) =>
       ordering: ordering
     },
   });
-  //环境配置页面的保存（修改）
-const add= (productid,modulename,desc) =>
-axios.request({
-  url: `module/v1/manage/`,
-  method: 'POST',
-  data: {
-    optype:'0',
-    data:{
-      productid,
-      modulename,
-      desc,
-      username:localStorage.getItem('uid')
-    }
-  }
-});
+//   //环境配置页面的保存（修改）
+// const add= (productid,modulename,desc) =>
+// axios.request({
+//   url: `module/v1/manage/`,
+//   method: 'POST',
+//   data: {
+//     optype:'0',
+//     data:{
+//       productid,
+//       modulename,
+//       desc,
+//       username:localStorage.getItem('uid')
+//     }
+//   }
+// });
 export { getProductSearch, getProduct,getProductDelete ,
-  getEnvironmentSave,getEnvironmentSearch,getEnvironmentResert,getProductDetials,getEnvironmentDelete,add};
+  getEnvironmentSave,getEnvironmentSearch,getEnvironmentResert,getProductDetials,getEnvironmentDelete};

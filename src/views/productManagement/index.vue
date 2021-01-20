@@ -385,7 +385,6 @@
             <el-upload class="upload-demo"
                        ref="upload1"
                        :action="baseUrl+'/module/v1/manage/'"
-                       multiple
                        :data="{optype:'1',productid:this.formInline.productidDetails,
                        modulename:this.formInline.modulenameDetails,desc:this.formInline.descDetails,
                        username:this.updateuser,moduleid:this.moduleidDetails}"
@@ -394,8 +393,10 @@
                        :on-exceed="handleExceed1"
                        :on-success="success1"
                        :on-error="error1"
+                       :before-remove="remove1"
+                       :on-change="getFile1"
+                       :http-request="httpRequest1"
                        :before-upload="beforeAvatarUpload1"
-                       :limit="1"
                        :auto-upload="false">
               <el-button slot="trigger"
                          size="small"
@@ -459,6 +460,8 @@
 </template>
 
 <script>
+// import router from '../../router';
+import axios from '../../utils/request';
 export default {
   data () {
     return {
@@ -479,6 +482,7 @@ export default {
       type1: 'a',
       fileList: [],
       fd: {},
+      fd1: {},
       fileList1: [],
       formInline: {
         productid: '',//产品id
@@ -541,6 +545,7 @@ export default {
 
   },
   methods: {
+
     //环境页面，点击新增，新增文本框
     addDomain () {
 
@@ -797,7 +802,7 @@ export default {
       this.$set(obj, 'name', row.filename);
       this.$set(obj, 'url', row.download)
       this.fileList1.push(obj);
-
+      console.log(this.fileList1.length)
     },
     handleDelete (index, row) {
       console.log(index, row);
@@ -842,95 +847,206 @@ export default {
           return false;
         }
       });
+
     },
     // //新增页面仅保存按钮
     submitUpload () {
+      const fd = new FormData()// FormData 对象
+      this.fd = fd
       this.$refs.upload.submit();
-      // console.log(file)
-      // this.fd.append('productid', this.formInline.productid)
-      // this.fd.append('modulename', this.formInline.modulename)
-      // this.fd.append('desc', this.formInline.desc)
-      // console.log(this.fd, '890')
-      // this.$http.add(this.fd).then((res) => {
-      //   console.log(res.data.data);
+      this.fd.append('productid', this.formInline.productid)
+      this.fd.append('modulename', this.formInline.modulename)
+      this.fd.append('desc', this.formInline.desc)
+      this.fd.append('username', this.updateuser)
+      this.fd.append('optype', '0')
+      axios.post('module/v1/manage/', this.fd).then(res => {
+        console.log(res)
 
-      // });
+        this.moduleidenvieorment = res.data.moduleid
+        if (res.data.code == '0000') {
+          this.$confirm('保存成功,是否进行环境配置?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '关闭',
+            type: 'success'
+          }).then(() => {
+            this.type = 'B'
+          }).catch(() => {
+            this.$router.go(0)
+          });
+        }
+        if (res.data.code == '400') {
+          this.$message.error(res.data.description);
+          this.$refs.upload.clearFiles();
+        }
+
+      })
     },
-    //自定义文件上传事件
+    //新增自定义文件上传事件
     httpRequest (param) {
       console.log(param, '000')
       const fileObj = param.file // 相当于input里取得的files
       this.fd.append('file', fileObj)// 文件对象
-      console.log(this.fd, 'zhuijiahou ')
       console.log(this.fd.get("file"), '选中文件后')
+      axios.post('module/v1/manage/', this.fd).then(res => {
+        console.log(res)
+        param.onSuccess(res)
+        this.moduleidenvieorment = res.data.moduleid
+        // if (res.data.code == '0000') {
+        //   this.$confirm('保存成功,是否进行环境配置?', '提示', {
+        //     confirmButtonText: '确定',
+        //     cancelButtonText: '关闭',
+        //     type: 'success'
+        //   })
+        //     .then(() => {
+        //       this.type = 'B'
+        //     }).catch(() => {
+        //       this.$router.go(0)
+        //     });
+        // }
+        if (res.data.code == '400') {
+          this.$message.error(res.data.description);
+          this.$refs.upload.clearFiles();
+        }
+
+      })
+
     },
     //新增页面文件改变的事件
     getFile (file, fileList) {
       console.log(file, fileList)
-      const fd = new FormData()// FormData 对象
-      this.fd = fd
-
-
+    },
+    //xiugai页面文件改变的事件
+    getFile1 (file, fileList) {
+      console.log(file, fileList)
+      console.log(fileList.length)
+      if (fileList.length > 0) {
+        this.fileList1 = [fileList[fileList.length - 1]]
+        console.log(this.fileList1)
+      }
+      const length = fileList.length
+      this.length = length
     },
     //编辑页面中仅保存上传
     submitUpload1 () {
+      const fd1 = new FormData()// FormData 对象
+      this.fd1 = fd1
       this.$refs.upload1.submit();
-      // this.$refs.upload1.clearFiles();
-      // this.$message.warning('该文件已上传,请重新选择!')
-    },
-    //新增点击环境配置按钮调取保存接口获取id
-    allocation () {
-      this.$refs.upload.submit();
-    },
-    //新增页面文件上传成功后的回调
-    success (data) {
-      if (data.code == '400') {
-        this.$message.error(data.description);
-        this.$refs.upload.clearFiles();
-      }
-      if (data.code == '0000') {
-        this.moduleidenvieorment = data.moduleid
-        this.$confirm('保存成功,是否进行环境配置?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'success'
-        }).then(() => {
-          this.type = 'B'
-        }).catch(() => {
-        });
+      this.fd1.append('productid', this.formInline.productidDetails)
+      this.fd1.append('moduleid', this.moduleidDetails)
+      this.fd1.append('modulename', this.formInline.modulenameDetails)
+      this.fd1.append('desc', this.formInline.descDetails)
+      this.fd1.append('username', this.updateuser)
+      this.fd1.append('optype', '1')
+      if (this.fileList1.length == 1) {
+        if (this.deleteFileList == '0') {
+          this.fd1.append('flag', '1')
+          axios.post('module/v1/manage/', this.fd1).then(res => {
+            console.log(res)
+            if (res.data.code == '400') {
+              this.$message.error(res.data.description);
+              this.$refs.upload.clearFiles();
+            }
+            if (res.data.code == '0000') {
+              this.moduleidDetails = res.data.moduleid
 
-      } else {
-        this.$message.error('接口异常,请重新上传');
+              console.log(this.moduleidDetails)
+              this.$confirm('保存成功,是否进行环境配置?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '关闭',
+                type: 'success'
+              }).then(() => {
+                this.type1 = 'b'
+                this.$http.getEnvironmentSearch(this.moduleidDetails, 'createtime').then((res) => {
+                  if (res.data.code == '0000') {
+                    this.formInline.domains1 = res.data.data
+                    console.log(res.data.data);
+                  }
+                })
+              }).catch(() => {
+                this.$router.go(0)
+              });
+
+            }
+
+          })
+          return
+        } else {
+          this.fd1.append('flag', '0')
+          axios.post('module/v1/manage/', this.fd1).then(res => {
+            console.log(res)
+            if (res.data.code == '400') {
+              this.$message.error(res.data.description);
+              this.$refs.upload.clearFiles();
+            }
+            if (res.data.code == '0000') {
+              this.moduleidDetails = res.data.moduleid
+              console.log(this.moduleidDetails)
+              this.$confirm('保存成功,是否进行环境配置?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '关闭',
+                type: 'success'
+              }).then(() => {
+                this.type1 = 'b'
+                this.$http.getEnvironmentSearch(this.moduleidDetails, 'createtime').then((res) => {
+                  if (res.data.code == '0000') {
+                    this.formInline.domains1 = res.data.data
+                    console.log(res.data.data);
+                  }
+                })
+              }).catch(() => {
+                this.$router.go(0)
+              });
+            }
+          })
+        }
       }
+    },
+    //修改自定义文件上传事件
+    httpRequest1 (param) {
+      const fileObj1 = param.file // 相当于input里取得的files
+      console.log(fileObj1, '975')
+      this.fd1.append('file', fileObj1)// 文件对象
+      console.log(this.fd1.get("file"), '选中文件后')
+
+      if (this.fileList1.length == 1) {
+        if (this.deleteFileList == '0') {
+          this.fd1.append('flag', '1')
+          axios.post('module/v1/manage/', this.fd1).then(res => {
+            console.log(res)
+            param.onSuccess(res)
+            if (res.data.code == '400') {
+              this.$message.error(res.data.description);
+              this.$refs.upload.clearFiles();
+            }
+            if (res.data.code == '0000') {
+
+              this.moduleidDetails = res.data.moduleid
+            }
+
+          })
+          return
+        }
+
+
+      }
+
+    },
+    remove1 (file, fileList) {
+      console.log(file, fileList, '9999');
+      console.log(this.fileList.length);
+      const deleteFileList = this.fileList.length
+      this.deleteFileList = deleteFileList
+      console.log(deleteFileList)
+
+    },
+    //新增页 面文件上传成功后的回调
+    success (response) {
+      console.log(response, '22222')
+
     },
     //修改页面文件上传成功后的回调
     success1 (data) {
-      console.log(data.code)
-      if (data.code == '400') {
-        this.$message.error(data.description);
-        this.$refs.upload.clearFiles();
-      }
-      if (data.code == '0000') {
-        this.moduleidDetails = data.moduleid
-        console.log(this.moduleidDetails)
-        this.$confirm('保存成功,是否进行环境配置?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'success'
-        }).then(() => {
-          this.type1 = 'b'
-          this.$http.getEnvironmentSearch(this.moduleidDetails, 'createtime').then((res) => {
-            if (res.data.code == '0000') {
-              this.formInline.domains1 = res.data.data
-              console.log(res.data.data);
-            }
-          })
-        }).catch(() => {
-        });
-
-      } else {
-        this.$message.error('接口异常,请重新上传');
-      }
+      console.log(data, '22222')
     },
     //修改页面文件上传失败后的回调
     error1 (data) {
@@ -964,10 +1080,15 @@ export default {
     },
     //修改页面上传的时候文件超出个数限制时的钩子
     handleExceed1 (files, fileList) {
-      console.log(files, fileList)
-      this.$message.warning(`当前限制选择 1 个文件，您共选择了 ${files.length + fileList.length} 个文件`);
-    },
 
+      console.log(files, fileList)
+      // this.$message.warning(`当前限制选择 1 个文件`);
+
+      // this.$set(fileList[1], 'raw', files[0]);
+      // this.$set(fileList[1], 'name', files[0].name);
+      // this.$refs.upload1.clearFiles();//清除文件
+      // this.$refs.upload1.handleStart(files[0]);//选择文件后的赋值方法
+    },
     //针对新增页面上传文件的文件限制
     beforeAvatarUpload (file) {
       console.log(file, '11')
@@ -1049,7 +1170,7 @@ export default {
   width: 5px;
   height: 22px;
   position: absolute;
-  top: 60px;
+  top: 73px;
   background-color: #1369c2;
 }
 .mainContent {

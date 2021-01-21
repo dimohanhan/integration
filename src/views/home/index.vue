@@ -255,9 +255,6 @@ export default {
 
       });
     },
-
-
-
   }
 } 
 </script>
@@ -275,10 +272,9 @@ export default {
 .el-footer {
   background-color: #b3c0d1;
   color: #333;
-  text-align: center;
+  text-align: right;
   line-height: 60px;
 }
-
 .el-aside {
   background-color: #d3dce6;
   color: #333;
@@ -324,7 +320,7 @@ body > .el-container {
 }
 
 // 导航栏字体和icon大小
-.el-submenu [class^="el-icon-"] [data-v-5954443c] {
+.el-submenu [class^="el-icon-"] {
   vertical-align: middle;
   margin-right: 5px;
   text-align: center;
@@ -340,10 +336,7 @@ body > .el-container {
   border-color: #464c5b;
   text-align: right;
 }
-.el-header[data-v-5954443c],
-.el-footer[data-v-5954443c] {
-  text-align: right;
-}
+
 .el-button:hover {
   background: #1369c2 !important;
   color: #fff !important;

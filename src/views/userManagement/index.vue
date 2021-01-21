@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="header"
-         style="width:200px; margin-left: 250px;">
+         style="width:200px; margin-left: 200px;">
       <div class="borderContent"></div>
       <div style=" margin-right: 40px;">系统管理-用户管理</div>
     </div>
@@ -400,12 +400,16 @@ export default {
       this.$http.getUserAdd(aa).then((res) => {
         if (res.data.code == '0000') {
           console.log(res)
+          this.$message({
+            message: '保存成功!!',
+            type: 'success'
+          })
           this.dialogCreatVisible = false
           this.onSubmit(this.formInline)
+        } else {
+          this.$message.error(res.data.description);
         }
-
       });
-
     },
     //删除事件
     handleDelete (index, row) {
@@ -457,7 +461,7 @@ export default {
 }
 </script>
 <style>
-.el-main[data-v-5954443c] {
+.el-main {
   line-height: 0 !important;
 }
 .el-input__inner:focus {
@@ -476,13 +480,13 @@ export default {
 .borderContent {
   width: 5px;
   height: 22px;
-  position: absolute;
-  top: 73px;
+  position: relative;
+  top: 11px;
   background-color: #1369c2;
 }
 .mainContent {
   width: 85%;
-  margin: 3% 7%;
+  margin: 1% 7%;
   background-color: #fff;
   border: 1px solid #eee;
 }

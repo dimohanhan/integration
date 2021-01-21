@@ -294,6 +294,10 @@
                          label="归属产品"
                          width="auto">
         </el-table-column>
+        <el-table-column prop="modulename"
+                         label="模块名称"
+                         width="auto">
+        </el-table-column>
         <el-table-column prop="mobile"
                          label="mock"
                          width="auto">
@@ -545,10 +549,8 @@ export default {
 
   },
   methods: {
-
     //环境页面，点击新增，新增文本框
     addDomain () {
-
       this.dialog = true
       this.formEnvironment.environmentname = ''
       this.formEnvironment.moduleid = ''
@@ -615,8 +617,12 @@ export default {
             this.$http.getEnvironmentSearch(this.formEnvironmentResert.moduleid, 'createtime').then((res) => {
               if (res.data.code == '0000') {
                 this.formInline.domains1 = res.data.data
+              } else {
+                this.$message.error(res.data.description)
               }
             })
+          } else {
+            this.$message.error(res.data.description)
           }
         });
       } else {
@@ -628,8 +634,12 @@ export default {
             this.$http.getEnvironmentSearch(this.formEnvironmentResert.moduleid, 'createtime').then((res) => {
               if (res.data.code == '0000') {
                 this.formInline.domains = res.data.data
+              } else {
+                this.$message.error(res.data.description)
               }
             })
+          } else {
+            this.$message.error(res.data.description)
           }
         });
       }
@@ -650,10 +660,17 @@ export default {
               if (res.data.code == '0000') {
                 this.formInline.domains = res.data.data
                 console.log(res.data.data);
+              } else {
+                this.$message.error(res.data.description)
               }
             })
+          } else {
+            this.$message.error(res.data.description)
           }
-        });
+        }).catch(() => {
+          //请求失败关闭；
+          this.$message.error('请求出错了哦');
+        })
       } else {
         console.log('编辑修改后产生的moduleid')
         this.formEnvironment.moduleid = this.moduleidDetails//存储编辑修改后产生的moduleid
@@ -666,10 +683,17 @@ export default {
               if (res.data.code == '0000') {
                 this.formInline.domains1 = res.data.data
                 console.log(res.data.data);
+              } else {
+                this.$message.error(res.data.description)
               }
             })
+          } else {
+            this.$message.error(res.data.description)
           }
-        });
+        }).catch(() => {
+          //请求失败关闭；
+          this.$message.error('请求出错了哦');
+        })
       }
 
 
@@ -694,9 +718,12 @@ export default {
               if (res.data.code == '0000') {
                 this.formInline.domains = res.data.data
                 console.log(res.data.data);
+              } else {
+                this.$message.error(res.data.description)
               }
             })
-
+          } else {
+            this.$message.error(res.data.description)
           }
         });
       })
@@ -721,9 +748,13 @@ export default {
               if (res.data.code == '0000') {
                 this.formInline.domains1 = res.data.data
                 console.log(res.data.data);
+              } else {
+                this.$message.error(res.data.description)
               }
             })
 
+          } else {
+            this.$message.error(res.data.description)
           }
         });
       })
@@ -739,6 +770,8 @@ export default {
           this.loading = false
           this.total = res.data.paging.total;//总信息条数从数据库获取;
           console.log(this.total)
+        } else {
+          this.$message.error(res.data.description)
         }
 
       }).catch(() => {
@@ -762,7 +795,10 @@ export default {
     handlegetProduct () {
       this.$http.getProduct().then((res) => {
         console.log(res.data.data);
-        this.productData = res.data.data
+        if (res.data.code == '0000') {
+          this.productData = res.data.data
+        }
+
       });
     },
     //选中产品下拉得到的值
@@ -818,12 +854,16 @@ export default {
               type: 'success',
               message: '删除成功!'
             });
-
-            // this.$refs.multipleTable.clearSelection();// 删除后清空之前选择的数据
             this.onSubmit()
+          } else {
+            this.$message.error(res.data.description)
           }
+        }).catch(() => {
+          this.$message.error('请求出错了哦');
         });
-      })
+      }).catch(() => {
+        this.$message.error('请求出错了哦');
+      });
     },
     removeMock (item) {
       var index = this.formInline.mocks.indexOf(item)
@@ -873,12 +913,10 @@ export default {
           }).catch(() => {
             this.$router.go(0)
           });
-        }
-        if (res.data.code == '400') {
+        } else if (res.data.code == '400') {
           this.$message.error(res.data.description);
           this.$refs.upload.clearFiles();
         }
-
       })
     },
     //新增自定义文件上传事件
@@ -889,8 +927,14 @@ export default {
       console.log(this.fd.get("file"), '选中文件后')
       axios.post('module/v1/manage/', this.fd).then(res => {
         console.log(res)
-        param.onSuccess(res)
-        this.moduleidenvieorment = res.data.moduleid
+        if (res.data.code == '0000') {
+          param.onSuccess(res)
+          this.moduleidenvieorment = res.data.moduleid
+        } else if (res.data.code == '400') {
+          this.$message.error(res.data.description);
+          this.$refs.upload.clearFiles();
+        }
+
         // if (res.data.code == '0000') {
         //   this.$confirm('保存成功,是否进行环境配置?', '提示', {
         //     confirmButtonText: '确定',
@@ -903,11 +947,6 @@ export default {
         //       this.$router.go(0)
         //     });
         // }
-        if (res.data.code == '400') {
-          this.$message.error(res.data.description);
-          this.$refs.upload.clearFiles();
-        }
-
       })
 
     },
@@ -963,11 +1002,9 @@ export default {
                   }
                 })
               }).catch(() => {
-                this.$router.go(0)
+                this.$message.error('请求出错了哦')
               });
-
             }
-
           })
           return
         } else {
@@ -1014,22 +1051,16 @@ export default {
           axios.post('module/v1/manage/', this.fd1).then(res => {
             console.log(res)
             param.onSuccess(res)
-            if (res.data.code == '400') {
-              this.$message.error(res.data.description);
-              this.$refs.upload.clearFiles();
-            }
             if (res.data.code == '0000') {
-
               this.moduleidDetails = res.data.moduleid
+            } else {
+              this.$message.error(res.data.description);
             }
 
           })
           return
         }
-
-
       }
-
     },
     remove1 (file, fileList) {
       console.log(file, fileList, '9999');
@@ -1152,7 +1183,7 @@ export default {
   background-color: #d5d8e0;
   border-radius: 3px;
 }
-.el-main[data-v-5954443c] {
+.el-main {
   line-height: 0 !important;
 }
 .el-input__inner:focus {
@@ -1169,13 +1200,13 @@ export default {
 .borderContent {
   width: 5px;
   height: 22px;
-  position: absolute;
-  top: 73px;
+  position: relative;
+  top: 11px;
   background-color: #1369c2;
 }
 .mainContent {
   width: 85%;
-  margin: 3% 7%;
+  margin: 1% 7%;
   background-color: #fff;
   border: 1px solid #eee;
 }

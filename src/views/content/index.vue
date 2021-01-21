@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="header"
-         style="width:200px; margin-left: 250px;">
+         style="width:200px; margin-left: 200px;">
       <div class="borderContent"></div>
       <div style=" margin-right: 40px;">系统管理-个人中心</div>
     </div>
@@ -85,16 +85,21 @@ export default {
           this.form.state = data.state
           this.form.createtime = data.createtime
 
+        } else {
+          this.$message.error(res.data.description)
         }
 
-      });
+      }).catch(() => {
+        //请求失败关闭；
+        this.$message.error('请求出错了哦');
+      })
     }
 
   }
 }
 </script>
 <style>
-.el-main[data-v-5954443c] {
+.el-main {
   line-height: 0 !important;
 }
 </style>
@@ -102,13 +107,13 @@ export default {
 .borderContent {
   width: 5px;
   height: 22px;
-  position: absolute;
-  top: 73px;
+  position: relative;
+  top: 11px;
   background-color: #1369c2;
 }
 .mainContent {
   width: 85%;
-  margin: 3% 7%;
+  margin: 1% 7%;
   height: 600px;
   background-color: #fff;
   border: 1px solid #eee;

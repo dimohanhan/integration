@@ -464,7 +464,7 @@ export default {
 }
 </script>
 <style>
-.el-main[data-v-5954443c] {
+.el-main {
   line-height: 0 !important;
 }
 .el-input__inner:focus {
@@ -478,13 +478,13 @@ export default {
 .borderContent {
   width: 5px;
   height: 22px;
-  position: absolute;
-  top: 73px;
+  position: relative;
+  top: 11px;
   background-color: #1369c2;
 }
 .mainContent {
   width: 85%;
-  margin: 3% 7%;
+  margin: 1% 7%;
   background-color: #fff;
   border: 1px solid #eee;
 }

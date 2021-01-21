@@ -52,7 +52,6 @@
 import { mapMutations } from 'vuex';
 export default {
   data () {
-
     return {
       ruleForm: {
         usid: '',
@@ -71,21 +70,23 @@ export default {
   },
   methods: {
     ...mapMutations(['changeLogin']),
-
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         console.log(valid)
         if (valid) {
           this.$http.getUserLogin(this.ruleForm).then((res) => {
             console.log(res);
-
             this.userToken = 'user=' + this.ruleForm.uid + ',' + 'token=' + res.data.token;
 
             this.changeLogin({ Authorization: this.userToken });
-            // this.changeLogin1({ uid: this.ruleForm.uid });
             console.log(localStorage.setItem('uid', this.ruleForm.uid));
+            if (res.data.code == '0000') {
+              this.$router.push('/home/')
+            } else {
+              this.$message.error(res.data.description)
+            }
           });
-          this.$router.push('/home/')
+
         } else {
           console.log('error submit!!');
         }

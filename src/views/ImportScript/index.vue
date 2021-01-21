@@ -219,11 +219,13 @@ export default {
       this.show = true
       this.$http.getImportSearch(this.pagesize, this.currpage, this.formInline.moduleid, this.formInline.filename, this.formInline.productid, '-createtime').then((res) => {
         console.log(res.data.data);
-        if (res.data.data && res.data.code == '0000') {
+        if (res.data.code == '0000') {
           this.tableData = res.data.data
           this.loading = false
           this.total = res.data.paging.total;//总信息条数从数据库获取;
           console.log(this.total)
+        } else {
+          this.$message.error(res.data.description)
         }
 
       }).catch(() => {
@@ -262,24 +264,14 @@ export default {
 
             this.$refs.multipleTable.clearSelection();// 删除后清空之前选择的数据
             this.onSubmit()
+          } else {
+            this.$message.error(res.data.description)
           }
         });
       }).catch(() => {
-
+        this.$message.error('请求出错了哦');
       });
     },
-    // removeDb (item) {
-    //   var index = this.formInline.Dbs.indexOf(item)
-    //   if (index !== -1) {
-    //     this.formInline.Dbs.splice(index, 1)
-    //   }
-    // },
-    // removeMock (item) {
-    //   var index = this.formInline.mocks.indexOf(item)
-    //   if (index !== -1) {
-    //     this.formInline.mocks.splice(index, 1)
-    //   }
-    // },
     addDb () {
       this.formInline.Dbs.push({
         value1: '',
@@ -308,7 +300,6 @@ export default {
       console.log(val.length, '记录翻页数据')
       if (val.length !== 0) {
         this.openIsDisabled = false
-
       } else {
         this.openIsDisabled = true
       }
@@ -371,14 +362,21 @@ export default {
       console.log(val)
       this.$http.getImportModule(val).then((res) => {
         console.log(res.data.data);
-        this.moduleData = res.data.data
+        if (res.data.code == '0000') {
+          this.moduleData = res.data.data
+        }
+        else {
+          this.$message.error(res.data.description)
+        }
       });
     },
     //模块名称的下拉
     handleImportModule () {
       this.$http.getImportModule(this.formInline.productid).then((res) => {
         console.log(res.data.data);
-        this.moduleData = res.data.data
+        if (res.data.code == '0000') {
+          this.moduleData = res.data.data
+        }
       });
     },
     //模块名称change事件显示表格,并且调取表格接口查询
@@ -387,14 +385,25 @@ export default {
       this.show = true
       this.$http.getImportSearch(this.pagesize, this.currpage, this.formInline.moduleid, this.formInline.filename, this.formInline.productid, '-createtime').then((res) => {
         console.log(res.data.data);
-        this.tableData = res.data.data
+        if (res.data.code == '0000') {
+          this.tableData = res.data.data
+          this.total = res.data.paging.total;//总信息条数从数据库获取;
+          console.log(this.total)
+        } else {
+          this.$message.error(res.data.description)
+          this.tableData = []
+        }
       });
     },
     //产品模块下拉
     handleimportProduct () {
       this.$http.getimportProduct().then((res) => {
         console.log(res.data.data);
-        this.productData = res.data.data
+        if (res.data.code == '0000') {
+          this.productData = res.data.data
+        } else {
+          this.$message.error(res.data.description)
+        }
       });
     },
     //针对新增页面上传文件的文件限制
@@ -422,14 +431,21 @@ export default {
       console.log(file, fileList)
       this.$http.getImportSearch(this.pagesize, this.currpage, this.formInline.moduleid, this.formInline.filename, this.formInline.productid, '-createtime').then((res) => {
         console.log(res.data.data);
-        this.tableData = res.data.data
-      });
+        if (res.data.code == '0000') {
+          this.tableData = res.data.data
+        } else {
+          this.$message.error(res.data.description)
+        }
+      }).catch(() => {
+        //请求失败关闭；
+        this.$message.error('请求出错了哦');
+      })
     }
   }
 }
 </script>
 <style>
-.el-main[data-v-5954443c] {
+.el-main {
   line-height: 0 !important;
 }
 .el-input__inner:focus {
@@ -443,13 +459,13 @@ export default {
 .borderContent {
   width: 5px;
   height: 22px;
-  position: absolute;
-  top: 73px;
+  position: relative;
+  top: 11px;
   background-color: #1369c2;
 }
 .mainContent {
   width: 85%;
-  margin: 3% 7%;
+  margin: 1% 7%;
   background-color: #fff;
   border: 1px solid #eee;
 }

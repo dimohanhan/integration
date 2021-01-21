@@ -835,10 +835,11 @@ export default {
       });
       this.dialogFormVisible = true
       var obj = {}
-      this.$set(obj, 'name', row.filename);
-      this.$set(obj, 'url', row.download)
-      this.fileList1.push(obj);
-      console.log(this.fileList1.length)
+      if (row.filename !== '' && row.download1 == '') {
+        this.$set(obj, 'name', row.filename);
+        this.$set(obj, 'url', row.download)
+        this.fileList1.push(obj);
+      }
     },
     handleDelete (index, row) {
       console.log(index, row);

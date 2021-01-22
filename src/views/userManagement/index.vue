@@ -515,4 +515,7 @@ export default {
 .el-pagination .el-select .el-input .el-input__inner {
   width: 100px !important;
 }
+.el-pagination {
+  margin-bottom: 20px;
+}
 </style>

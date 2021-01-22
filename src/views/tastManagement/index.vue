@@ -10,7 +10,7 @@
       <!-- 主页面的表单查询条件 -->
       <el-form :inline="true"
                :model="formInline"
-               style="    margin-right: 200px;"
+               style="    text-align: left;"
                class="demo-form-inline">
         <el-form-item label="编号:">
           <el-input v-model="formInline.user"
@@ -196,12 +196,12 @@
           <div slot="footer"
                class="dialog-footer"
                style="margin-top:10px">
-            <el-button type="primary"
+            <!-- <el-button type="primary"
                        icon=" iconfont icon-icon-test"
-                       @click="allocation()">执行配置</el-button>
+                       @click="allocation()">执行配置</el-button> -->
             <el-button type="primary"
                        icon=" iconfont icon-baocun"
-                       @click="save()">保存</el-button>
+                       @click="save()">仅保存</el-button>
           </div>
           <!-- <div id="listText">脚本列表</div> -->
           <!-- 查询列表的表单 -->
@@ -506,6 +506,7 @@
                top="10vh"
                :modal-append-to-body='false'
                append-to-body
+               @close="closeDetialsMessage"
                :visible.sync="dialogDetailsVisible">
       <el-form :model="formInline"
                style="width: 400px;margin-top:10px">
@@ -994,6 +995,7 @@ export default {
     },
     // 创建页面第一页点击保存按钮
     save () {
+      console.log(111)
       this.idValue = []
       console.log(this.toData, '点击保存拿到的穿梭框的选中值')
       for (var i = 0; i < this.toData.length; i++) {
@@ -1005,8 +1007,18 @@ export default {
         this.$http.getTaskAdd(this.formInline.taskname, this.formInline.description, this.formInline.moduleid, this.idValue).then((res) => {
           console.log(res.data);
           if (res.data.code == '0000') {
-            this.$router.go(0)
-            this.dialogCreatVisible = false
+            this.$confirm('保存成功,是否进行环境配置?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '关闭',
+              type: 'success'
+            }).then(() => {
+              this.type = 'C'
+            }).catch(() => {
+              this.$router.go(0)
+              this.dialogCreatVisible = false
+            });
+          } else {
+            this.$message.error(res.data.description)
           }
 
         });
@@ -1046,15 +1058,16 @@ export default {
       this.dialogDetailsVisible = true
       this.formInline.tastNameDetial = row.taskname
       this.formInline.tastDescDetial = row.description
-      // this.$http.getTaskDetialSearch(row.taskid).then((res) => {
-      //   console.log(res.data.data);
-      //   if (res.data.data && res.data.code == '0000') {
-      //     this.loading = false
-      //     this.tableDataDetial = res.data.data
-      //     this.total = res.data.paging.total;//总信息条数从数据库获取;
-      //     console.log(this.total)
-      //   }
-      // });
+      this.$http.getTaskDetialSearch(this.pagesize, this.currpage, row.taskid).then((res) => {
+        if (res.data.code == '0000') {
+          this.loading = false
+          this.tableDataDetial = res.data.data
+          this.total = res.data.paging.total;//总信息条数从数据库获取;
+          console.log(this.total)
+        } else {
+          this.$message.error(res.data.description)
+        }
+      });
 
     },
     //复制按钮事件
@@ -1099,6 +1112,8 @@ export default {
               message: '删除成功!'
             });
             this.search()
+          } else {
+            this.$message.error(res.data.description)
           }
         });
 
@@ -1108,12 +1123,13 @@ export default {
     },
 
     //点击执行配置按钮
-    allocation () {
-      this.type = 'C'
-    },
+    // allocation () {
+    //   this.type = 'C'
+    // },
     // 报告点击事件
     handleReport () {
-      window.open('https://element.eleme.io')
+      // window.open('https://element.eleme.io')
+      this.$message.warning('当前无法下载')
     },
     //是否发送邮件事件
     handleChangeValue (report) {
@@ -1145,6 +1161,12 @@ export default {
     closeMessage () {
       this.formInline = ''
       this.$router.go(0)
+    },
+    //详情页面弹窗关闭前的回调
+    closeDetialsMessage () {
+      // this.formInline = ''
+      // this.$router.go(0)
+      console.log('详情页面的关闭回调')
     },
     //穿梭框右侧数据
     handleChange () {

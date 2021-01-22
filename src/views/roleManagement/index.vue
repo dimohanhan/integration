@@ -8,7 +8,7 @@
     <div class="mainContent">
       <el-form :inline="true"
                :model="formInline"
-               style="text-align: left;margin-left: 30px;"
+               style="text-align: left; margin-left: 30px;"
                class="demo-form-inline">
         <el-form-item label="角色名称">
           <el-input v-model="formInline.user"

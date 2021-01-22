@@ -10,7 +10,7 @@
         <el-tab-pane label="任务执行结果查看">
           <el-form :inline="true"
                    :model="formInline"
-                   style="    width: 1100px;"
+                   style="text-align: left;margin-left: 30px;"
                    class="demo-form-inline">
 
             <el-form-item label="任务ID">

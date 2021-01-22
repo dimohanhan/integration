@@ -26,7 +26,7 @@
         </el-form-item>
       </el-form>
       <!-- 点击新增弹出页面 -->
-      <el-dialog title="用例管理-产品模块的新增"
+      <el-dialog :title="title"
                  style="text-align:left"
                  width="50%"
                  :inline="true"
@@ -332,7 +332,7 @@
       </el-pagination>
     </div>
     <!-- 点击编辑弹出页面 -->
-    <el-dialog title="用例管理-产品模块的修改"
+    <el-dialog :title="title1"
                style="text-align:left"
                width="50%"
                :inline="true"
@@ -472,7 +472,7 @@ export default {
       str: '',
       dialog: false,
       dialogReaert: false,
-      baseUrl: 'http://10.1.94.89:8000',
+      baseUrl: 'http://10.1.61.34:8000',
       updateuser: '',
       pagesize: 10,
       currpage: 1,
@@ -487,6 +487,8 @@ export default {
       fileList: [],
       fd: {},
       fd1: {},
+      title: '用例管理-产品模块的新增',
+      title1: '用例管理-产品模块的修改',
       fileList1: [],
       formInline: {
         productid: '',//产品id
@@ -834,12 +836,18 @@ export default {
         }
       });
       this.dialogFormVisible = true
-      var obj = {}
-      if (row.filename !== '' && row.download1 == '') {
+
+      console.log(row.download)
+
+      if (row.filename !== '') {
+        var obj = {}
+        console.log(1212)
         this.$set(obj, 'name', row.filename);
         this.$set(obj, 'url', row.download)
         this.fileList1.push(obj);
       }
+
+      console.log(this.fileList1.length)
     },
     handleDelete (index, row) {
       console.log(index, row);
@@ -902,7 +910,6 @@ export default {
       this.fd.append('optype', '0')
       axios.post('module/v1/manage/', this.fd).then(res => {
         console.log(res)
-
         this.moduleidenvieorment = res.data.moduleid
         if (res.data.code == '0000') {
           this.$confirm('保存成功,是否进行环境配置?', '提示', {
@@ -911,6 +918,7 @@ export default {
             type: 'success'
           }).then(() => {
             this.type = 'B'
+            this.title = '用例管理-环境信息的新增' + '--' + res.data.modulename
           }).catch(() => {
             this.$router.go(0)
           });
@@ -959,6 +967,8 @@ export default {
     getFile1 (file, fileList) {
       console.log(file, fileList)
       console.log(fileList.length)
+      const changeFileList = FileList.length
+      this.changeFileList = changeFileList
       if (fileList.length > 0) {
         this.fileList1 = [fileList[fileList.length - 1]]
         console.log(this.fileList1)
@@ -977,6 +987,28 @@ export default {
       this.fd1.append('desc', this.formInline.descDetails)
       this.fd1.append('username', this.updateuser)
       this.fd1.append('optype', '1')
+      //为选择文件
+      if (this.fileList1.length == '0') {
+        axios.post('module/v1/manage/', this.fd1).then(res => {
+          console.log(res)
+          if (res.data.code == '0000') {
+            this.$confirm('保存成功,是否进行环境配置?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '关闭',
+              type: 'success'
+            }).then(() => {
+              this.type1 = 'b'
+              this.title1 = '用例管理-环境信息的新增' + '--' + res.data.modulename
+            }).catch(() => {
+              this.$router.go(0)
+            });
+          } else if (res.data.code == '400') {
+            this.$message.error(res.data.description);
+            this.$refs.upload.clearFiles();
+          }
+        })
+      }
+
       if (this.fileList1.length == 1) {
         if (this.deleteFileList == '0') {
           this.fd1.append('flag', '1')
@@ -996,6 +1028,7 @@ export default {
                 type: 'success'
               }).then(() => {
                 this.type1 = 'b'
+                this.title = '用例管理-环境信息的新增' + '--' + res.data.modulename
                 this.$http.getEnvironmentSearch(this.moduleidDetails, 'createtime').then((res) => {
                   if (res.data.code == '0000') {
                     this.formInline.domains1 = res.data.data
@@ -1025,6 +1058,7 @@ export default {
                 type: 'success'
               }).then(() => {
                 this.type1 = 'b'
+                this.title1 = '用例管理-环境信息的新增' + '--' + res.data.modulename
                 this.$http.getEnvironmentSearch(this.moduleidDetails, 'createtime').then((res) => {
                   if (res.data.code == '0000') {
                     this.formInline.domains1 = res.data.data
@@ -1034,7 +1068,10 @@ export default {
               }).catch(() => {
                 this.$router.go(0)
               });
+            } else {
+              this.$message.error(res.data.description)
             }
+
           })
         }
       }
@@ -1045,9 +1082,10 @@ export default {
       console.log(fileObj1, '975')
       this.fd1.append('file', fileObj1)// 文件对象
       console.log(this.fd1.get("file"), '选中文件后')
+      console.log(this.fileList1.length, '90909')
 
-      if (this.fileList1.length == 1) {
-        if (this.deleteFileList == '0') {
+      if (this.changeFileList == 2) {
+        if (this.deleteFileList !== '0') {
           this.fd1.append('flag', '1')
           axios.post('module/v1/manage/', this.fd1).then(res => {
             console.log(res)
@@ -1064,7 +1102,7 @@ export default {
       }
     },
     remove1 (file, fileList) {
-      console.log(file, fileList, '9999');
+      console.log(file, fileList);
       console.log(this.fileList.length);
       const deleteFileList = this.fileList.length
       this.deleteFileList = deleteFileList
@@ -1144,7 +1182,6 @@ export default {
     },
     //针对编辑页面上传文件的文件限制
     beforeAvatarUpload1 (file) {
-      console.log(file, '11')
       var testmsg = file.name.substring(file.name.lastIndexOf('.') + 1)
       const extension = testmsg === 'xlsx'
       const extension2 = testmsg === 'xls'
@@ -1168,7 +1205,8 @@ export default {
       this.$router.go(0)
     },
     closeMessageD () {
-      this.$router.go(0)
+      // this.$router.go(0)
+      console.log('点击编辑页面的关闭回调')
     }
   }
 }
@@ -1247,5 +1285,8 @@ export default {
 }
 .dialog-footer {
   text-align: right;
+}
+.el-pagination {
+  margin: 20px;
 }
 </style>

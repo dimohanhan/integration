@@ -101,7 +101,7 @@ const getTaskDelete = (taskid) =>
 //点击详情页穿梭框表格查询
 const getTaskDetialSearch = (size, page, taskid) =>
   axios.request({
-    url: `task/v1/detail`,
+    url: `task/v1/task_cases`,
     method: 'get',
     params: {
       size,
@@ -109,4 +109,19 @@ const getTaskDetialSearch = (size, page, taskid) =>
       taskid: taskid
     },
   });
-export { getTaskProduct, getTaskModule, getTasktransfer, getTaskSearch, getTaskAddSearch, getTaskAdd, getTaskSecondAdd, getTaskDelete, getTaskDetialSearch };
+  //详情页面表格多选删除功能
+const getDetialTaskDelete = (taskid,deletelist) =>
+axios.request({
+  url: `task/v1/task_cases/`,
+  method: 'POST',
+  data: {
+    optype: '2',
+    data: {
+      taskid,
+      deletelist
+    }
+  }
+});
+export { getTaskProduct, getTaskModule, getTasktransfer,
+  getTaskSearch, getTaskAddSearch, getTaskAdd, getTaskSecondAdd,
+  getTaskDelete, getTaskDetialSearch,getDetialTaskDelete };

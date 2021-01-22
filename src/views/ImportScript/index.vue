@@ -18,6 +18,7 @@
               <el-select v-model="formInline.productid"
                          style="width: 100%"
                          placeholder="请选择"
+                         filterable
                          @change="onChangeProduct">
                 <el-option v-for="item in productData"
                            :key="item.productid"
@@ -34,6 +35,7 @@
                           :label-width="formLabelWidth">
               <el-select v-model="formInline.moduleid"
                          style="width: 100%"
+                         filterable
                          @change="onChangeMoudle"
                          placeholder="请选择">
                 <el-option v-for="item in moduleData"
@@ -175,7 +177,7 @@ export default {
         return row.scriptid
       },
 
-      baseUrl: 'http://10.1.94.89:8000',
+      baseUrl: 'http://10.1.61.34:8000',
       headers: {},
       pagesize: 10,
       currpage: 1,
@@ -479,7 +481,7 @@ export default {
 }
 .el-form {
   margin-top: 50px;
-  margin-bottom: 40px;
+  // margin-bottom: 40px;
 }
 .el-form--inline .el-form-item[data-v-d9de66ea] {
   margin-right: 27px;
@@ -503,9 +505,9 @@ export default {
 //   width: 193px !important;
 //   margin-right: 20px;
 // }
-// .el-input.el-input__inner {
-//   width: 74% !important;
-// }
+.el-pagination {
+  padding: 15px 5px;
+}
 .el-form-item .is-required.el-form-item__label.el-form-item__content {
   width: 74% !important;
 }

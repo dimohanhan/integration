@@ -528,6 +528,7 @@ export default {
 }
 .el-upload__tip {
   margin-top: 0;
+  width: 300px !important;
 }
 .el-upload-list {
   overflow: auto;

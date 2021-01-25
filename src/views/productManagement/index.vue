@@ -836,17 +836,15 @@ export default {
         }
       });
       this.dialogFormVisible = true
-
-      console.log(row.download)
-
+      console.log(row.filename, '点击编辑的文件名')
+      console.log(row.download, '点击编辑的文件地址')
       if (row.filename !== '') {
-        var obj = {}
-        console.log(1212)
+        console.log('文件不为空')
+        const obj = {}
         this.$set(obj, 'name', row.filename);
         this.$set(obj, 'url', row.download)
         this.fileList1.push(obj);
       }
-
       console.log(this.fileList1.length)
     },
     handleDelete (index, row) {
@@ -1287,6 +1285,6 @@ export default {
   text-align: right;
 }
 .el-pagination {
-  margin: 20px;
+  margin: 20px !important;
 }
 </style>

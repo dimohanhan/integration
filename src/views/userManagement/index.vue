@@ -516,6 +516,6 @@ export default {
   width: 100px !important;
 }
 .el-pagination {
-  margin-bottom: 20px;
+  margin-bottom: 20px !important;
 }
 </style>

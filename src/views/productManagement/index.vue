@@ -671,7 +671,7 @@ export default {
           }
         }).catch(() => {
           //请求失败关闭；
-          this.$message.error('请求出错了哦');
+          // this.$message.error('请求出错了哦');
         })
       } else {
         console.log('编辑修改后产生的moduleid')
@@ -865,11 +865,9 @@ export default {
           } else {
             this.$message.error(res.data.description)
           }
-        }).catch(() => {
-          this.$message.error('请求出错了哦');
-        });
+        })
       }).catch(() => {
-        this.$message.error('请求出错了哦');
+        console.log('点击关闭')
       });
     },
     removeMock (item) {
@@ -987,6 +985,7 @@ export default {
       this.fd1.append('optype', '1')
       //为选择文件
       if (this.fileList1.length == '0') {
+        this.fd1.append('flag', '0')
         axios.post('module/v1/manage/', this.fd1).then(res => {
           console.log(res)
           if (res.data.code == '0000') {
@@ -997,6 +996,12 @@ export default {
             }).then(() => {
               this.type1 = 'b'
               this.title1 = '用例管理-环境信息的新增' + '--' + res.data.modulename
+              this.$http.getEnvironmentSearch(this.moduleidDetails, 'createtime').then((res) => {
+                if (res.data.code == '0000') {
+                  this.formInline.domains1 = res.data.data
+                  console.log(res.data.data);
+                }
+              })
             }).catch(() => {
               this.$router.go(0)
             });
@@ -1034,8 +1039,10 @@ export default {
                   }
                 })
               }).catch(() => {
-                this.$message.error('请求出错了哦')
+                console.log('点击了关闭')
               });
+            } else {
+              this.$message.error(res.data.description)
             }
           })
           return

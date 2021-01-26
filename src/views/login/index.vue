@@ -11,10 +11,10 @@
                  ref="ruleForm"
                  label-width="auto"
                  class="demo-ruleForm">
-          <el-form-item prop="name">
+          <el-form-item prop="uid">
             <div id="inputStyle">
               <el-input type="name"
-                        v-model="ruleForm.uid"
+                        v-model.trim="ruleForm.uid"
                         autocomplete="off"
                         placeholder="请输入用户名称">
                 <i slot="prefix"
@@ -24,10 +24,10 @@
             </div>
 
           </el-form-item>
-          <el-form-item prop="password">
+          <el-form-item prop="passwd">
             <div id="inputStyle">
               <el-input type="password"
-                        v-model="ruleForm.passwd"
+                        v-model.trim="ruleForm.passwd"
                         autocomplete="off"
                         placeholder="请输入登陆密码">
                 <i slot="prefix"
@@ -54,11 +54,11 @@ export default {
   data () {
     return {
       ruleForm: {
-        usid: '',
+        uid: '',
         passwd: '',
       },
       rules: {
-        usid: [
+        uid: [
           { required: true, message: '请输入用户名', trigger: 'blur' }
         ],
         passwd: [

@@ -180,6 +180,7 @@
           <!-- // 使用树形穿梭框组件 -->
           <tree-transfer :from_data='fromData'
                          :to_data='toData'
+                         :title="titleTransfer"
                          v-model="toData"
                          :defaultProps="{label:'label'}"
                          :props="{key:'id',label:'label'}"
@@ -283,7 +284,6 @@
             </el-table-column>
 
           </el-table> -->
-
         </div>
         <!-- 第二页内容 -->
         <div class="thridPageContent"
@@ -300,16 +300,6 @@
               <el-input style="margin-left:0px"
                         v-model="formInline.remainingtimes"></el-input>
             </el-form-item>
-            <!-- <el-form-item label="执行说明:"
-                          :label-width="formLabelWidth">
-              <el-input type="textarea"
-                        :rows="2"
-                        maxlength="100"
-                        show-word-limit
-                        placeholder="请输入内容"
-                        v-model="formInline.tastExplain">
-              </el-input>
-            </el-form-item> -->
             <el-form-item label="时间间隔:"
                           :label-width="formLabelWidth">
               <el-input style="margin-left:0px"
@@ -399,55 +389,22 @@
                :model="formInline"
                style="width: 100%;margin-bottom:10px"
                class="demo-form-inline">
-        <el-form-item label="基础信息名称:"
+        <el-form-item label="模块名称:"
                       :label-width="formLabelWidth">
-
-          <el-select v-model="formInline.basicMessage"
-                     style="width: 100%">
-            <el-option label="请选择"
-                       value=""></el-option>
-            <el-option label="1"
-                       value="zhengchang"></el-option>
-            <el-option label="2"
-                       value="zanting"></el-option>
-            <el-option label="3"
-                       value="xiaohu"></el-option>
-
-          </el-select>
-
+          <el-input style="margin-left:0px"
+                    v-model="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item label="接口名称:"
                       :label-width="formLabelWidth">
 
-          <el-select v-model="formInline.basicMessage"
-                     style="width: 100%">
-            <el-option label="请选择"
-                       value=""></el-option>
-            <el-option label="1"
-                       value="zhengchang"></el-option>
-            <el-option label="2"
-                       value="zanting"></el-option>
-            <el-option label="3"
-                       value="xiaohu"></el-option>
-
-          </el-select>
-
+          <el-input style="margin-left:0px"
+                    v-model="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item label="用例名称:"
                       :label-width="formLabelWidth">
 
-          <el-select v-model="formInline.basicMessage">
-            <el-option label="请选择"
-                       value=""></el-option>
-            <el-option label="1"
-                       value="zhengchang"></el-option>
-            <el-option label="2"
-                       value="zanting"></el-option>
-            <el-option label="3"
-                       value="xiaohu"></el-option>
-
-          </el-select>
-
+          <el-input style="margin-left:0px"
+                    v-model="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary"
@@ -465,14 +422,14 @@
                          width="55">
         </el-table-column>
         <el-table-column fixed
-                         prop="date"
+                         type="index"
                          label="序号">
         </el-table-column>
-        <el-table-column prop="name"
+        <el-table-column prop="rdmsid"
                          label="RDMSID">
         </el-table-column>
-        <el-table-column prop="province"
-                         label="基础信息名称">
+        <el-table-column prop="moduleid"
+                         label="模块名称">
         </el-table-column>
         <el-table-column prop="city"
                          label="接口名称">
@@ -537,45 +494,19 @@
                class="demo-form-inline">
         <el-form-item label="基础信息名称:"
                       :label-width="formLabelWidth">
-          <el-select v-model="formInline.basicMessage"
-                     style="width: 100%">
-            <el-option label="请选择"
-                       value=""></el-option>
-            <el-option label="1"
-                       value="zhengchang"></el-option>
-            <el-option label="2"
-                       value="zanting"></el-option>
-            <el-option label="3"
-                       value="xiaohu"></el-option>
-          </el-select>
+          <el-input style="margin-left:0px"
+                    v-model="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item label="接口名称:"
                       :label-width="formLabelWidth">
-          <el-select v-model="formInline.basicMessage"
-                     style="width: 100%">
-            <el-option label="请选择"
-                       value=""></el-option>
-            <el-option label="1"
-                       value="zhengchang"></el-option>
-            <el-option label="2"
-                       value="zanting"></el-option>
-            <el-option label="3"
-                       value="xiaohu"></el-option>
-          </el-select>
+          <el-input style="margin-left:0px"
+                    v-model="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item label="用例名称:"
                       :label-width="formLabelWidth">
 
-          <el-select v-model="formInline.basicMessage">
-            <el-option label="请选择"
-                       value=""></el-option>
-            <el-option label="1"
-                       value="zhengchang"></el-option>
-            <el-option label="2"
-                       value="zanting"></el-option>
-            <el-option label="3"
-                       value="xiaohu"></el-option>
-          </el-select>
+          <el-input style="margin-left:0px"
+                    v-model="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary"
@@ -588,6 +519,11 @@
                      @click="scriptAdd">新增</el-button>
         </el-form-item>
       </el-form>
+      <el-button size=""
+                 type="danger"
+                 :disabled="openIsDisabled"
+                 style="margin-left:30px;margin-bottom:20px"
+                 @click="handleDelete1()">删除</el-button>
       <!-- 详情页点击新增弹出页面 -->
       <el-dialog title="测试任务管理-脚本新增"
                  style="text-align:left;height:100%"
@@ -596,16 +532,15 @@
                  :modal-append-to-body='false'
                  append-to-body
                  :visible.sync="dialogDetailsAdd">
-
         <!-- <div id="listText">脚本列表</div> -->
         <!-- 点击详情新增进去页面查询穿梭框 -->
-        <tree-transfer :from_data='fromData'
-                       :to_data='toData'
-                       v-model="toData"
-                       :defaultProps="{label:'label'}"
-                       :props="{key:'id',label:'label'}"
-                       @add-btn='add'
-                       @remove-btn='remove'
+        <tree-transfer :from_data='fromData1'
+                       :to_data='toData1'
+                       v-model="toData1"
+                       :title="titleTransfer"
+                       :defaultProps="{label:'label',children:'children'}"
+                       @add-btn='add1'
+                       @remove-btn='remove1'
                        :mode='mode'
                        height='450px'
                        style="width:100%; margin-top: 10px;"
@@ -614,43 +549,44 @@
                        openAll>
         </tree-transfer>
         <div style="text-align:right">
-          <el-button @click="scriptAdd()"
+          <el-button @click="scriptSave()"
                      icon="iconfont icon-baocun">保存</el-button>
         </div>
 
       </el-dialog>
-      <el-table :data="tableData"
+      <el-table :data="tableDataDetial"
                 style="width: 94%;margin-left:30px"
                 border
+                @selection-change="handleSelectionChange"
                 :header-cell-style="{background:'#F2F2F2'}"
                 :cell-style="{padding:'2px'}">
         <el-table-column type="selection"
                          width="55">
         </el-table-column>
         <el-table-column fixed
-                         prop="date"
+                         type="index"
                          label="序号">
         </el-table-column>
-        <el-table-column prop="name"
+        <el-table-column prop="rdmsid"
                          label="RDMSID">
         </el-table-column>
-        <el-table-column prop="province"
-                         label="基础信息名称">
+        <el-table-column prop="productid"
+                         label="产品名称">
         </el-table-column>
-        <el-table-column prop="city"
-                         label="接口名称">
+        <el-table-column prop="moduleid"
+                         label="模块名称">
         </el-table-column>
+
         <el-table-column prop="address"
                          label="脚本名称">
         </el-table-column>
         <el-table-column prop="zip"
-                         label="脚本说明"
-                         w>
+                         label="脚本说明">
         </el-table-column>
-        <el-table-column prop="mobile"
+        <el-table-column prop="createuser"
                          label="创建者">
         </el-table-column>
-        <el-table-column prop="status"
+        <el-table-column prop="createtime"
                          label="创建时间">
         </el-table-column>
 
@@ -662,18 +598,13 @@
                    @click="edit()">修改</el-button>
       </div> -->
       <!-- 分页逻辑 -->
-      <!-- <el-pagination layout="sizes,prev, pager, next"
+      <el-pagination layout="sizes,prev, pager, next"
                      :page-sizes="[5, 10, 15, 20]"
                      :page-size="1"
-                     :total="tableData.length"
-                     @current-change="handleCurrentChange"
-                     @size-change="handleSizeChange">
-      </el-pagination> -->
-      <el-button size=""
-                 type="danger"
-                 style="margin-left:30px"
-                 @click="handleDelete1()">删除</el-button>
-
+                     :total="tableDataDetial.length"
+                     @current-change="handleCurrentChangeDetial"
+                     @size-change="handleSizeChangeDetial">
+      </el-pagination>
     </el-dialog>
     <!-- 点击日志详弹出页面 -->
     <el-dialog title="日志详情"
@@ -698,7 +629,9 @@
 
 <script>
 import treeTransfer from 'el-tree-transfer' // 引入
+import axios from '../../utils/request';
 export default {
+
   data () {
     //配置管理的时候针对邮箱地址进行校验
     var validatePass = (rule, value, callback) => {
@@ -709,8 +642,10 @@ export default {
         callback(new Error('输入多个邮箱地址需用逗号分隔'));
       }
     };
+
     // eslint-disable-next-line no-unused-vars
     return {
+      titleTransfer: ["用例列表", "已选中的用例列表"],
       rules: {
         email: [
           { required: true, validator: validatePass, trigger: 'blur' }
@@ -770,7 +705,9 @@ export default {
           ]
         },
       ],
+      fromData1: [],
       toData: [],
+      toData1: [],
       generateData: [],
       checked: [], //穿梭框绑定的数据，选定到右侧框中的数据项的value组成的数组
       value: [],
@@ -804,7 +741,7 @@ export default {
       firstContent: false,//第一页的内容是否展示
       firstContentButton: false,
       regularly: false,//是否展示input框定时执行
-
+      openIsDisabled: true,
       inputOpen: false,//选择发送邮件，显示的对话框
       dialogCreatVisible: false,//创建任务页面是否弹窗的判断条件
       dialogFormVisible: false,//复制页面是否弹窗的判断条件
@@ -817,70 +754,7 @@ export default {
       moduleData: [],//模块下拉数据存放
       tableDataMain: [],//主页表格
       tableDataDetial: [],//详情页表格
-      tableData: [{
-        date: '1',
-        name: 'wangxiaohu',
-        province: '王小虎',
-        city: 'lisi@ebupt.com',
-        address: '开发组',
-        zip: 'TE',
-        mobile: '13322349999',
-        status: '正常'
-      }, {
-        date: '2',
-        name: 'wangxiaohu',
-        province: '王小虎',
-        city: 'lisi@ebupt.com',
-        address: '开发组',
-        zip: 'TE',
-        mobile: '13322349999',
-        status: '正常'
-      }, {
-        date: '3',
-        name: 'wangxiaohu',
-        province: '王小虎',
-        city: 'lisi@ebupt.com',
-        address: '开发组',
-        zip: 'TE',
-        mobile: '13322349999',
-        status: '正常'
-      }, {
-        date: '4',
-        name: 'wangxiaohu',
-        province: '王小虎',
-        city: 'lisi@ebupt.com',
-        address: '开发组',
-        zip: 'TE',
-        mobile: '13322349999',
-        status: '正常'
-      }, {
-        date: '5',
-        name: 'wangxiaohu',
-        province: '王小虎',
-        city: 'lisi@ebupt.com',
-        address: '开发组',
-        zip: 'TE',
-        mobile: '13322349999',
-        status: '正常'
-      }, {
-        date: '6',
-        name: 'wangxiaohu',
-        province: '王小虎',
-        city: 'lisi@ebupt.com',
-        address: '开发组',
-        zip: 'TE',
-        mobile: '13322349999',
-        status: '正常'
-      }, {
-        date: '7',
-        name: 'wangxiaohu',
-        province: '王小虎',
-        city: 'lisi@ebupt.com',
-        address: '开发组',
-        zip: 'TE',
-        mobile: '13322349999',
-        status: '正常'
-      }],
+      tableData: [],
       gridData: [{
         date: '2016-05-02',
         name: '王小虎',
@@ -899,7 +773,7 @@ export default {
         address: '上海市普陀区金沙江路 1518 弄'
       }],
       loading: false,
-
+      taskid: ''
     }
   },
 
@@ -928,11 +802,12 @@ export default {
       console.log("toData:", toData);
       console.log("obj:", obj);
     },
+
     //穿梭框右边选择数据
     aaaaa (value, direction, movedKeys) {
       console.log(value, direction, movedKeys);
     },
-    //关于分页的方法
+    //关于主页分页的方法
     handleCurrentChange (cpage) {
       this.currpage = cpage;
       this.search()
@@ -941,7 +816,33 @@ export default {
       console.log(psize)
       this.pagesize = psize;
       this.search()
-
+    },
+    //关于详情页表格分页的方法
+    handleCurrentChangeDetial (cpage) {
+      this.currpage = cpage;
+      this.getTaskDetialSearch()
+    },
+    handleSizeChangeDetial (psize) {
+      console.log(psize)
+      this.pagesize = psize;
+      this.getTaskDetialSearch()
+    },
+    //记录翻页数据事件
+    handleSelectionChange (val) {
+      console.log(val.length, '记录翻页数据')
+      if (val.length !== 0) {
+        this.openIsDisabled = false
+      } else {
+        this.openIsDisabled = true
+      }
+      const arr = []
+      this.arr = arr
+      this.arr = new Array();
+      for (var i = 0; i < val.length; i++) {
+        console.log(val[i].scriptid)
+        this.arr.push(val[i].scriptid)
+      }
+      console.log(this.arr);
     },
     //主页表格查询
     search () {
@@ -1023,8 +924,6 @@ export default {
 
         });
       }
-
-
     },
     // 创建页面第二页点击保存按钮
     allocationSave () {
@@ -1042,8 +941,14 @@ export default {
       this.formInline.cases = this.idValue
       this.$http.getTaskSecondAdd(this.formInline, this.idValue).then((res) => {
         if (res.data.code == '0000') {
+          this.$message({
+            message: '保存成功',
+            type: 'success'
+          });
           this.$router.go(0)
           this.dialogCreatVisible = false
+        } else {
+          this.$message.error(res.data.description);
         }
       });
     },
@@ -1058,14 +963,16 @@ export default {
       this.dialogDetailsVisible = true
       this.formInline.tastNameDetial = row.taskname
       this.formInline.tastDescDetial = row.description
-      this.$http.getTaskDetialSearch(this.pagesize, this.currpage, row.taskid).then((res) => {
+      this.taskid = row.taskid
+      this.$http.getTaskDetialSearch(this.pagesize, this.currpage, row.taskid, '-createtime').then((res) => {
         if (res.data.code == '0000') {
           this.loading = false
-          this.tableDataDetial = res.data.data
+          this.tableDataDetial = res.data.task_cases
           this.total = res.data.paging.total;//总信息条数从数据库获取;
           console.log(this.total)
         } else {
           this.$message.error(res.data.description)
+          this.tableDataDetial = []
         }
       });
 
@@ -1096,7 +1003,7 @@ export default {
       console.log(row);
       this.dialogTableVisible = true
     },
-    // 删除事件
+    // 主页表格删除事件
     handleDelete (index, row) {
       console.log(index, row);
       this.$confirm('确定进行删除么?', '提示', {
@@ -1121,7 +1028,41 @@ export default {
 
       });
     },
+    // 详情页多选删除事件
+    handleDelete1 (index, row) {
+      console.log(index, row);
+      this.$confirm('确定进行删除么?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$http.getDetialTaskDelete(this.taskid, this.arr).then((res) => {
+          console.log(res.data.code);
+          if (res.data.code == '0000') {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.$http.getTaskDetialSearch(this.pagesize, this.currpage, this.taskid, '-createtime').then((res) => {
+              if (res.data.code == '0000') {
+                this.loading = false
+                this.tableDataDetial = res.data.task_cases
+                this.total = res.data.paging.total;//总信息条数从数据库获取;
+                console.log(this.total)
+              } else {
+                this.$message.error(res.data.description)
+                this.tableDataDetial = []
+              }
+            });
+          } else {
+            this.$message.error(res.data.description)
+          }
+        });
 
+      }).catch(() => {
+
+      });
+    },
     //点击执行配置按钮
     // allocation () {
     //   this.type = 'C'
@@ -1155,6 +1096,23 @@ export default {
     onChange (val) {
       console.log(val, '333')
       this.show = true
+      this.$http.getTasktransferSearch(val).then((res) => {
+        console.log(res.data.data);
+        if (res.data.code == '0000') {
+          this.fromData = res.data.data
+          this.fromData.forEach((item1, index) => {
+            item1.id = index + 1;
+            item1.pid = 0;
+            item1.children.forEach((item2) => {
+              item2.pid = index + 1
+              item2.id = item2.scriptid
+              console.log(item2.scriptid)
+            })
+
+          })
+        }
+      });
+
       // this.fetchData()
     },
     //创建页面弹窗关闭前的回调
@@ -1201,16 +1159,66 @@ export default {
     },
     //详情页面中 点击新增进行脚本新增
     scriptAdd () {
-      //循环拿到的数据进行添加id和pid字段
-      this.fromData.forEach((item1, index) => {
-        item1.id = index + 1;
-        item1.pid = 0;
-        item1.children.forEach((item2) => {
-          item2.pid = index + 1
-        })
-      })
+      const that = this
       this.dialogDetailsAdd = true
-    }
+      axios.get('/script/v1/distinct/?taskid=' + this.taskid)
+        .then(function (res) {
+          console.log(res.data.data);
+          that.fromData1 = res.data.data
+          //循环拿到的数据进行添加id和pid字段
+          that.fromData1.forEach((item1, index) => {
+            item1.id = index + 1;
+            item1.pid = 0;
+            item1.children.forEach((item2) => {
+              item2.pid = index + 1
+              item2.id = item2.scriptid
+              console.log(item2.scriptid)
+            })
+
+          })
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
+
+    },
+    scriptSave () {
+      const xqlist = []
+      this.xqlist = xqlist
+      console.log(this.toData1, '点击保存拿到的穿梭框的选中值')
+      for (var i = 0; i < this.toData1.length; i++) {
+        for (var j = 0; j < this.toData1[i].children.length; j++) {
+          console.log(this.toData1[i].children[j].id)
+          this.xqlist.push(this.toData1[i].children[j].id)
+        }
+      }
+      console.log(this.xqlist)
+      this.formInline.cases = this.xqlist
+      this.$http.getTasktransferAdd(this.formInline.moduleid, this.xqlist).then((res) => {
+        console.log(res.data);
+        if (res.data.code == '0000') {
+          this.$message({
+            type: 'success',
+            message: '保存成功',
+          })
+        } else {
+          this.$message.error(res.data.description)
+        }
+      });
+    },
+    // 详情页监听穿梭框组件添加
+    add1 (fromData1, toData1, obj) {
+      console.log("fromData1:", fromData1);
+      console.log("toData1:", toData1);
+      console.log("obj:", obj);
+    },
+    // 详情页监听穿梭框组件移除
+    remove1 (fromData1, toData1, obj) {
+      console.log("fromData:", fromData1);
+      console.log("toData:", toData1);
+      console.log("obj:", obj);
+    },
   },
   components: { "tree-transfer": treeTransfer } // 注册穿梭框组件
 }

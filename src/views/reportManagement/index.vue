@@ -454,8 +454,10 @@ export default {
 
     },
     // 报告点击事件
-    handleReport () {
-      window.open('https://element.eleme.io')
+    handleReport (index, row) {
+      console.log(index, row)
+      const url = 'http://10.1.61.34' + row.report
+      window.open(url)
     },
     openContent () {
       console.log(this.tableData3)

@@ -33,7 +33,7 @@
                      @click="onSubmit">搜索</el-button>
           <el-button type="mimi"
                      icon="el-icon-plus"
-                     @click="onSubmit1">创建用户</el-button>
+                     @click="onSubmit1('formCreate')">创建用户</el-button>
 
         </el-form-item>
 
@@ -43,10 +43,16 @@
                  style="text-align:left"
                  width="40%"
                  top="10vh"
+                 :close-on-click-modal="false"
+                 @close="closeAdd('formCreate')"
                  :visible.sync="dialogCreatVisible">
-        <el-form :model="formInline"
+        <el-form :model="formCreate"
+                 :rules="rules"
+                 ref="formCreate"
+                 class="demo-formInline"
                  style="width: 400px;">
           <el-form-item label="账户名:"
+                        prop="uid"
                         :label-width="formLabelWidth">
 
             <el-input style="margin-left:0px"
@@ -54,18 +60,21 @@
 
           </el-form-item>
           <el-form-item label="用户名:"
+                        prop="username"
                         :label-width="formLabelWidth">
             <div id="inputStyle">
               <el-input v-model="formCreate.username"> </el-input>
             </div>
           </el-form-item>
           <el-form-item label="用户密码:"
+                        prop="passwd"
                         :label-width="formLabelWidth">
             <div id="inputStyle">
               <el-input v-model="formCreate.passwd"></el-input>
             </div>
           </el-form-item>
           <el-form-item label="项目组:"
+                        prop="group"
                         :label-width="formLabelWidth">
             <el-select v-model="formCreate.group"
                        placeholder="请选择"
@@ -78,6 +87,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="角色:"
+                        prop="role"
                         :label-width="formLabelWidth">
             <el-select v-model="formCreate.role"
                        filterable
@@ -90,6 +100,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="账户状态"
+                        prop="state"
                         :label-width="formLabelWidth">
             <el-select v-model="formCreate.state"
                        :popper-append-to-body="false"
@@ -108,7 +119,7 @@
              class="dialog-footer">
           <el-button type="primary"
                      icon=" iconfont icon-baocun"
-                     @click="save()">保存</el-button>
+                     @click="save('formCreate')">保存</el-button>
         </div>
       </el-dialog>
       <el-table :data="tableData"
@@ -176,22 +187,30 @@
                style="text-align:left"
                width="40%"
                top="10vh"
+               :close-on-click-modal="false"
+               @close="closeDetail('form')"
                :visible.sync="dialogFormVisible">
       <el-form :model="form"
+               :rules="rules"
+               ref="form"
                style="width: 400px;">
         <el-form-item label="账户名:"
+                      prop="uid"
                       :label-width="formLabelWidth">
           <div id="inputStyle">
-            <el-input v-model="form.uid"></el-input>
+            <el-input v-model="form.uid"
+                      :disabled="true"></el-input>
           </div>
         </el-form-item>
         <el-form-item label="用户名:"
+                      prop="username"
                       :label-width="formLabelWidth">
           <div id="inputStyle">
             <el-input v-model="form.username"></el-input>
           </div>
         </el-form-item>
         <el-form-item label="项目组:"
+                      prop="group"
                       :label-width="formLabelWidth">
           <el-select v-model="form.group"
                      style="width: 100%"
@@ -203,6 +222,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="角色:"
+                      prop="role"
                       :label-width="formLabelWidth">
           <el-select v-model="form.role"
                      style="width: 100%">
@@ -213,6 +233,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="账户状态"
+                      prop="state"
                       :label-width="formLabelWidth">
           <el-select v-model="form.state"
                      :popper-append-to-body="false"
@@ -241,7 +262,7 @@
            class="dialog-footer">
         <el-button type="primary"
                    icon="iconfont icon-xiugai"
-                   @click="handleUserSave()">修改</el-button>
+                   @click="handleUserSave('form')">修改</el-button>
       </div>
     </el-dialog>
   </div>
@@ -294,6 +315,27 @@ export default {
         state: '',
         passwd: ''
       },
+      rules: {
+        uid: [
+          { required: true, message: '请输入账户名', trigger: 'blur' },
+        ],
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' }
+        ],
+        group: [
+          { required: true, message: '请选择项目组', trigger: 'change' }
+        ],
+        role: [
+          { required: true, message: '请选择角色', trigger: 'change' }
+        ],
+        state: [
+          { required: true, message: '请选择状态', trigger: 'change' }
+        ],
+        passwd: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ],
+
+      },
       groupData: '',//项目组下拉存放数据
       roleData: '',//角色下拉存放数据
       tableData: [],
@@ -328,6 +370,7 @@ export default {
     //创建
     onSubmit1 () {
       console.log('创建!');
+      this.formCreate = {}
       this.handleGroup()
       this.handleRole()
       this.dialogCreatVisible = true
@@ -348,12 +391,19 @@ export default {
     },
     //修改接口
     handleEditSave () {
-
       this.$http.getUserEdit(this.form).then((res) => {
         console.log(res.data.code);
         if (res.data.code == '0000') {
+          console.log(res)
+          this.$message({
+            message: '修改成功!!',
+            type: 'success',
+            duration: '3000'
+          })
           this.dialogFormVisible = false
           this.onSubmit()
+        } else {
+          this.$message.error(res.data.description);
         }
       });
     },
@@ -395,21 +445,30 @@ export default {
       this.dialogFormVisible = true
     },
     // 创建用户的保存
-    save () {
-      let aa = this.formCreate
-      this.$http.getUserAdd(aa).then((res) => {
-        if (res.data.code == '0000') {
-          console.log(res)
-          this.$message({
-            message: '保存成功!!',
-            type: 'success'
-          })
-          this.dialogCreatVisible = false
-          this.onSubmit(this.formInline)
+    save (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let aa = this.formCreate
+          this.$http.getUserAdd(aa).then((res) => {
+            if (res.data.code == '0000') {
+              console.log(res)
+              this.$message({
+                message: '保存成功!!',
+                type: 'success',
+                duration: '3000'
+              })
+              this.dialogCreatVisible = false
+              this.onSubmit(this.formInline)
+            } else {
+              this.$message.error(res.data.description);
+            }
+          });
         } else {
-          this.$message.error(res.data.description);
+          console.log('error submit!!');
+          return false;
         }
-      });
+      })
+
     },
     //删除事件
     handleDelete (index, row) {
@@ -451,11 +510,25 @@ export default {
 
     },
     //点击编辑页面的修改
-    handleUserSave () {
-      console.log(this.form)
-      this.handleEditSave()
-    }
+    handleUserSave (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          console.log(this.form)
+          this.handleEditSave()
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      })
 
+    },
+
+    closeAdd (formName) {
+      this.$refs[formName].resetFields();
+    },
+    closeDetail (formName) {
+      this.$refs[formName].resetFields();
+    }
 
   }
 }

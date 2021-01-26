@@ -98,15 +98,16 @@ const getTaskDelete = (taskid) =>
       }
     }
   });
-//点击详情页穿梭框表格查询
-const getTaskDetialSearch = (size, page, taskid) =>
+//点击详情页表格查询
+const getTaskDetialSearch = (size, page, taskid,ordering) =>
   axios.request({
     url: `task/v1/task_cases`,
     method: 'get',
     params: {
       size,
       page,
-      taskid: taskid
+      taskid: taskid,
+      ordering: ordering
     },
   });
   //详情页面表格多选删除功能
@@ -122,6 +123,28 @@ axios.request({
     }
   }
 });
+//详情页里的穿梭框保存
+const getTasktransferAdd= (taskid, cases) =>
+  axios.request({
+    url: `task/v1/task_cases`,
+    method: 'POST',
+    data: {
+      optype: '0',
+      data: {
+        taskid,
+        cases
+      }
+    }
+  });
+  //新增里的穿梭框查询
+const getTasktransferSearch= (moduleid) =>
+axios.request({
+  url: `script/v1/distinct`,
+  method: 'get',
+  params: {
+    moduleid,
+  }
+});
 export { getTaskProduct, getTaskModule, getTasktransfer,
   getTaskSearch, getTaskAddSearch, getTaskAdd, getTaskSecondAdd,
-  getTaskDelete, getTaskDetialSearch,getDetialTaskDelete };
+  getTaskDelete, getTaskDetialSearch,getDetialTaskDelete,getTasktransferAdd ,getTasktransferSearch};

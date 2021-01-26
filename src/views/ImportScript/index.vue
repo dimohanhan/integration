@@ -387,13 +387,16 @@ export default {
       this.show = true
       this.$http.getImportSearch(this.pagesize, this.currpage, this.formInline.moduleid, this.formInline.filename, this.formInline.productid, '-createtime').then((res) => {
         console.log(res.data.data);
-        if (res.data.code == '0000') {
+        if (res.data.code == '0000' && res.data.data) {
           this.tableData = res.data.data
           this.total = res.data.paging.total;//总信息条数从数据库获取;
           console.log(this.total)
-        } else {
-          this.$message.error(res.data.description)
+        }
+        if (res.data.code == '0000' && res.data.data == '') {
           this.tableData = []
+          this.total = 0
+          this.pagesize = 10
+          this.currpage = 1
         }
       });
     },

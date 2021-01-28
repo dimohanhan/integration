@@ -392,12 +392,6 @@ export default {
           this.total = res.data.paging.total;//总信息条数从数据库获取;
           console.log(this.total)
         }
-        if (res.data.code == '0000' && res.data.data == '') {
-          this.tableData = []
-          this.total = 0
-          this.pagesize = 10
-          this.currpage = 1
-        }
       });
     },
     //产品模块下拉

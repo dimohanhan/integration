@@ -1,13 +1,14 @@
 import axios from '../../src/utils/request';
 
 //主页表格查询
-const getProductSearch = (size, page, ordering) =>
+const getProductSearch = (size, page,productid, ordering) =>
   axios.request({
     url: `module/v1/list`,
     method: 'get',
     params: {
       size,
       page,
+      productid,
       ordering: ordering
 
     },

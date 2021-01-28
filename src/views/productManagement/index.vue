@@ -12,8 +12,13 @@
                class="demo-form-inline">
 
         <el-form-item label="产品名称">
-          <el-input v-model="formInline.product"
-                    placeholder="请输入产品名称"></el-input>
+          <el-select v-model="formInline.productid"
+                     placeholder="请选择">
+            <el-option v-for="item in productData"
+                       :key="item.productid"
+                       :label="item.name"
+                       :value="item.productid"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type=""
@@ -37,10 +42,12 @@
         <div class="firstPageContent"
              v-if="type === 'A'">
           <el-form :model="formInline"
+                   :rules="rules"
                    ref="formInline"
                    :inline="true"
                    style="width: 560px;">
             <el-form-item label="归属产品:"
+                          prop="productid"
                           :label-width="formLabelWidth">
 
               <el-select v-model="formInline.productid"
@@ -53,6 +60,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="模块名称:"
+                          prop="modulename"
                           :label-width="formLabelWidth">
               <el-input style="margin-left:0px"
                         v-model="formInline.modulename"></el-input>
@@ -134,7 +142,7 @@
                        @click="allocation()">保存并开始环境配置</el-button> -->
             <el-button type="primary"
                        icon=" iconfont icon-baocun"
-                       @click="submitUpload">保存</el-button>
+                       @click="submitUpload('formInline')">保存</el-button>
           </div>
         </div>
         <!-- 新增第二页内容 -->
@@ -183,38 +191,47 @@
                  :show-close='false'
                  :close-on-click-modal='true'>
         <el-form :model="formEnvironment"
+                 :rules="rules"
+                 ref="formEnvironment"
                  style="width: 300px;">
           <el-form-item label="环境名称:"
+                        prop="environmentname"
                         :label-width="formLabelWidth">
             <el-input v-model="formEnvironment.environmentname"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="服务器host:"
+                        prop="host"
                         :label-width="formLabelWidth">
             <el-input v-model="formEnvironment.host"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="ssh端口:"
+                        prop="port"
                         :label-width="formLabelWidth">
             <el-input v-model="formEnvironment.port"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="服务器用户名:"
+                        prop="user"
                         :label-width="formLabelWidth">
             <el-input v-model="formEnvironment.user"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="服务器密码:"
+                        prop="password"
                         :label-width="formLabelWidth">
             <el-input v-model="formEnvironment.password"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="数据库编号:"
+                        prop="db"
                         :label-width="formLabelWidth">
             <el-input v-model="formEnvironment.db"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="代码部署路径:"
+                        prop="contents"
                         :label-width="formLabelWidth">
             <el-input v-model="formEnvironment.contents"
                       autocomplete="off"></el-input>
@@ -224,7 +241,7 @@
         <div slot="footer"
              class="dialog-footer">
           <el-button type="primary"
-                     @click="EmessageSave">保存</el-button>
+                     @click="EmessageSave('formEnvironment')">保存</el-button>
         </div>
       </el-dialog>
       <!-- 点击修改按钮环境，弹出输入的文本 -->
@@ -348,19 +365,19 @@
                  style="width: 560px;">
           <el-form-item label="归属产品:"
                         :label-width="formLabelWidth">
-
             <el-select v-model="formInline.productidDetails"
+                       :disabled='true'
                        placeholder="请选择">
               <el-option v-for="item in productData"
                          :key="item.productid"
                          :label="item.name"
                          :value="item.productid"></el-option>
             </el-select>
-
           </el-form-item>
           <el-form-item label="模块名称:"
                         :label-width="formLabelWidth">
-            <el-input v-model="formInline.modulenameDetails"></el-input>
+            <el-input v-model="formInline.modulenameDetails"
+                      :disabled='true'></el-input>
           </el-form-item>
 
           <!-- mock配置新增按钮 -->
@@ -469,6 +486,36 @@ import axios from '../../utils/request';
 export default {
   data () {
     return {
+      rules: {
+        productid: [
+          { required: true, message: '请输入产品名称', trigger: 'change' }
+        ],
+        modulename: [
+          { required: true, message: '请输入模块名称', trigger: 'blur' },
+          { max: 15, message: '长度不能超过15个字符', trigger: 'blur' }
+        ],
+        environmentname: [
+          { required: true, message: '请输入环境名称', trigger: 'blur' },
+        ],
+        host: [
+          { required: true, message: '请输入服务器host', trigger: 'blur' },
+        ],
+        port: [
+          { required: true, message: '请输入ssh端口', trigger: 'blur' },
+        ],
+        user: [
+          { required: true, message: '请输入服务器用户名', trigger: 'blur' },
+        ],
+        password: [
+          { required: true, message: '服务器密码', trigger: 'blur' },
+        ],
+        db: [
+          { required: true, message: '请输入数据库编号', trigger: 'blur' },
+        ],
+        contents: [
+          { required: true, message: '请输入代码部署路径', trigger: 'blur' },
+        ],
+      },
       str: '',
       dialog: false,
       dialogReaert: false,
@@ -491,6 +538,7 @@ export default {
       title1: '用例管理-产品模块的修改',
       fileList1: [],
       formInline: {
+        productname: '',
         productid: '',//产品id
         modulename: '',//模块名称
         desc: '',//备注说明
@@ -548,7 +596,7 @@ export default {
   created () {
     this.onSubmit()
     this.updateuser = localStorage.getItem('uid')
-
+    this.handlegetProduct()
   },
   methods: {
     //环境页面，点击新增，新增文本框
@@ -647,58 +695,60 @@ export default {
       }
     },
     //进入环境信息配置管理页面，点击新增弹出页面输入信息保存操作
-    EmessageSave () {
-      console.log(this.formEnvironment)
-      this.formEnvironment.username = this.updateuser
-      if (this.flag == 'xinzeng') {
-        console.log('新增模块后产生的moduleid')
-        this.formEnvironment.moduleid = this.moduleidenvieorment//存储新增模块后产生的moduleid
-        //环境信息的新增
-        this.$http.getEnvironmentSave(this.formEnvironment).then((res) => {
-          if (res.data.code == '0000') {
-            console.log(res.data.data, '我是环境配置页面新增成功的接口返回数据');
-            this.dialog = false
-            this.$http.getEnvironmentSearch(this.formEnvironment.moduleid, 'createtime').then((res) => {
+    EmessageSave (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          console.log(this.formEnvironment)
+          this.formEnvironment.username = this.updateuser
+          if (this.flag == 'xinzeng') {
+            this.formEnvironment.moduleid = this.moduleidenvieorment//存储新增模块后产生的moduleid
+            console.log(this.formEnvironment.moduleid)
+            //环境信息的新增
+            this.$http.getEnvironmentSave(this.formEnvironment).then((res) => {
               if (res.data.code == '0000') {
-                this.formInline.domains = res.data.data
-                console.log(res.data.data);
+                console.log(res.data.data, '我是环境配置页面新增成功的接口返回数据');
+                this.dialog = false
+                this.$http.getEnvironmentSearch(this.formEnvironment.moduleid, 'createtime').then((res) => {
+                  if (res.data.code == '0000') {
+                    this.formInline.domains = res.data.data
+                    console.log(res.data.data);
+                  } else {
+                    this.$message.error(res.data.description)
+                  }
+                })
               } else {
                 this.$message.error(res.data.description)
               }
+            }).catch(() => {
+              //请求失败关闭；
+              this.$message.error('请求出错了哦');
             })
           } else {
-            this.$message.error(res.data.description)
-          }
-        }).catch(() => {
-          //请求失败关闭；
-          // this.$message.error('请求出错了哦');
-        })
-      } else {
-        console.log('编辑修改后产生的moduleid')
-        this.formEnvironment.moduleid = this.moduleidDetails//存储编辑修改后产生的moduleid
-        //环境信息的新增
-        this.$http.getEnvironmentSave(this.formEnvironment).then((res) => {
-          if (res.data.code == '0000') {
-            console.log(res.data.data, '我是环境配置页面新增成功的接口返回数据');
-            this.dialog = false
-            this.$http.getEnvironmentSearch(this.formEnvironment.moduleid, 'createtime').then((res) => {
+            console.log('编辑修改后产生的moduleid')
+            this.formEnvironment.moduleid = this.moduleidDetails//存储编辑修改后产生的moduleid
+            //环境信息的新增
+            this.$http.getEnvironmentSave(this.formEnvironment).then((res) => {
               if (res.data.code == '0000') {
-                this.formInline.domains1 = res.data.data
-                console.log(res.data.data);
+                console.log(res.data.data, '我是环境配置页面新增成功的接口返回数据');
+                this.dialog = false
+                this.$http.getEnvironmentSearch(this.formEnvironment.moduleid, 'createtime').then((res) => {
+                  if (res.data.code == '0000') {
+                    this.formInline.domains1 = res.data.data
+                    console.log(res.data.data);
+                  } else {
+                    this.$message.error(res.data.description)
+                  }
+                })
               } else {
                 this.$message.error(res.data.description)
               }
+            }).catch(() => {
+              //请求失败关闭；
+              this.$message.error('请求出错了哦');
             })
-          } else {
-            this.$message.error(res.data.description)
           }
-        }).catch(() => {
-          //请求失败关闭；
-          this.$message.error('请求出错了哦');
-        })
-      }
-
-
+        }
+      })
     },
     //新增配置环境页面的删除按钮
     removeDomain (item) {
@@ -754,18 +804,19 @@ export default {
                 this.$message.error(res.data.description)
               }
             })
-
           } else {
             this.$message.error(res.data.description)
           }
-        });
+        })
+      }).catch(() => {
+        console.log('点击关闭')
       })
     },
     //主页面查询
     onSubmit () {
       // console.log('submit!');
       this.loading = true
-      this.$http.getProductSearch(this.pagesize, this.currpage, '-createtime').then((res) => {
+      this.$http.getProductSearch(this.pagesize, this.currpage, this.formInline.productid, '-createtime').then((res) => {
         console.log(res.data.data);
         if (res.data.data && res.data.code == '0000') {
           this.tableData = res.data.data
@@ -774,6 +825,7 @@ export default {
           console.log(this.total)
         } else {
           this.$message.error(res.data.description)
+          this.loading = false
         }
 
       }).catch(() => {
@@ -895,7 +947,7 @@ export default {
 
     },
     // //新增页面仅保存按钮
-    submitUpload () {
+    submitUpload (formName) {
       const fd = new FormData()// FormData 对象
       this.fd = fd
       this.$refs.upload.submit();
@@ -904,25 +956,34 @@ export default {
       this.fd.append('desc', this.formInline.desc)
       this.fd.append('username', this.updateuser)
       this.fd.append('optype', '0')
-      axios.post('module/v1/manage/', this.fd).then(res => {
-        console.log(res)
-        this.moduleidenvieorment = res.data.moduleid
-        if (res.data.code == '0000') {
-          this.$confirm('保存成功,是否进行环境配置?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '关闭',
-            type: 'success'
-          }).then(() => {
-            this.type = 'B'
-            this.title = '用例管理-环境信息的新增' + '--' + res.data.modulename
-          }).catch(() => {
-            this.$router.go(0)
-          });
-        } else if (res.data.code == '400') {
-          this.$message.error(res.data.description);
-          this.$refs.upload.clearFiles();
+      this.$refs[formName].validate((valid) => {
+        if (valid && this.extension !== false && this.isLt2M !== false && this.extension2 !== false) {
+          console.log(this.extension, 'dianji')
+          axios.post('module/v1/manage/', this.fd).then(res => {
+            console.log(res)
+            this.moduleidenvieorment = res.data.moduleid
+            if (res.data.code == '0000') {
+              this.$confirm('保存成功,是否进行环境配置?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '关闭',
+                type: 'success'
+              }).then(() => {
+                this.type = 'B'
+                this.title = '用例管理-环境信息的新增' + '--' + res.data.modulename
+              }).catch(() => {
+                this.$router.go(0)
+              });
+            } else if (res.data.code == '400') {
+              this.$message.error(res.data.description);
+              this.$refs.upload.clearFiles();
+            }
+          })
+        } else {
+          console.log('error submit!!');
+          return false;
         }
       })
+
     },
     //新增自定义文件上传事件
     httpRequest (param) {
@@ -932,32 +993,30 @@ export default {
       console.log(this.fd.get("file"), '选中文件后')
       axios.post('module/v1/manage/', this.fd).then(res => {
         console.log(res)
+        this.moduleidenvieorment = res.data.moduleid
         if (res.data.code == '0000') {
-          param.onSuccess(res)
-          this.moduleidenvieorment = res.data.moduleid
+          this.$confirm('保存成功,是否进行环境配置?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '关闭',
+            type: 'success'
+          })
+            .then(() => {
+              this.type = 'B'
+            }).catch(() => {
+              this.$router.go(0)
+            });
         } else if (res.data.code == '400') {
           this.$message.error(res.data.description);
           this.$refs.upload.clearFiles();
         }
-
-        // if (res.data.code == '0000') {
-        //   this.$confirm('保存成功,是否进行环境配置?', '提示', {
-        //     confirmButtonText: '确定',
-        //     cancelButtonText: '关闭',
-        //     type: 'success'
-        //   })
-        //     .then(() => {
-        //       this.type = 'B'
-        //     }).catch(() => {
-        //       this.$router.go(0)
-        //     });
-        // }
       })
 
     },
     //新增页面文件改变的事件
     getFile (file, fileList) {
       console.log(file, fileList)
+      console.log(fileList.length)
+
     },
     //xiugai页面文件改变的事件
     getFile1 (file, fileList) {
@@ -965,6 +1024,7 @@ export default {
       console.log(fileList.length)
       const changeFileList = FileList.length
       this.changeFileList = changeFileList
+      console.log(this.changeFileList, '改变')
       if (fileList.length > 0) {
         this.fileList1 = [fileList[fileList.length - 1]]
         console.log(this.fileList1)
@@ -984,7 +1044,7 @@ export default {
       this.fd1.append('username', this.updateuser)
       this.fd1.append('optype', '1')
       //为选择文件
-      if (this.fileList1.length == '0') {
+      if (this.fileList1.length == '0' && this.extension3 !== false && this.extension4 !== false && this.isLt2M1 !== false) {
         this.fd1.append('flag', '0')
         axios.post('module/v1/manage/', this.fd1).then(res => {
           console.log(res)
@@ -1011,9 +1071,36 @@ export default {
           }
         })
       }
+      // if (this.fileList1.length == '1') {
+      //   axios.post('module/v1/manage/', this.fd1).then(res => {
+      //     console.log(res)
+      //     if (res.data.code == '0000') {
+      //       this.$confirm('保存成功,是否进行环境配置?', '提示', {
+      //         confirmButtonText: '确定',
+      //         cancelButtonText: '关闭',
+      //         type: 'success'
+      //       }).then(() => {
+      //         this.type1 = 'b'
+      //         this.title1 = '用例管理-环境信息的新增' + '--' + res.data.modulename
+      //         this.$http.getEnvironmentSearch(this.moduleidDetails, 'createtime').then((res) => {
+      //           if (res.data.code == '0000') {
+      //             this.formInline.domains1 = res.data.data
+      //             console.log(res.data.data);
+      //           }
+      //         })
+      //       }).catch(() => {
+      //         this.$router.go(0)
+      //       });
+      //     } else if (res.data.code == '400') {
+      //       this.$message.error(res.data.description);
+      //       this.$refs.upload.clearFiles();
+      //     }
+      //   })
+      // }
 
       if (this.fileList1.length == 1) {
-        if (this.deleteFileList == '0') {
+        if (this.deleteFileList == '0' && this.extension3 !== false && this.extension4 !== false && this.isLt2M1 !== false) {
+          console.log('文件类型大小都对了')
           this.fd1.append('flag', '1')
           axios.post('module/v1/manage/', this.fd1).then(res => {
             console.log(res)
@@ -1040,13 +1127,15 @@ export default {
                 })
               }).catch(() => {
                 console.log('点击了关闭')
+                this.$router.go(0)
               });
             } else {
               this.$message.error(res.data.description)
             }
           })
-          return
-        } else {
+
+        } else if (this.extension3 !== false && this.extension4 !== false && this.isLt2M1 !== false) {
+
           this.fd1.append('flag', '0')
           axios.post('module/v1/manage/', this.fd1).then(res => {
             console.log(res)
@@ -1088,20 +1177,60 @@ export default {
       this.fd1.append('file', fileObj1)// 文件对象
       console.log(this.fd1.get("file"), '选中文件后')
       console.log(this.fileList1.length, '90909')
-
-      if (this.changeFileList == 2) {
+      if (this.changeFileList == 0) {
         if (this.deleteFileList !== '0') {
-          this.fd1.append('flag', '1')
+          console.log(123)
+          // this.fd1.append('flag', '1')
           axios.post('module/v1/manage/', this.fd1).then(res => {
             console.log(res)
             param.onSuccess(res)
             if (res.data.code == '0000') {
               this.moduleidDetails = res.data.moduleid
+              this.$confirm('保存成功,是否进行环境配置?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '关闭',
+                type: 'success'
+              }).then(() => {
+                this.type1 = 'b'
+                this.title1 = '用例管理-环境信息的新增' + '--' + res.data.modulename
+                this.$http.getEnvironmentSearch(this.moduleidDetails, 'createtime').then((res) => {
+                  if (res.data.code == '0000') {
+                    this.formInline.domains1 = res.data.data
+                    console.log(res.data.data);
+                  }
+                })
+              }).catch(() => {
+                this.$router.go(0)
+              });
             } else {
               this.$message.error(res.data.description);
             }
 
           })
+          // axios.post('module/v1/manage/', this.fd1).then(res => {
+          //   console.log(res)
+          //   if (res.data.code == '0000') {
+          //     this.$confirm('保存成功,是否进行环境配置?', '提示', {
+          //       confirmButtonText: '确定',
+          //       cancelButtonText: '关闭',
+          //       type: 'success'
+          //     }).then(() => {
+          //       this.type1 = 'b'
+          //       this.title1 = '用例管理-环境信息的新增' + '--' + res.data.modulename
+          //       this.$http.getEnvironmentSearch(this.moduleidDetails, 'createtime').then((res) => {
+          //         if (res.data.code == '0000') {
+          //           this.formInline.domains1 = res.data.data
+          //           console.log(res.data.data);
+          //         }
+          //       })
+          //     }).catch(() => {
+          //       this.$router.go(0)
+          //     });
+          //   } else if (res.data.code == '400') {
+          //     this.$message.error(res.data.description);
+          //     this.$refs.upload.clearFiles();
+          //   }
+          // })
           return
         }
       }
@@ -1117,7 +1246,6 @@ export default {
     //新增页 面文件上传成功后的回调
     success (response) {
       console.log(response, '22222')
-
     },
     //修改页面文件上传成功后的回调
     success1 (data) {
@@ -1151,7 +1279,8 @@ export default {
     },
     //新增页面上传的时候文件超出个数限制时的钩子
     handleExceed (files, fileList) {
-      this.$message.warning(`当前限制选择 1 个文件，您共选择了 ${files.length + fileList.length} 个文件`);
+      this.$message.warning(`当前限制只能选择 1 个文件`);
+      console.log(files, fileList)
     },
     //修改页面上传的时候文件超出个数限制时的钩子
     handleExceed1 (files, fileList) {
@@ -1169,9 +1298,13 @@ export default {
       console.log(file, '11')
       var testmsg = file.name.substring(file.name.lastIndexOf('.') + 1)
       const extension = testmsg === 'xlsx'
+      this.extension = extension
       const extension2 = testmsg === 'xls'
+      this.extension2 = extension2
       const isLt2M = file.size / 1024 < 500
-      if (!extension) {
+      this.isLt2M = isLt2M
+      console.log(!this.extension, '999')
+      if (!this.extension && !this.extension2) {
         this.$message({
           message: '上传文件只能是excel格式!',
           type: 'warning'
@@ -1183,34 +1316,38 @@ export default {
           type: 'warning'
         });
       }
-      return extension || extension2 && isLt2M
+      console.log(this.extension)
+      return this.extension || this.extension2 && isLt2M
     },
     //针对编辑页面上传文件的文件限制
     beforeAvatarUpload1 (file) {
       var testmsg = file.name.substring(file.name.lastIndexOf('.') + 1)
-      const extension = testmsg === 'xlsx'
-      const extension2 = testmsg === 'xls'
-      const isLt2M = file.size / 1024 < 500
-      if (!extension) {
+      const extension3 = testmsg === 'xlsx'
+      this.extension3 = extension3
+      const extension4 = testmsg === 'xls'
+      this.extension4 = extension4
+      const isLt2M1 = file.size / 1024 < 500
+      this.isLt2M1 = isLt2M1
+      if (this.extension3 && this.extension4) {
         this.$message({
           message: '上传文件只能是excel格式!',
           type: 'warning'
         });
       }
-      if (!isLt2M) {
+      if (!isLt2M1) {
         this.$message({
           message: '上传文件大小不能超过 500kB!',
           type: 'warning'
         });
       }
-      return extension || extension2 && isLt2M
+      return this.extension3 || this.extension4 && isLt2M1
     },
     //创建页面弹窗关闭前的回调
     closeMessage () {
       this.$router.go(0)
     },
     closeMessageD () {
-      // this.$router.go(0)
+      this.$router.go(0)
       console.log('点击编辑页面的关闭回调')
     }
   }

@@ -65,13 +65,14 @@ const getTaskAdd = (taskname, description, moduleid, cases) =>
     }
   });
 //创建任务管理第二页面的保存
-const getTaskSecondAdd = ({ taskname, description, moduleid, remainingtimes, interval, issendemail, email, begintime, rcycleflag, cases }) =>
+const getTaskSecondAdd = ({ taskid,taskname, description, moduleid, remainingtimes, interval, issendemail, email, begintime, rcycleflag, cases }) =>
   axios.request({
     url: `/task/v1/manage/`,
     method: 'POST',
     data: {
-      optype: '0',
+      optype: '1',
       data: {
+        taskid,
         taskname,
         description,
         createuser: localStorage.getItem('uid'),
@@ -126,7 +127,7 @@ axios.request({
 //详情页里的穿梭框保存
 const getTasktransferAdd= (taskid, cases) =>
   axios.request({
-    url: `task/v1/task_cases`,
+    url: `task/v1/task_cases/`,
     method: 'POST',
     data: {
       optype: '0',

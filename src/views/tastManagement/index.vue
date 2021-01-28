@@ -133,10 +133,12 @@
              v-if="type === 'B'">
           <div id="listText">测试任务管理-任务列表</div>
           <el-form :model="formInline"
+                   :rules="rules"
+                   ref="formInline"
                    style="margin-top:10px">
             <el-form-item label="任务名称:"
+                          prop="taskname"
                           :label-width="formLabelWidth">
-
               <el-input style="margin-left:0px"
                         v-model="formInline.taskname"></el-input>
             </el-form-item>
@@ -152,6 +154,7 @@
             </el-form-item>
 
             <el-form-item label="产品名称:"
+                          prop="product"
                           :label-width="formLabelWidth">
               <el-select v-model="formInline.product"
                          placeholder="请选择"
@@ -164,6 +167,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="模块名称:"
+                          prop="moduleid"
                           :label-width="formLabelWidth">
               <el-select v-model="formInline.moduleid"
                          @change="onChange"
@@ -202,7 +206,7 @@
                        @click="allocation()">执行配置</el-button> -->
             <el-button type="primary"
                        icon=" iconfont icon-baocun"
-                       @click="save()">仅保存</el-button>
+                       @click="save('formInline')">仅保存</el-button>
           </div>
           <!-- <div id="listText">脚本列表</div> -->
           <!-- 查询列表的表单 -->
@@ -292,19 +296,22 @@
           <el-form :model="formInline"
                    :inline="true"
                    ref="formInline"
-                   class="demo-formInline"
                    :rules="rules"
                    style="width: 47%;margin-bottom:10px;">
+            <el-form-item label="时间间隔:"
+                          prop="interval"
+                          placeholder="请换算为分钟填写"
+                          :label-width="formLabelWidth">
+              <el-input style="margin-left:0px"
+                        v-model="formInline.interval"></el-input>
+            </el-form-item>
             <el-form-item label="执行次数:"
+                          :class="[text==true?'is-error':'']"
                           :label-width="formLabelWidth">
               <el-input style="margin-left:0px"
                         v-model="formInline.remainingtimes"></el-input>
-            </el-form-item>
-            <el-form-item label="时间间隔:"
-                          :label-width="formLabelWidth">
-              <el-input style="margin-left:0px"
-                        placeholder="请换算为分钟填写"
-                        v-model="formInline.interval"></el-input>
+              <div v-show="text"
+                   style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">请输入执行次数</div>
             </el-form-item>
             <el-form-item label="报告方式:"
                           :label-width="formLabelWidth">
@@ -330,9 +337,8 @@
                 <el-radio label="0">立即执行</el-radio>
                 <el-radio label="1">定时执行</el-radio>
               </el-radio-group>
-
             </el-form-item>
-            <el-form-item>
+            <el-form-item prop="begintime">
               <el-date-picker v-model="formInline.begintime"
                               style="width:355px"
                               type="datetime"
@@ -341,14 +347,12 @@
                               value-format="yyyy-MM-dd HH:mm:ss">
               </el-date-picker>
             </el-form-item>
+            <div class="dialog-footer">
+              <el-button type="primary"
+                         icon=" iconfont icon-baocun"
+                         @click="allocationSave('formInline')">保存</el-button>
+            </div>
           </el-form>
-          <div slot="footer"
-               class="dialog-footer">
-            <el-button type="primary"
-                       icon=" iconfont icon-baocun"
-                       @click="allocationSave()">保存</el-button>
-
-          </div>
         </div>
       </el-dialog>
       <!-- 分页逻辑 -->
@@ -362,8 +366,7 @@
                :modal-append-to-body='false'
                append-to-body
                :visible.sync="dialogFormVisible">
-      <el-form :model="formInline"
-               style="width: 400px;margin-top:10px">
+      <el-form style="width: 400px;margin-top:10px">
         <el-form-item label="任务名称:"
                       :label-width="formLabelWidth">
 
@@ -465,8 +468,7 @@
                append-to-body
                @close="closeDetialsMessage"
                :visible.sync="dialogDetailsVisible">
-      <el-form :model="formInline"
-               style="width: 400px;margin-top:10px">
+      <el-form style="width: 400px;margin-top:10px">
         <el-form-item label="任务名称:"
                       :label-width="formLabelWidth">
 
@@ -631,80 +633,58 @@
 import treeTransfer from 'el-tree-transfer' // 引入
 import axios from '../../utils/request';
 export default {
-
   data () {
     //配置管理的时候针对邮箱地址进行校验
-    var validatePass = (rule, value, callback) => {
+    const validatePass = (rule, value, callback) => {
       console.log(value, 'value')
       // eslint-disable-next-line no-useless-escape
       let reg = /^((([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6}\,))*(([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})))$/;
+      console.log(reg)
       if (!reg.test(value)) {
-        callback(new Error('输入多个邮箱地址需用逗号分隔'));
+        callback(new Error('请输入正确的邮箱格式,多个邮箱地址需用逗号分隔'));
+      } else {
+        callback()
       }
     };
+    //配置管理的时候针对时间进行校验
+    const validatetime = (rule, value, callback) => {
+      console.log(value, 'value')
+      if (!value && this.radio == 1) {
+        callback(new Error('请选择时间'));
+      } else {
 
+
+        callback()
+      }
+    };
     // eslint-disable-next-line no-unused-vars
     return {
       titleTransfer: ["用例列表", "已选中的用例列表"],
       rules: {
+        moduleid: [
+          { required: true, message: '请选择模块名称', trigger: 'change' }
+        ],
+        taskname: [
+          { required: true, message: '请输入任务名称', trigger: 'blur' }
+        ],
+        product: [
+          { required: true, message: '请选择产品名称', trigger: 'change' }
+        ],
+        interval: [
+          { required: true, message: '请输入时间间隔', trigger: 'blur' }
+        ],
         email: [
           { required: true, validator: validatePass, trigger: 'blur' }
         ],
+        begintime: [
+          { required: true, validator: validatetime, trigger: 'blur' }
+        ],
+
       },
+      text: false,
       emailSplit: '',//存放邮箱地址数据
       mode: "transfer",
-      fromData: [
-        //第一组列表
-        {
-          label: "接口分组一",
-          children: [
-            {
-              id: "1-1",
-              label: "用例一",
-            },
-            {
-              id: "1-2",
-              label: "用例二",
-            }
-          ]
-        },
-        //第二组列表
-        {
-          label: "接口分组二",
-          children: [
-            {
-              id: "2-1",
-              label: "用例一",
-            },
-            {
-              id: "2-2",
-              label: "用例二",
-            }
-          ]
-        },
-        //第三组列表
-        {
-          label: "接口分组三",
-          children: [
-            {
-              id: "3-1",
-              label: "用例一",
-            },
-            {
-              id: "3-2",
-              label: "用例二",
-            },
-            {
-              id: "3-3",
-              label: "用例三",
-            },
-            {
-              id: "3-4",
-              label: "用例四",
-            }
-          ]
-        },
-      ],
+      fromData: [],
       fromData1: [],
       toData: [],
       toData1: [],
@@ -714,6 +694,7 @@ export default {
       data: [],
       formInline: {
         taskname: '',
+        taskid: '',
         description: '',
         basicMessage: '',
         product: '',
@@ -726,9 +707,8 @@ export default {
         email: '',//发送邮件填写的邮件
         tastDescDetial: '',//详情页的任务名称
         tastNameDetial: ''//详情页的任务说明
-
       },
-      idValue: [],//保存穿梭框数剧
+      // idValue: [],//保存穿梭框数剧
       productVal: '',//产品下拉选中的值
       multipleSelection: [],
       pagesize: 10,
@@ -773,7 +753,8 @@ export default {
         address: '上海市普陀区金沙江路 1518 弄'
       }],
       loading: false,
-      taskid: ''
+      taskid: '',
+      secondMoudleid: ''//新增第一页保存成功后存储返回的模块id
     }
   },
 
@@ -802,7 +783,6 @@ export default {
       console.log("toData:", toData);
       console.log("obj:", obj);
     },
-
     //穿梭框右边选择数据
     aaaaa (value, direction, movedKeys) {
       console.log(value, direction, movedKeys);
@@ -895,60 +875,85 @@ export default {
       this.handleTaskProduct()
     },
     // 创建页面第一页点击保存按钮
-    save () {
-      console.log(111)
-      this.idValue = []
-      console.log(this.toData, '点击保存拿到的穿梭框的选中值')
-      for (var i = 0; i < this.toData.length; i++) {
-        for (var j = 0; j < this.toData[i].children.length; j++) {
-          console.log(this.toData[i].children[j].id)
-          this.idValue.push(this.toData[i].children[j].id)
-        }
-        console.log(this.idValue)
-        this.$http.getTaskAdd(this.formInline.taskname, this.formInline.description, this.formInline.moduleid, this.idValue).then((res) => {
-          console.log(res.data);
-          if (res.data.code == '0000') {
-            this.$confirm('保存成功,是否进行环境配置?', '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '关闭',
-              type: 'success'
-            }).then(() => {
-              this.type = 'C'
-            }).catch(() => {
-              this.$router.go(0)
-              this.dialogCreatVisible = false
-            });
-          } else {
-            this.$message.error(res.data.description)
+    save (formName) {
+      // this.type = 'C'
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          console.log(111)
+          const idValue = []
+          this.idValue = idValue
+          console.log(this.toData, '点击保存拿到的穿梭框的选中值')
+          if (this.toData.length == '0') {
+            this.$message.warning('脚本列表为必填项')
           }
+          for (var i = 0; i < this.toData.length; i++) {
+            for (var j = 0; j < this.toData[i].children.length; j++) {
+              console.log(this.toData[i].children[j].id)
+              this.idValue.push(this.toData[i].children[j].id)
+            }
+            console.log(this.idValue)
+            this.$http.getTaskAdd(this.formInline.taskname, this.formInline.description, this.formInline.moduleid, this.idValue).then((res) => {
+              console.log(res.data);
+              if (res.data.code == '0000') {
+                this.secondTaskid = res.data.taskid
+                this.$confirm('保存成功,是否进行执行配置?', '提示', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '关闭',
+                  type: 'success'
+                }).then(() => {
+                  this.type = 'C'
+                }).catch(() => {
+                  this.$router.go(0)
+                  this.dialogCreatVisible = false
+                });
+              } else {
+                this.$message.error(res.data.description)
+              }
 
-        });
-      }
+            });
+          }
+        } else {
+          console.log('error submit')
+          return false
+        }
+      })
+
+
     },
     // 创建页面第二页点击保存按钮
-    allocationSave () {
-      console.log(this.toData, '点击保存拿到的穿梭框的选中值')
-      // this.emailArr.push(this.formInline.email)
-      this.emailSplit = this.formInline.email.split(",")
-      this.formInline.email = this.emailSplit
-      for (var i = 0; i < this.toData.length; i++) {
-        for (var j = 0; j < this.toData[i].children.length; j++) {
-          console.log(this.toData[i].children[j].id)
-          this.idValue.push(this.toData[i].children[j].id)
-        }
-        console.log(this.idValue)
+    allocationSave (formName1) {
+      if (this.formInline.remainingtimes == '') {
+        console.log('执行次数为空')
+        this.text = true
+      } else {
+        this.text = false
       }
-      this.formInline.cases = this.idValue
-      this.$http.getTaskSecondAdd(this.formInline, this.idValue).then((res) => {
-        if (res.data.code == '0000') {
-          this.$message({
-            message: '保存成功',
-            type: 'success'
+      this.$refs[formName1].validate((valid) => {
+        if (valid) {
+          console.log(1111)
+          if (this.report == '1') {
+            this.emailSplit = this.formInline.email.split(",")
+            this.formInline.email = this.emailSplit
+          } else {
+            this.formInline.email = []
+          }
+          this.formInline.cases = this.idValue
+          this.formInline.taskid = this.secondTaskid
+          this.$http.getTaskSecondAdd(this.formInline, this.idValue).then((res) => {
+            if (res.data.code == '0000') {
+              this.$message({
+                message: '保存成功',
+                type: 'success'
+              });
+              this.search()
+              this.dialogCreatVisible = false
+            } else {
+              this.$message.error(res.data.description);
+            }
           });
-          this.$router.go(0)
-          this.dialogCreatVisible = false
         } else {
-          this.$message.error(res.data.description);
+          console.log('error submit!!');
+          return false;
         }
       });
     },
@@ -1075,8 +1080,11 @@ export default {
     //是否发送邮件事件
     handleChangeValue (report) {
       console.log(report)
-      if (report == '1') {
+      const report1 = report
+      this.report = report1
+      if (this.report == '1') {
         this.inputOpen = true
+
       } else {
         this.inputOpen = false
 
@@ -1085,11 +1093,21 @@ export default {
     //是否执行事件
     handleChangeRadio (radio) {
       console.log(radio)
-      if (radio == '1') {
+      const radio1 = radio
+      this.radio = radio1
+      if (this.radio == '1') {
         this.regularly = true
       } else {
+        //找到要清除的执行方式的校验结果
+        let _field = this.$refs['formInline'].fields /*当然，你可以打印一下fields*/
+        _field.map(i => {
+          if (i.prop === 'begintime') {  //通过prop属性值相同来判断是哪个输入框，比如：要移除prop为'user'
+            i.resetField()
+            return false
+          }
+        })
         this.regularly = false
-
+        this.formInline.begintime = ''
       }
     },
     //选中模块名称显示表格
@@ -1187,6 +1205,9 @@ export default {
       const xqlist = []
       this.xqlist = xqlist
       console.log(this.toData1, '点击保存拿到的穿梭框的选中值')
+      if (this.toData1.length == '0') {
+        this.$message.warning('脚本列表为必填项')
+      }
       for (var i = 0; i < this.toData1.length; i++) {
         for (var j = 0; j < this.toData1[i].children.length; j++) {
           console.log(this.toData1[i].children[j].id)
@@ -1195,13 +1216,14 @@ export default {
       }
       console.log(this.xqlist)
       this.formInline.cases = this.xqlist
-      this.$http.getTasktransferAdd(this.formInline.moduleid, this.xqlist).then((res) => {
+      this.$http.getTasktransferAdd(this.taskid, this.xqlist).then((res) => {
         console.log(res.data);
         if (res.data.code == '0000') {
           this.$message({
             type: 'success',
             message: '保存成功',
           })
+          this.dialogDetailsVisible = false
         } else {
           this.$message.error(res.data.description)
         }
@@ -1243,6 +1265,10 @@ export default {
 .el-input__inner {
   height: 35px !important;
 }
+.inputCor {
+  border-color: #f56c6c !important;
+  height: 35px !important;
+}
 .el-textarea__inner {
   padding: 5px 22px !important;
 }
@@ -1264,6 +1290,12 @@ export default {
 .wl-transfer .transfer-right {
   right: 385px !important;
   /* top: -20px !important; */
+}
+.el-input--small {
+  width: 138px !important;
+}
+.el-date-picker {
+  width: 337px !important;
 }
 </style>
 <style lang="less" scoped>

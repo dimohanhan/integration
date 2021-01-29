@@ -6,6 +6,10 @@ import axios from 'axios'
 import router from '../router'
 import md5 from 'js-md5';
 Vue.prototype.$md5 = md5;
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+
+Vue.use(ElementUI);
 Vue.use(router)
 //1. 创建新的axios实例，
 const service = axios.create({
@@ -43,6 +47,8 @@ service.interceptors.response.use(
         case 401:
           localStorage.removeItem('Authorization');
           router.push({ path: '/login' });//易错点：写成this.$router无法成功跳转登录页，因为没有this的实例
+          // eslint-disable-next-line no-fallthrough
+     
       }
     }
   })

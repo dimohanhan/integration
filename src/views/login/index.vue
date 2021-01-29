@@ -29,7 +29,8 @@
               <el-input type="password"
                         v-model.trim="ruleForm.passwd"
                         autocomplete="off"
-                        placeholder="请输入登陆密码">
+                        placeholder="请输入登陆密码"
+                        @keyup.enter.native="submitForm('ruleForm')">
                 <i slot="prefix"
                    style="font-size:23px"
                    class="el-input__icon el-icon-lock"></i>

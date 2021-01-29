@@ -63,7 +63,7 @@
                         prop="username"
                         :label-width="formLabelWidth">
             <div id="inputStyle">
-              <el-input v-model="formCreate.username"> </el-input>
+              <el-input v-model.trim="formCreate.username"> </el-input>
             </div>
           </el-form-item>
           <el-form-item label="用户密码:"
@@ -206,7 +206,7 @@
                       prop="username"
                       :label-width="formLabelWidth">
           <div id="inputStyle">
-            <el-input v-model="form.username"></el-input>
+            <el-input v-model.trim="form.username"></el-input>
           </div>
         </el-form-item>
         <el-form-item label="项目组:"

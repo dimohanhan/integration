@@ -1297,6 +1297,10 @@ export default {
 .el-date-picker {
   width: 337px !important;
 }
+.el-textarea .el-input__count {
+  bottom: -9px;
+  background-color: transparent !important;
+}
 </style>
 <style lang="less" scoped>
 .borderContent {

@@ -362,6 +362,14 @@ export default {
     //选中产品名称的时候，调取模块名称下拉
     onChangeProduct (val) {
       console.log(val)
+      this.$http.getImportSearch(this.pagesize, this.currpage, this.formInline.moduleid, this.formInline.filename, this.formInline.productid, '-createtime').then((res) => {
+        console.log(res.data.data);
+        if (res.data.code == '0000' && res.data.data) {
+          this.tableData = res.data.data
+          this.total = res.data.paging.total;//总信息条数从数据库获取;
+          console.log(this.total)
+        }
+      });
       this.$http.getImportModule(val).then((res) => {
         console.log(res.data.data);
         if (res.data.code == '0000') {
@@ -385,6 +393,7 @@ export default {
     onChangeMoudle (val) {
       console.log(val)
       this.show = true
+      this.fileList = []
       this.$http.getImportSearch(this.pagesize, this.currpage, this.formInline.moduleid, this.formInline.filename, this.formInline.productid, '-createtime').then((res) => {
         console.log(res.data.data);
         if (res.data.code == '0000' && res.data.data) {
@@ -427,7 +436,9 @@ export default {
     },
     //上传成功后的回调
     success (file, fileList) {
-      console.log(file, fileList)
+      console.log(file, fileList.status)
+
+      console.log(this.status)
       this.$http.getImportSearch(this.pagesize, this.currpage, this.formInline.moduleid, this.formInline.filename, this.formInline.productid, '-createtime').then((res) => {
         console.log(res.data.data);
         if (res.data.code == '0000') {

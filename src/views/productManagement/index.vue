@@ -875,6 +875,8 @@ export default {
       console.log(index, row);
       this.formInline.modulenameDetails = row.modulename
       this.moduleidDetails = row.moduleid
+      this.filenameDetails = (row.filename).substr(0, row.filename.indexOf("."));
+      console.log(this.filenameDetails)
       this.formInline.descDetails = row.desc
       //循环产品下拉框找到对应的id
       this.$http.getProduct().then((res) => {
@@ -1268,8 +1270,44 @@ export default {
     handlePreview1 (file) {
       console.log(file, '修改选中文件列表中获得的文件');
       if (file.status == 'success') {
-        console.log(file.url)
-        window.open(file.url)
+        // console.log(file.url)
+        // window.open(file.url)
+        // let requestConfig = {
+        //   headers: {
+        //     "Content-Type": "application/json;application/octet-stream"
+        //   }
+        // };
+        axios.post(`/module/v1/download`, { moduleid: this.moduleidDetails }, {
+          responseType: "blob"
+        }).then(res => {
+          // 处理返回的文件流
+          const content = res.data;
+          const blob = new Blob([content]);
+          var date =
+            new Date().getFullYear() +
+            "-" +
+            (new Date().getMonth() + 1) +
+            "-" +
+            new Date().getDate();
+          const fileName = this.filenameDetails + date + ".xlsx";
+          if ("download" in document.createElement("a")) {
+            // 非IE下载
+            const elink = document.createElement("a");
+            elink.download = fileName;
+            elink.style.display = "none";
+            elink.href = URL.createObjectURL(blob);
+            document.body.appendChild(elink);
+            elink.click();
+            URL.revokeObjectURL(elink.href); // 释放URL 对象
+            document.body.removeChild(elink);
+          } else {
+            // IE10+下载
+            navigator.msSaveBlob(blob, fileName);
+          }
+        }).catch(error => {
+          console.log(error)
+          this.$message.error('下载失败，请重新下载')
+        })
       } else {
         this.$message.warning('文件未上传,请上传成功后进行下载！')
       }
@@ -1328,7 +1366,7 @@ export default {
       this.extension4 = extension4
       const isLt2M1 = file.size / 1024 < 500
       this.isLt2M1 = isLt2M1
-      if (this.extension3 && this.extension4) {
+      if (!this.extension3 && !this.extension4) {
         this.$message({
           message: '上传文件只能是excel格式!',
           type: 'warning'

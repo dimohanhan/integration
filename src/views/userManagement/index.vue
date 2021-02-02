@@ -56,7 +56,7 @@
                         :label-width="formLabelWidth">
 
             <el-input style="margin-left:0px"
-                      v-model="formCreate.uid"></el-input>
+                      v-model.trim="formCreate.uid"></el-input>
 
           </el-form-item>
           <el-form-item label="用户名:"
@@ -70,7 +70,7 @@
                         prop="passwd"
                         :label-width="formLabelWidth">
             <div id="inputStyle">
-              <el-input v-model="formCreate.passwd"></el-input>
+              <el-input v-model.trim="formCreate.passwd"></el-input>
             </div>
           </el-form-item>
           <el-form-item label="项目组:"

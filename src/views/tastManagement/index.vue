@@ -13,16 +13,19 @@
                style="    text-align: left;"
                class="demo-form-inline">
         <el-form-item label="编号:">
-          <el-input v-model="formInline.user"
-                    placeholder="请输入编号"></el-input>
+          <el-input v-model.trim="formInline.user"
+                    placeholder="请输入编号"
+                    @keyup.enter.native="search()"></el-input>
         </el-form-item>
         <el-form-item label="任务名称:">
-          <el-input v-model="formInline.user"
-                    placeholder="请输入任务名称"></el-input>
+          <el-input v-model.trim="formInline.taskname"
+                    placeholder="请输入任务名称"
+                    @keyup.enter.native="search()"></el-input>
         </el-form-item>
         <el-form-item label="创建者:">
-          <el-input v-model="formInline.user"
-                    placeholder="请输入创建者"></el-input>
+          <el-input v-model.trim="formInline.createuser"
+                    placeholder="请输入创建者"
+                    @keyup.enter.native="search()"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type=""
@@ -42,7 +45,9 @@
                 v-loading="loading"
                 ref="multipleTable"
                 :header-cell-style="{background:'#F2F2F2'}"
-                :cell-style="{padding:'2px'}">
+                :cell-style="{padding:'2px'}"
+                :cell-class-name="addClass"
+                @cell-click='taskColumn'>
 
         <el-table-column fixed
                          type="index"
@@ -61,10 +66,10 @@
                          label="任务说明"
                          width="130">
         </el-table-column>
-        <el-table-column prop="totalcase"
+        <!-- <el-table-column prop="totalcase"
                          label="包含接口数量"
                          width="150">
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column prop="createuser"
                          label="创建者"
                          width="150">
@@ -140,7 +145,7 @@
                           prop="taskname"
                           :label-width="formLabelWidth">
               <el-input style="margin-left:0px"
-                        v-model="formInline.taskname"></el-input>
+                        v-model.trim="formInline.taskname"></el-input>
             </el-form-item>
             <el-form-item label="任务说明:"
                           :label-width="formLabelWidth">
@@ -149,7 +154,7 @@
                         maxlength="100"
                         show-word-limit
                         placeholder="请输入内容"
-                        v-model="formInline.description">
+                        v-model.trim="formInline.description">
               </el-input>
             </el-form-item>
 
@@ -298,21 +303,6 @@
                    ref="formInline"
                    :rules="rules"
                    style="width: 47%;margin-bottom:10px;">
-            <el-form-item label="时间间隔:"
-                          prop="interval"
-                          placeholder="请换算为分钟填写"
-                          :label-width="formLabelWidth">
-              <el-input style="margin-left:0px"
-                        v-model="formInline.interval"></el-input>
-            </el-form-item>
-            <el-form-item label="执行次数:"
-                          :class="[text==true?'is-error':'']"
-                          :label-width="formLabelWidth">
-              <el-input style="margin-left:0px"
-                        v-model="formInline.remainingtimes"></el-input>
-              <div v-show="text"
-                   style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">请输入执行次数</div>
-            </el-form-item>
             <el-form-item label="报告方式:"
                           :label-width="formLabelWidth">
               <el-radio-group v-model="formInline.issendemail"
@@ -347,6 +337,31 @@
                               value-format="yyyy-MM-dd HH:mm:ss">
               </el-date-picker>
             </el-form-item>
+            <el-form-item label="时间间隔:"
+                          placeholder="请换算为分钟填写"
+                          :label-width="formLabelWidth">
+              <el-select v-model="formInline.interval"
+                         style="width: 100%"
+                         filterable
+                         allow-create
+                         default-first-option
+                         @change="onChangeMoudle"
+                         placeholder="请选择">
+                <el-option v-for="item in options"
+                           :key="item.value"
+                           :label="item.label"
+                           :value="item.value"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="执行次数:"
+                          :class="[text==true?'is-error':'']"
+                          :label-width="formLabelWidth">
+              <el-input style="margin-left:0px"
+                        v-model.trim="formInline.remainingtimes"></el-input>
+              <!-- <div v-show="text"
+                   style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">请输入执行次数</div> -->
+            </el-form-item>
+
             <div class="dialog-footer">
               <el-button type="primary"
                          icon=" iconfont icon-baocun"
@@ -473,7 +488,7 @@
                       :label-width="formLabelWidth">
 
           <el-input style="margin-left:0px"
-                    v-model="formInline.tastNameDetial"></el-input>
+                    v-model.trim="formInline.tastNameDetial"></el-input>
 
         </el-form-item>
         <el-form-item label="任务说明:"
@@ -483,7 +498,7 @@
                     maxlength="100"
                     show-word-limit
                     placeholder="请输入内容"
-                    v-model="formInline.tastDescDetial">
+                    v-model.trim="formInline.tastDescDetial">
           </el-input>
         </el-form-item>
 
@@ -494,21 +509,21 @@
                :model="formInline"
                style="width: 100%;margin-bottom:10px"
                class="demo-form-inline">
-        <el-form-item label="基础信息名称:"
+        <el-form-item label="模块名称:"
                       :label-width="formLabelWidth">
           <el-input style="margin-left:0px"
-                    v-model="formInline.basicMessage"></el-input>
+                    v-model.trim="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item label="接口名称:"
                       :label-width="formLabelWidth">
           <el-input style="margin-left:0px"
-                    v-model="formInline.basicMessage"></el-input>
+                    v-model.trim="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item label="用例名称:"
                       :label-width="formLabelWidth">
 
           <el-input style="margin-left:0px"
-                    v-model="formInline.basicMessage"></el-input>
+                    v-model.trim="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary"
@@ -626,6 +641,41 @@
                          label="地址"></el-table-column>
       </el-table>
     </el-dialog>
+    <!-- 点击任务名称一列弹出子任务页面 -->
+    <el-dialog title="子任务列表"
+               width="60%"
+               top="25vh"
+               :visible.sync="dialogTableChildren"
+               append-to-body>
+      <el-table :data="childrenData"
+                border
+                style="margin-top:30px">
+        <el-table-column type="index"
+                         label="序号"
+                         width="50"></el-table-column>
+        <el-table-column prop="taskname"
+                         label="子任务名称"
+                         width="auto"></el-table-column>
+        <el-table-column prop="description"
+                         label="任务说明"></el-table-column>
+        <el-table-column prop="createuser"
+                         label="创建者"
+                         width="auto"></el-table-column>
+        <el-table-column prop="createtime"
+                         label="创建时间"></el-table-column>
+        <el-table-column prop="status"
+                         label="执行状态"></el-table-column>
+      </el-table>
+      <!-- 分页逻辑 -->
+      <el-pagination layout="total,sizes,prev, pager, next"
+                     :page-sizes="[5, 10, 15, 20]"
+                     :page-size="pagesize"
+                     :total="total"
+                     @current-change="handleCurrentChange"
+                     @size-change="handleSizeChange">
+      </el-pagination>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -659,6 +709,20 @@ export default {
     };
     // eslint-disable-next-line no-unused-vars
     return {
+      options: [{
+        value: '86400',
+        label: '一天'
+      }, {
+        value: '604800',
+        label: '一周'
+      }, {
+        value: '2592000',
+        label: '一月'
+      },
+      {
+        value: '31536000 ',
+        label: '一年'
+      }],
       titleTransfer: ["用例列表", "已选中的用例列表"],
       rules: {
         moduleid: [
@@ -670,9 +734,7 @@ export default {
         product: [
           { required: true, message: '请选择产品名称', trigger: 'change' }
         ],
-        interval: [
-          { required: true, message: '请输入时间间隔', trigger: 'blur' }
-        ],
+
         email: [
           { required: true, validator: validatePass, trigger: 'blur' }
         ],
@@ -727,6 +789,7 @@ export default {
       dialogFormVisible: false,//复制页面是否弹窗的判断条件
       dialogTableVisible: false,//日志详情页面是否弹窗的判断条件
       dialogDetailsVisible: false,//详情页面是否弹窗的判断条件
+      dialogTableChildren: false,//子任务页面列表
       dialogDetailsAdd: false,//详情页新增
       formLabelWidth: '120px',
       closeDialog: false,
@@ -752,6 +815,7 @@ export default {
         name: '王小虎',
         address: '上海市普陀区金沙江路 1518 弄'
       }],
+      childrenData: [],//子任务列表
       loading: false,
       taskid: '',
       secondMoudleid: ''//新增第一页保存成功后存储返回的模块id
@@ -762,7 +826,11 @@ export default {
     this.search()
 
   },
+  mounted () {
+    this.$forceUpdate()
+  },
   methods: {
+
     // 切换模式 现有树形穿梭框模式transfer 和通讯录模式addressList
     changeMode () {
       if (this.mode == "transfer") {
@@ -876,7 +944,7 @@ export default {
     },
     // 创建页面第一页点击保存按钮
     save (formName) {
-      // this.type = 'C'
+      this.type = 'C'
       this.$refs[formName].validate((valid) => {
         if (valid) {
           console.log(111)
@@ -917,43 +985,38 @@ export default {
           return false
         }
       })
-
-
+    },
+    //改变时间间隔的选中值（对时间得处理）
+    onChangeMoudle (val) {
+      console.log(val)
     },
     // 创建页面第二页点击保存按钮
-    allocationSave (formName1) {
-      if (this.formInline.remainingtimes == '') {
-        console.log('执行次数为空')
-        this.text = true
+    allocationSave () {
+      // if (this.formInline.remainingtimes == '') {
+      //   console.log('执行次数为空')
+      //   this.text = true
+      // } else {
+      //   this.text = false
+      // }
+      console.log(1111)
+      if (this.report == '1') {
+        this.emailSplit = this.formInline.email.split(",")
+        this.formInline.email = this.emailSplit
       } else {
-        this.text = false
+        this.formInline.email = []
       }
-      this.$refs[formName1].validate((valid) => {
-        if (valid) {
-          console.log(1111)
-          if (this.report == '1') {
-            this.emailSplit = this.formInline.email.split(",")
-            this.formInline.email = this.emailSplit
-          } else {
-            this.formInline.email = []
-          }
-          this.formInline.cases = this.idValue
-          this.formInline.taskid = this.secondTaskid
-          this.$http.getTaskSecondAdd(this.formInline, this.idValue).then((res) => {
-            if (res.data.code == '0000') {
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              });
-              this.search()
-              this.dialogCreatVisible = false
-            } else {
-              this.$message.error(res.data.description);
-            }
+      this.formInline.cases = this.idValue
+      this.formInline.taskid = this.secondTaskid
+      this.$http.getTaskSecondAdd(this.formInline, this.idValue).then((res) => {
+        if (res.data.code == '0000') {
+          this.$message({
+            message: '保存成功',
+            type: 'success'
           });
+          this.search()
+          this.dialogCreatVisible = false
         } else {
-          console.log('error submit!!');
-          return false;
+          this.$message.error(res.data.description);
         }
       });
     },
@@ -988,19 +1051,28 @@ export default {
       this.dialogFormVisible = true
     },
     //执行事件按钮
-    handleClickExecute () {
-      //  console.log(index, row);
+    handleClickExecute (item) {
+      console.log(item.taskid)
       this.$confirm('确定执行么?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '执行成功!'
+        this.$http.getTaskExecute(item.taskid, item.createuser).then((res) => {
+          console.log(res.data.code);
+          if (res.data.code == '0000') {
+            this.$message({
+              type: 'success',
+              message: '执行成功!'
+            });
+            //环境信息的查询
+            this.search()
+          } else {
+            this.$message.error(res.data.description)
+          }
         });
       }).catch(() => {
-
+        console.log('点击关闭')
       });
     },
     //日志详情按钮操作事件
@@ -1241,11 +1313,58 @@ export default {
       console.log("toData:", toData1);
       console.log("obj:", obj);
     },
+    //修改任务名称那一列的字体样式
+    addClass ({ columnIndex }) {
+      // console.log(columnIndex)
+      if (columnIndex === 1) {
+        return 'cell-blue'
+      }
+    },
+    //点击任务名称那一列
+    taskColumn (row, column,) {
+      console.log(row, column)
+      if (column.label == '任务名称') {
+        console.log('点击了任务名称')
+        this.$http.getTaskChildrenSearch(this.pagesize, this.currpage, row.taskid).then((res) => {
+          if (res.data.code == '0000' && res.data.data.length > 0) {
+            console.log(res.data.data)
+            this.childrenData = res.data.data
+            for (var i = 0; i < this.childrenData.length; i++) {
+              if (res.data.data[i].status == 0) {
+                res.data.data[i].status = '待执行'
+              } else if (res.data.data[i].status == 1) {
+                res.data.data[i].status = '执行中'
+              } else if (res.data.data[i].status == 2) {
+                res.data.data[i].status = '任务暂停'
+              } else if (res.data.data[i].status == 3) {
+                res.data.data[i].status = '执行完成'
+              }
+              else if (res.data.data[i].status == 4) {
+                res.data.data[i].status = '任务取消'
+              }
+            }
+            this.total = res.data.paging.total;//总信息条数从数据库获取;
+            console.log(this.total)
+
+            this.dialogTableChildren = true
+          } else if (res.data.data.length == 0) {
+            this.$message.error('该任务下没有子任务');
+          } else if (res.data.code !== '0000') {
+            this.$message.error(res.data.description);
+
+          }
+        });
+      }
+    },
   },
   components: { "tree-transfer": treeTransfer } // 注册穿梭框组件
 }
 </script>
 <style>
+.cell-blue {
+  color: rgb(19, 105, 194) !important;
+  cursor: pointer;
+}
 .el-main {
   line-height: 0 !important;
 }
@@ -1362,5 +1481,8 @@ export default {
   position: absolute;
   top: 0px;
   right: 264px;
+}
+.el-radio {
+  margin-right: 7px !important;
 }
 </style>

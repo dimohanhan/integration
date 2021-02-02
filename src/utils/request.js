@@ -14,10 +14,10 @@ Vue.use(router)
 //1. 创建新的axios实例，
 const service = axios.create({
   // 公共接口-
-  // baseURL: 'http://10.1.61.34:8000',//服务器
+  baseURL: 'http://10.1.61.34:8000',//服务器
   // baseURL: 'http://10.4.4.79:8000',//王岳峰
-  baseURL: 'http://10.1.94.89:8000',//刘慧
-  // baseURL: 'http://10.1.151.124:8000',//候瑞丰
+  // baseURL: 'http://10.1.94.89:8000',//刘慧
+  // baseURL: 'http://10.1.71.243:8000',//候瑞丰
   // 超时时间 单位是ms，这里设置了3s的超时时间
   timeout: 3 * 1000
 })

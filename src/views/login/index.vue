@@ -69,6 +69,9 @@ export default {
       }
     };
   },
+  created () {
+
+  },
   methods: {
     ...mapMutations(['changeLogin']),
     submitForm (formName) {

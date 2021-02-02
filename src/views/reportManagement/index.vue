@@ -15,14 +15,18 @@
 
             <el-form-item label="任务ID">
               <el-input v-model="formInline.taskid"
-                        placeholder="请输入任务ID"></el-input>
+                        placeholder="请输入任务ID"
+                        @keyup.enter.native="onSubmit()"></el-input>
             </el-form-item>
             <el-form-item label="创建者">
               <el-input v-model="formInline.createuser"
-                        placeholder="请输入创建者"></el-input>
+                        placeholder="请输入创建者"
+                        @keyup.enter.native="onSubmit()"></el-input>
             </el-form-item>
             <el-form-item label="执行结果">
-              <el-input placeholder="请输入执行结果"></el-input>
+              <el-input placeholder="请输入执行结果"
+                        v-model="formInline.failure"
+                        @keyup.enter.native="onSubmit()"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type=""
@@ -51,10 +55,12 @@
                              label="任务ID"
                              width="auto">
             </el-table-column> -->
+
             <el-table-column prop="taskname"
                              label="任务名称"
                              width="auto">
             </el-table-column>
+
             <el-table-column prop="address"
                              label="发送邮件"
                              width="auto">
@@ -310,6 +316,7 @@ export default {
     this.onSubmit()
   },
   methods: {
+
     // 自定义列背景色
     columnStyle ({ rowIndex }) {
       // console.log(row, column, rowIndex, columnIndex)
@@ -340,7 +347,7 @@ export default {
     onSubmit () {
       // console.log('submit!');
       this.loading = true
-      this.$http.getReportSearch(this.pagesize, this.currpage, this.formInline.createuser, this.formInline.taskid).then((res) => {
+      this.$http.getReportSearch(this.pagesize, this.currpage, this.formInline.createuser, this.formInline.taskid, this.formInline.failure).then((res) => {
         console.log(res.data.data);
         if (res.data.data && res.data.code == '0000') {
           this.tableData = res.data.data

@@ -99,6 +99,19 @@ const getTaskDelete = (taskid) =>
       }
     }
   });
+  //主页表格中的执行功能
+const getTaskExecute = (origin,createuser) =>
+axios.request({
+  url: `task/v1/taskOrignlist/`,
+  method: 'POST',
+  data: {
+    optype: '0',
+    data: {
+      origin,
+      createuser
+    }
+  }
+});
 //点击详情页表格查询
 const getTaskDetialSearch = (size, page, taskid,ordering) =>
   axios.request({
@@ -146,6 +159,19 @@ axios.request({
     moduleid,
   }
 });
+//子任务列表查询接口
+const getTaskChildrenSearch = (size, page, taskid) =>
+  axios.request({
+    url: `task/v1/taskOrignlist`,
+    method: 'get',
+    params: {
+      size,
+      page,
+      taskid: taskid,
+  
+    },
+  });
 export { getTaskProduct, getTaskModule, getTasktransfer,
   getTaskSearch, getTaskAddSearch, getTaskAdd, getTaskSecondAdd,
-  getTaskDelete, getTaskDetialSearch,getDetialTaskDelete,getTasktransferAdd ,getTasktransferSearch};
+  getTaskDelete, getTaskDetialSearch,getDetialTaskDelete,getTasktransferAdd ,
+  getTasktransferSearch,getTaskChildrenSearch,getTaskExecute};

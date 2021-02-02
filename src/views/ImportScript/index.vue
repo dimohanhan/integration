@@ -84,8 +84,9 @@
                style="text-align: left;margin-top:10px">
         <el-form-item label="脚本名称:"
                       :label-width="formLabelWidth">
-          <el-input v-model="formInline.filename"
-                    placeholder="脚本名称"></el-input>
+          <el-input v-model.trim="formInline.filename"
+                    placeholder="脚本名称"
+                    @keyup.enter.native="onSubmit()"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type=""
@@ -371,7 +372,7 @@ export default {
         }
       });
       this.$http.getImportModule(val).then((res) => {
-        console.log(res.data.data);
+        // console.log(res.data.data);
         if (res.data.code == '0000') {
           this.moduleData = res.data.data
         }
@@ -443,6 +444,8 @@ export default {
         console.log(res.data.data);
         if (res.data.code == '0000') {
           this.tableData = res.data.data
+          this.total = res.data.paging.total;//总信息条数从数据库获取;
+          console.log(this.total)
         } else {
           this.$message.error(res.data.description)
         }

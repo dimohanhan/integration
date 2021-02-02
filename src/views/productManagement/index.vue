@@ -13,7 +13,11 @@
 
         <el-form-item label="产品名称">
           <el-select v-model="formInline.productid"
-                     placeholder="请选择">
+                     placeholder="请选择"
+                     ref="selectProduct"
+                     @change="productChange"
+                     @visible-change="isShowSelectOptions"
+                     @keyup.enter.native="onSubmit">
             <el-option v-for="item in productData"
                        :key="item.productid"
                        :label="item.name"
@@ -63,7 +67,7 @@
                           prop="modulename"
                           :label-width="formLabelWidth">
               <el-input style="margin-left:0px"
-                        v-model="formInline.modulename"></el-input>
+                        v-model.trim="formInline.modulename"></el-input>
             </el-form-item>
             <!-- 测试环境信息新增内容 -->
             <!-- <div >
@@ -107,7 +111,7 @@
           <el-button @click="addMock">新增</el-button> -->
             <el-form-item label="备注说明:"
                           :label-width="formLabelWidth">
-              <el-input v-model="formInline.desc"></el-input>
+              <el-input v-model.trim="formInline.desc"></el-input>
             </el-form-item>
             <el-form-item label="测试依赖excel文件:"
                           label-width="150px">
@@ -182,7 +186,15 @@
               </el-form-item>
             </div>
           </el-form>
-
+          <div slot="footer"
+               class="dialog-footer">
+            <!-- <el-button type="primary"
+                       icon=" iconfont icon-icon-test"
+                       @click="allocation()">保存并开始环境配置</el-button> -->
+            <el-button type="primary"
+                       icon=" iconfont icon-baocun"
+                       @click="submitUpload2()">确定</el-button>
+          </div>
         </div>
       </el-dialog>
       <!-- 点击新增按钮环境，弹出输入的文本 -->
@@ -197,43 +209,43 @@
           <el-form-item label="环境名称:"
                         prop="environmentname"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironment.environmentname"
+            <el-input v-model.trim="formEnvironment.environmentname"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="服务器host:"
                         prop="host"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironment.host"
+            <el-input v-model.trim="formEnvironment.host"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="ssh端口:"
                         prop="port"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironment.port"
+            <el-input v-model.trim="formEnvironment.port"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="服务器用户名:"
                         prop="user"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironment.user"
+            <el-input v-model.trim="formEnvironment.user"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="服务器密码:"
                         prop="password"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironment.password"
+            <el-input v-model.trim="formEnvironment.password"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="数据库编号:"
                         prop="db"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironment.db"
+            <el-input v-model.trim="formEnvironment.db"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="代码部署路径:"
                         prop="contents"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironment.contents"
+            <el-input v-model.trim="formEnvironment.contents"
                       autocomplete="off"></el-input>
           </el-form-item>
 
@@ -252,32 +264,32 @@
                  style="width: 300px;">
           <el-form-item label="环境名称:"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironmentResert.environmentname"
+            <el-input v-model.trim="formEnvironmentResert.environmentname"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="服务器host:"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironmentResert.host"
+            <el-input v-model.trim="formEnvironmentResert.host"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="ssh端口:"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironmentResert.port"
+            <el-input v-model.trim="formEnvironmentResert.port"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="服务器用户名:"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironmentResert.user"
+            <el-input v-model.trim="formEnvironmentResert.user"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="服务器密码:"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironmentResert.password"
+            <el-input v-model.trim="formEnvironmentResert.password"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="数据库编号:"
                         :label-width="formLabelWidth">
-            <el-input v-model="formEnvironmentResert.db"
+            <el-input v-model.trim="formEnvironmentResert.db"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="代码部署路径:"
@@ -475,6 +487,12 @@
           </div>
 
         </el-form>
+        <div slot="footer"
+             class="dialog-footer">
+          <el-button type="primary"
+                     icon=" iconfont icon-baocun"
+                     @click="submitUpload3">确定</el-button>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -597,8 +615,21 @@ export default {
     this.onSubmit()
     this.updateuser = localStorage.getItem('uid')
     this.handlegetProduct()
+    window.addEventListener("keyup", this.enterSearch)
   },
   methods: {
+    // 是否显示下拉框
+    enterSearch: function (e) {
+      if (e.keyCode === 13) {
+        this.onSubmit()
+      }
+    },
+    // 是否显示下拉框
+    isShowSelectOptions (e) {
+      if (!e) {
+        this.$refs.selectProduct.blur();
+      }
+    },
     //环境页面，点击新增，新增文本框
     addDomain () {
       this.dialog = true
@@ -858,6 +889,7 @@ export default {
     //选中产品下拉得到的值
     productChange (val) {
       console.log(val)
+      this.onSubmit()
     },
     //点击新增按钮
     creatRoleClick () {
@@ -960,7 +992,6 @@ export default {
       this.fd.append('optype', '0')
       this.$refs[formName].validate((valid) => {
         if (valid && this.extension !== false && this.isLt2M !== false && this.extension2 !== false) {
-          console.log(this.extension, 'dianji')
           axios.post('module/v1/manage/', this.fd).then(res => {
             console.log(res)
             this.moduleidenvieorment = res.data.moduleid
@@ -975,14 +1006,15 @@ export default {
               }).catch(() => {
                 this.$router.go(0)
               });
-            } else if (res.data.code == '400') {
+            }
+            if (res.data.code == '400') {
               this.$message.error(res.data.description);
-              this.$refs.upload.clearFiles();
+              // this.$refs.upload.clearFiles();
             }
           })
         } else {
           console.log('error submit!!');
-          return false;
+          // return false;
         }
       })
 
@@ -1009,7 +1041,7 @@ export default {
             });
         } else if (res.data.code == '400') {
           this.$message.error(res.data.description);
-          this.$refs.upload.clearFiles();
+          // this.$refs.upload.clearFiles();
         }
       })
 
@@ -1069,7 +1101,7 @@ export default {
             });
           } else if (res.data.code == '400') {
             this.$message.error(res.data.description);
-            this.$refs.upload.clearFiles();
+            // this.$refs.upload.clearFiles();
           }
         })
       }
@@ -1108,7 +1140,7 @@ export default {
             console.log(res)
             if (res.data.code == '400') {
               this.$message.error(res.data.description);
-              this.$refs.upload.clearFiles();
+              // this.$refs.upload.clearFiles();
             }
             if (res.data.code == '0000') {
               this.moduleidDetails = res.data.moduleid
@@ -1143,7 +1175,7 @@ export default {
             console.log(res)
             if (res.data.code == '400') {
               this.$message.error(res.data.description);
-              this.$refs.upload.clearFiles();
+              // this.$refs.upload.clearFiles();
             }
             if (res.data.code == '0000') {
               this.moduleidDetails = res.data.moduleid
@@ -1283,17 +1315,12 @@ export default {
           // 处理返回的文件流
           const content = res.data;
           const blob = new Blob([content]);
-          var date =
-            new Date().getFullYear() +
-            "-" +
-            (new Date().getMonth() + 1) +
-            "-" +
-            new Date().getDate();
-          const fileName = this.filenameDetails + date + ".xlsx";
+          const fileName = this.filenameDetails + ".xlsx";
+          const fileName1 = this.filenameDetails + ".xls";
           if ("download" in document.createElement("a")) {
             // 非IE下载
             const elink = document.createElement("a");
-            elink.download = fileName;
+            elink.download = fileName || fileName1;
             elink.style.display = "none";
             elink.href = URL.createObjectURL(blob);
             document.body.appendChild(elink);
@@ -1302,14 +1329,14 @@ export default {
             document.body.removeChild(elink);
           } else {
             // IE10+下载
-            navigator.msSaveBlob(blob, fileName);
+            navigator.msSaveBlob(blob, fileName || fileName1);
           }
         }).catch(error => {
           console.log(error)
           this.$message.error('下载失败，请重新下载')
         })
       } else {
-        this.$message.warning('文件未上传,请上传成功后进行下载！')
+        this.$message.warning('文件未上传,请上传成功后进行下载!')
       }
     },
     remove (file, fileList) {
@@ -1387,6 +1414,15 @@ export default {
     closeMessageD () {
       this.$router.go(0)
       console.log('点击编辑页面的关闭回调')
+    },
+    //新增第二页确定按钮
+    submitUpload2 () {
+      this.dialogCreatVisible = false
+      this.$router.go(0)
+    },
+    submitUpload3 () {
+      this.dialogFormVisible = false
+      this.$router.go(0)
     }
   }
 }

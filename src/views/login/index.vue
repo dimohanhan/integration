@@ -11,12 +11,14 @@
                  ref="ruleForm"
                  label-width="auto"
                  class="demo-ruleForm">
-          <el-form-item prop="uid">
+          <el-form-item prop="uid"
+                        :label-width="formLabelWidth">
             <div id="inputStyle">
               <el-input type="name"
                         v-model.trim="ruleForm.uid"
                         autocomplete="off"
-                        placeholder="请输入用户名称">
+                        placeholder="请输入用户名称"
+                        @keyup.enter.native="submitForm('ruleForm')">
                 <i slot="prefix"
                    style="font-size:23px"
                    class="el-input__icon el-icon-s-custom"></i>
@@ -24,12 +26,14 @@
             </div>
 
           </el-form-item>
-          <el-form-item prop="passwd">
+          <el-form-item prop="passwd"
+                        :label-width="formLabelWidth">
             <div id="inputStyle">
               <el-input type="password"
                         v-model.trim="ruleForm.passwd"
                         autocomplete="off"
                         placeholder="请输入登陆密码"
+                        style=""
                         @keyup.enter.native="submitForm('ruleForm')">
                 <i slot="prefix"
                    style="font-size:23px"
@@ -54,6 +58,7 @@ import { mapMutations } from 'vuex';
 export default {
   data () {
     return {
+      formLabelWidth: '120px',
       ruleForm: {
         uid: '',
         passwd: '',
@@ -68,9 +73,6 @@ export default {
 
       }
     };
-  },
-  created () {
-
   },
   methods: {
     ...mapMutations(['changeLogin']),

@@ -1305,31 +1305,31 @@ export default {
         // console.log(file.url)
         // window.open(file.url)
         // let requestConfig = {
-        //   headers: {
-        //     "Content-Type": "application/json;application/octet-stream"
-        //   }
-        // };
+
         axios.post(`/module/v1/download`, { moduleid: this.moduleidDetails }, {
+          headers: {
+            "Content-Type": "application/json;application/octet-stream"
+          },
           responseType: "blob"
         }).then(res => {
           // 处理返回的文件流
           const content = res.data;
           const blob = new Blob([content]);
-          const fileName = this.filenameDetails + ".xlsx";
-          const fileName1 = this.filenameDetails + ".xls";
+          // const fileName = this.filenameDetails + ".xlsx";
+          const fileName = this.filenameDetails + ".xls";
           if ("download" in document.createElement("a")) {
             // 非IE下载
             const elink = document.createElement("a");
-            elink.download = fileName || fileName1;
+            elink.download = fileName
             elink.style.display = "none";
-            elink.href = URL.createObjectURL(blob);
+            elink.href = window.URL.createObjectURL(blob);
             document.body.appendChild(elink);
             elink.click();
             URL.revokeObjectURL(elink.href); // 释放URL 对象
             document.body.removeChild(elink);
           } else {
             // IE10+下载
-            navigator.msSaveBlob(blob, fileName || fileName1);
+            navigator.msSaveBlob(blob, fileName);
           }
         }).catch(error => {
           console.log(error)

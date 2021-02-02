@@ -944,7 +944,7 @@ export default {
     },
     // 创建页面第一页点击保存按钮
     save (formName) {
-      this.type = 'C'
+      // this.type = 'C'
       this.$refs[formName].validate((valid) => {
         if (valid) {
           console.log(111)
@@ -953,7 +953,9 @@ export default {
           console.log(this.toData, '点击保存拿到的穿梭框的选中值')
           if (this.toData.length == '0') {
             this.$message.warning('脚本列表为必填项')
+            return
           }
+
           for (var i = 0; i < this.toData.length; i++) {
             for (var j = 0; j < this.toData[i].children.length; j++) {
               console.log(this.toData[i].children[j].id)

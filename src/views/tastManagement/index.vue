@@ -12,19 +12,9 @@
                :model="formInline"
                style="    text-align: left;"
                class="demo-form-inline">
-        <el-form-item label="编号:">
+        <el-form-item label="">
           <el-input v-model.trim="formInline.user"
-                    placeholder="请输入编号"
-                    @keyup.enter.native="search()"></el-input>
-        </el-form-item>
-        <el-form-item label="任务名称:">
-          <el-input v-model.trim="formInline.taskname"
-                    placeholder="请输入任务名称"
-                    @keyup.enter.native="search()"></el-input>
-        </el-form-item>
-        <el-form-item label="创建者:">
-          <el-input v-model.trim="formInline.createuser"
-                    placeholder="请输入创建者"
+                    placeholder="任务名称/创建人"
                     @keyup.enter.native="search()"></el-input>
         </el-form-item>
         <el-form-item>
@@ -98,7 +88,7 @@
                        type="text"
                        size="small"
                        style="background-color:transparent;color:#1369c2">复制</el-button>
-            <el-button @click="handleClickDetails(scope.row)"
+            <el-button @click="handleClickDetial(scope.row)"
                        type="text"
                        size="small"
                        style="background-color:transparent;color:#1369c2">详情</el-button>
@@ -371,23 +361,112 @@
         </div>
       </el-dialog>
       <!-- 分页逻辑 -->
+      <!-- 点击任务名称一列弹出子任务页面 -->
+      <el-dialog title="子任务列表"
+                 width="60%"
+                 top="25vh"
+                 :visible.sync="dialogTableChildren"
+                 append-to-body>
+        <el-table :data="childrenData"
+                  border
+                  style="margin-top:30px">
+          <el-table-column type="index"
+                           label="序号"
+                           width="50"></el-table-column>
+          <el-table-column prop="taskname"
+                           label="子任务名称"
+                           width="auto"></el-table-column>
+          <el-table-column prop="description"
+                           label="任务说明"></el-table-column>
+          <el-table-column prop="createuser"
+                           label="创建者"
+                           width="auto"></el-table-column>
+          <el-table-column prop="createtime"
+                           label="创建时间"></el-table-column>
+          <el-table-column prop="status"
+                           label="执行状态"></el-table-column>
+          <el-table-column fixed="right"
+                           label="操作"
+                           width="230">
+            <template slot-scope="scope">
+              <el-button type="text"
+                         size="small"
+                         @click="handleDetialChildren( scope.row)"
+                         style="background-color:transparent;color:#1369c2">详情</el-button>
+              <el-button type="text"
+                         size="small"
+                         @click="handleDeleteChildren(scope.$index, scope.row)"
+                         style="background-color:transparent;color:#1369c2">删除</el-button>
+              <el-button type="text"
+                         size="small"
+                         @click="handleReportChildren(scope.$index, scope.row)"
+                         style="background-color:transparent;color:#1369c2">报告</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <!-- 分页逻辑 -->
+        <el-pagination layout="total,sizes,prev, pager, next"
+                       :page-sizes="[5, 10, 15, 20]"
+                       :page-size="pagesize1"
+                       :total="total1"
+                       @current-change="handleCurrentChangeChildren"
+                       @size-change="handleSizeChangeChildren">
+        </el-pagination>
+      </el-dialog>
     </div>
     <!-- 关于弹窗的主要内容 -->
     <!-- 点击复制弹出页面 -->
     <el-dialog title="测试任务管理-复制"
                style="text-align:left"
-               width="80%"
+               width="90%"
                top="10vh"
                :modal-append-to-body='false'
                append-to-body
+               @close="closeDetialsMessage"
                :visible.sync="dialogFormVisible">
-      <el-form style="width: 400px;margin-top:10px">
+      <el-form style="margin-top:10px"
+               :inline='true'
+               :model="formInline">
         <el-form-item label="任务名称:"
                       :label-width="formLabelWidth">
-
           <el-input style="margin-left:0px"
-                    v-model="formInline.tastName"></el-input>
+                    v-model.trim="formInline.tastNameDetial"></el-input>
+        </el-form-item>
+        <el-form-item label="报告方式:"
+                      :label-width="formLabelWidth">
+          <el-radio-group v-model="formInline.issendemailDetial"
+                          @change='handleChangeValue1(formInline.issendemailDetial)'>
+            <el-radio label="0">不发送邮件</el-radio>
+            <el-radio label="1">发送邮件</el-radio>
+          </el-radio-group>
 
+        </el-form-item>
+
+        <el-form-item prop="email"
+                      label=""
+                      v-if="inputOpenDetail">
+          <el-input v-model="formInline.emailDetial"
+                    placeholder="请输入邮箱地址"></el-input>
+        </el-form-item>
+        <!-- 选择发送邮件时，显示input框 -->
+        <el-form-item label="执行方式:"
+                      :label-width="formLabelWidth">
+          <el-radio-group v-model="formInline.rcycleflagDetial"
+                          @change='handleChangeRadio1(formInline.rcycleflagDetial)'>
+            <el-radio label="2">暂不执行</el-radio>
+            <el-radio label="0">立即执行</el-radio>
+            <el-radio label="1">定时执行</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item prop="begintime">
+          <el-date-picker v-model="formInline.begintimeDetial"
+                          style="width:355px"
+                          type="datetime"
+                          v-if="regularly"
+                          @blur=blurChange
+                          placeholder="选择执行日期"
+                          value-format="yyyy-MM-dd HH:mm:ss">
+          </el-date-picker>
         </el-form-item>
         <el-form-item label="任务说明:"
                       :label-width="formLabelWidth">
@@ -396,10 +475,34 @@
                     maxlength="100"
                     show-word-limit
                     placeholder="请输入内容"
-                    v-model="formInline.tastExplain">
+                    v-model.trim="formInline.tastDescDetial1">
           </el-input>
         </el-form-item>
+        <el-form-item label="执行次数:"
+                      :class="[text==true?'is-error':'']"
+                      :label-width="formLabelWidth">
+          <el-input style="margin-left:0px"
+                    v-model.trim="formInline.remainingtimesDetial"></el-input>
+          <!-- <div v-show="text"
+                   style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">请输入执行次数</div> -->
+        </el-form-item>
 
+        <el-form-item label="时间间隔:"
+                      placeholder="请换算为分钟填写"
+                      :label-width="formLabelWidth">
+          <el-select v-model="formInline.intervalDetial"
+                     style="width: 100%"
+                     filterable
+                     allow-create
+                     default-first-option
+                     @change="onChangeMoudle"
+                     placeholder="请选择">
+            <el-option v-for="item in options"
+                       :key="item.value"
+                       :label="item.label"
+                       :value="item.value"></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <div id="listText">任务列表</div>
       <!-- 点击复制进去页面查询列表的表单 -->
@@ -410,98 +513,216 @@
         <el-form-item label="模块名称:"
                       :label-width="formLabelWidth">
           <el-input style="margin-left:0px"
-                    v-model="formInline.basicMessage"></el-input>
+                    v-model.trim="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item label="接口名称:"
                       :label-width="formLabelWidth">
-
           <el-input style="margin-left:0px"
-                    v-model="formInline.basicMessage"></el-input>
+                    v-model.trim="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item label="用例名称:"
                       :label-width="formLabelWidth">
 
           <el-input style="margin-left:0px"
-                    v-model="formInline.basicMessage"></el-input>
+                    v-model.trim="formInline.basicMessage"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary"
                      icon="el-icon-search"
                      style="margin-left:20px"
-                     @click="onSubmit">查询</el-button>
+                     @click="onSubmitCopy">查询</el-button>
+          <el-button type="primary"
+                     icon="el-icon-plus"
+                     style="margin-left:20px"
+                     @click="scriptAdd">新增</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="tableData"
-                style="width: 94%;margin-left:30px;margin-top: 20px;"
+      <el-button size=""
+                 type="danger"
+                 :disabled="openIsDisabled"
+                 style="margin-left:30px;margin-bottom:20px"
+                 @click="handleDelete1()">删除</el-button>
+      <!-- 复制页点击新增弹出页面 -->
+      <el-dialog title="测试任务管理-脚本新增"
+                 style="text-align:left;height:100%"
+                 width="60%"
+                 top="20vh"
+                 :modal-append-to-body='false'
+                 append-to-body
+                 :visible.sync="dialogDetailsAdd">
+        <!-- <div id="listText">脚本列表</div> -->
+        <!-- 点击复制新增进去页面查询穿梭框 -->
+        <tree-transfer :from_data='fromData1'
+                       :to_data='toData1'
+                       v-model="toData1"
+                       :title="titleTransfer"
+                       :defaultProps="{label:'label',children:'children'}"
+                       @add-btn='add1'
+                       @remove-btn='remove1'
+                       :mode='mode'
+                       height='450px'
+                       style="width:100%; margin-top: 10px;"
+                       @change="aaaaa"
+                       filter
+                       openAll>
+        </tree-transfer>
+        <div style="text-align:right">
+          <el-button @click="scriptSave()"
+                     icon="iconfont icon-baocun">保存</el-button>
+        </div>
+
+      </el-dialog>
+      <el-table :data="tableDataCopy"
+                style="width: 94%;margin-left:30px"
                 border
+                v-loading="loading"
+                @selection-change="handleSelectionChange"
                 :header-cell-style="{background:'#F2F2F2'}"
                 :cell-style="{padding:'2px'}">
         <el-table-column type="selection"
                          width="55">
+
         </el-table-column>
         <el-table-column fixed
                          type="index"
                          label="序号">
+          <template slot-scope="scope">
+            <span>{{scope.$index+(currpage - 1) * pagesize1 + 1}}</span>
+          </template>
         </el-table-column>
         <el-table-column prop="rdmsid"
                          label="RDMSID">
         </el-table-column>
+        <el-table-column prop="productid"
+                         label="产品名称">
+        </el-table-column>
         <el-table-column prop="moduleid"
                          label="模块名称">
         </el-table-column>
-        <el-table-column prop="city"
-                         label="接口名称">
-        </el-table-column>
+
         <el-table-column prop="address"
                          label="脚本名称">
         </el-table-column>
         <el-table-column prop="zip"
-                         label="脚本说明"
-                         w>
+                         label="脚本说明">
         </el-table-column>
-        <el-table-column prop="mobile"
+        <el-table-column prop="createuser"
                          label="创建者">
         </el-table-column>
-        <el-table-column prop="status"
+        <el-table-column prop="createtime"
                          label="创建时间">
         </el-table-column>
 
       </el-table>
-      <!-- <div slot="footer"
-           class="dialog-footer">
-        <el-button type="primary"
-                   icon=" iconfont icon-fuzhi"
-                   @click="copy()">复制</el-button>
-      </div> -->
+
+      <!-- 分页逻辑 -->
+      <el-pagination layout="total,sizes,prev, pager, next"
+                     :page-sizes="[5, 10, 15, 20]"
+                     :page-size="pagesize2"
+                     :total="total2"
+                     @current-change="handleCurrentChangeCopy"
+                     @size-change="handleSizeChangeCopy">
+      </el-pagination>
     </el-dialog>
     <!-- 点击详情弹出页面 -->
     <el-dialog title="测试任务管理-详情"
                style="text-align:left"
-               width="80%"
+               width="90%"
                top="10vh"
                :modal-append-to-body='false'
                append-to-body
                @close="closeDetialsMessage"
                :visible.sync="dialogDetailsVisible">
-      <el-form style="width: 400px;margin-top:10px">
+      <el-form style="margin-top:10px"
+               :inline='true'
+               :model="formInline">
         <el-form-item label="任务名称:"
                       :label-width="formLabelWidth">
-
           <el-input style="margin-left:0px"
+                    :disabled="true"
                     v-model.trim="formInline.tastNameDetial"></el-input>
+        </el-form-item>
+        <el-form-item label="报告方式:"
+                      :label-width="formLabelWidth">
+          <el-radio-group v-model="formInline.issendemailDetial"
+                          @change='handleChangeValue1(formInline.issendemailDetial)'>
+            <el-radio disabled
+                      label="0">不发送邮件</el-radio>
+            <el-radio disabled
+                      label="1">发送邮件</el-radio>
+          </el-radio-group>
 
+        </el-form-item>
+
+        <el-form-item prop="email"
+                      label=""
+                      v-if="inputOpenDetail">
+          <el-input v-model="formInline.emailDetial"
+                    :disabled="true"
+                    placeholder="请输入邮箱地址"></el-input>
+        </el-form-item>
+        <!-- 选择发送邮件时，显示input框 -->
+        <el-form-item label="执行方式:"
+                      :label-width="formLabelWidth">
+          <el-radio-group v-model="formInline.rcycleflagDetial"
+                          @change='handleChangeRadio1(formInline.rcycleflagDetial)'>
+            <el-radio disabled
+                      label="2">暂不执行</el-radio>
+            <el-radio disabled
+                      label="0">立即执行</el-radio>
+            <el-radio disabled
+                      label="1">定时执行</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item prop="begintime">
+          <el-date-picker v-model="formInline.begintimeDetial"
+                          style="width:355px"
+                          type="datetime"
+                          v-if="regularly"
+                          @blur=blurChange
+                          :disabled="true"
+                          placeholder="选择执行日期"
+                          value-format="yyyy-MM-dd HH:mm:ss">
+          </el-date-picker>
         </el-form-item>
         <el-form-item label="任务说明:"
                       :label-width="formLabelWidth">
           <el-input type="textarea"
                     :rows="2"
                     maxlength="100"
+                    :disabled="true"
                     show-word-limit
                     placeholder="请输入内容"
-                    v-model.trim="formInline.tastDescDetial">
+                    v-model.trim="formInline.tastDescDetial1">
           </el-input>
         </el-form-item>
+        <el-form-item label="执行次数:"
+                      :class="[text==true?'is-error':'']"
+                      :label-width="formLabelWidth">
+          <el-input style="margin-left:0px"
+                    :disabled="true"
+                    v-model.trim="formInline.remainingtimesDetial"></el-input>
+          <!-- <div v-show="text"
+                   style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">请输入执行次数</div> -->
+        </el-form-item>
 
+        <el-form-item label="时间间隔:"
+                      placeholder="请换算为分钟填写"
+                      :label-width="formLabelWidth">
+          <el-select v-model="formInline.intervalDetial"
+                     style="width: 100%"
+                     filterable
+                     :disabled="true"
+                     allow-create
+                     default-first-option
+                     @change="onChangeMoudle"
+                     placeholder="请选择">
+            <el-option v-for="item in options"
+                       :key="item.value"
+                       :label="item.label"
+                       :value="item.value"></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <div id="listText">任务列表</div>
       <!-- 点击详情进去页面查询列表的表单 -->
@@ -529,60 +750,23 @@
           <el-button type="primary"
                      icon="el-icon-search"
                      style="margin-left:20px"
-                     @click="onSubmit">查询</el-button>
-          <el-button type="primary"
-                     icon="el-icon-plus"
-                     style="margin-left:20px"
-                     @click="scriptAdd">新增</el-button>
+                     @click="onSubmitDetial">查询</el-button>
+
         </el-form-item>
       </el-form>
-      <el-button size=""
-                 type="danger"
-                 :disabled="openIsDisabled"
-                 style="margin-left:30px;margin-bottom:20px"
-                 @click="handleDelete1()">删除</el-button>
-      <!-- 详情页点击新增弹出页面 -->
-      <el-dialog title="测试任务管理-脚本新增"
-                 style="text-align:left;height:100%"
-                 width="60%"
-                 top="20vh"
-                 :modal-append-to-body='false'
-                 append-to-body
-                 :visible.sync="dialogDetailsAdd">
-        <!-- <div id="listText">脚本列表</div> -->
-        <!-- 点击详情新增进去页面查询穿梭框 -->
-        <tree-transfer :from_data='fromData1'
-                       :to_data='toData1'
-                       v-model="toData1"
-                       :title="titleTransfer"
-                       :defaultProps="{label:'label',children:'children'}"
-                       @add-btn='add1'
-                       @remove-btn='remove1'
-                       :mode='mode'
-                       height='450px'
-                       style="width:100%; margin-top: 10px;"
-                       @change="aaaaa"
-                       filter
-                       openAll>
-        </tree-transfer>
-        <div style="text-align:right">
-          <el-button @click="scriptSave()"
-                     icon="iconfont icon-baocun">保存</el-button>
-        </div>
-
-      </el-dialog>
       <el-table :data="tableDataDetial"
                 style="width: 94%;margin-left:30px"
                 border
-                @selection-change="handleSelectionChange"
+                v-loading="loading"
                 :header-cell-style="{background:'#F2F2F2'}"
                 :cell-style="{padding:'2px'}">
-        <el-table-column type="selection"
-                         width="55">
-        </el-table-column>
+
         <el-table-column fixed
                          type="index"
                          label="序号">
+          <template slot-scope="scope">
+            <span>{{scope.$index+(currpage - 1) * pagesizeDetial + 1}}</span>
+          </template>
         </el-table-column>
         <el-table-column prop="rdmsid"
                          label="RDMSID">
@@ -608,17 +792,12 @@
         </el-table-column>
 
       </el-table>
-      <!-- <div slot="footer"
-           class="dialog-footer">
-        <el-button type="primary"
-                   icon=" iconfont icon-xiugai"
-                   @click="edit()">修改</el-button>
-      </div> -->
+
       <!-- 分页逻辑 -->
-      <el-pagination layout="sizes,prev, pager, next"
+      <el-pagination layout="total,sizes,prev, pager, next"
                      :page-sizes="[5, 10, 15, 20]"
-                     :page-size="1"
-                     :total="tableDataDetial.length"
+                     :page-size="pagesizeDetial"
+                     :total="total1"
                      @current-change="handleCurrentChangeDetial"
                      @size-change="handleSizeChangeDetial">
       </el-pagination>
@@ -641,41 +820,200 @@
                          label="地址"></el-table-column>
       </el-table>
     </el-dialog>
-    <!-- 点击任务名称一列弹出子任务页面 -->
-    <el-dialog title="子任务列表"
-               width="60%"
-               top="25vh"
-               :visible.sync="dialogTableChildren"
-               append-to-body>
-      <el-table :data="childrenData"
+    <!-- 子任务详情页面 -->
+    <el-dialog title=" 子任务详情页面"
+               style="text-align:left"
+               width="90%"
+               top="10vh"
+               :modal-append-to-body='false'
+               append-to-body
+               @close="closeDetialsMessage"
+               :visible.sync="dialogDetailsChildren">
+      <el-form style="margin-top:10px"
+               :inline='true'
+               :model="formInlineChildren">
+        <el-form-item label="任务名称:"
+                      :label-width="formLabelWidth">
+          <el-input style="margin-left:0px"
+                    :disabled="true"
+                    v-model.trim="formInlineChildren.tastNameDetial"></el-input>
+        </el-form-item>
+        <el-form-item label="报告方式:"
+                      :label-width="formLabelWidth">
+          <el-radio-group v-model="formInlineChildren.issendemailDetial"
+                          @change='handleChangeValue1(formInlineChildren.issendemailDetial)'>
+            <el-radio disabled
+                      label="0">不发送邮件</el-radio>
+            <el-radio disabled
+                      label="1">发送邮件</el-radio>
+          </el-radio-group>
+
+        </el-form-item>
+
+        <el-form-item prop="email"
+                      label=""
+                      v-if="inputOpenDetail">
+          <el-input v-model="formInlineChildren.emailDetial"
+                    :disabled="true"
+                    placeholder="请输入邮箱地址"></el-input>
+        </el-form-item>
+        <!-- 选择发送邮件时，显示input框 -->
+        <el-form-item label="执行方式:"
+                      :label-width="formLabelWidth">
+          <el-radio-group v-model="formInlineChildren.rcycleflagDetial"
+                          @change='handleChangeRadio1(formInlineChildren.rcycleflagDetial)'>
+            <el-radio disabled
+                      label="2">暂不执行</el-radio>
+            <el-radio disabled
+                      label="0">立即执行</el-radio>
+            <el-radio disabled
+                      label="1">定时执行</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item prop="begintime">
+          <el-date-picker v-model="formInlineChildren.begintimeDetial"
+                          style="width:355px"
+                          type="datetime"
+                          v-if="regularly"
+                          @blur=blurChange
+                          :disabled="true"
+                          placeholder="选择执行日期"
+                          value-format="yyyy-MM-dd HH:mm:ss">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="任务说明:"
+                      :label-width="formLabelWidth">
+          <el-input type="textarea"
+                    :rows="2"
+                    maxlength="100"
+                    :disabled="true"
+                    show-word-limit
+                    placeholder="请输入内容"
+                    v-model.trim="formInlineChildren.tastDescDetial1">
+          </el-input>
+        </el-form-item>
+        <el-form-item label="执行次数:"
+                      :class="[text==true?'is-error':'']"
+                      :label-width="formLabelWidth">
+          <el-input style="margin-left:0px"
+                    :disabled="true"
+                    v-model.trim="formInlineChildren.remainingtimesDetial"></el-input>
+          <!-- <div v-show="text"
+                   style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">请输入执行次数</div> -->
+        </el-form-item>
+
+        <el-form-item label="时间间隔:"
+                      placeholder="请换算为分钟填写"
+                      :label-width="formLabelWidth">
+          <el-select v-model="formInlineChildren.intervalDetial"
+                     style="width: 100%"
+                     filterable
+                     :disabled="true"
+                     allow-create
+                     default-first-option
+                     @change="onChangeMoudle"
+                     placeholder="请选择">
+            <el-option v-for="item in options"
+                       :key="item.value"
+                       :label="item.label"
+                       :value="item.value"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div id="listText">任务列表</div>
+      <!-- 点击子任务进去页面查询列表的表单 -->
+      <el-form :inline="true"
+               :model="formInline"
+               style="width: 100%;margin-bottom:10px"
+               class="demo-form-inline">
+        <el-form-item label="模块名称:"
+                      :label-width="formLabelWidth">
+          <el-input style="margin-left:0px"
+                    v-model.trim="formInlineChildren.basicMessage"></el-input>
+        </el-form-item>
+        <el-form-item label="接口名称:"
+                      :label-width="formLabelWidth">
+          <el-input style="margin-left:0px"
+                    v-model.trim="formInlineChildren.basicMessage"></el-input>
+        </el-form-item>
+        <el-form-item label="用例名称:"
+                      :label-width="formLabelWidth">
+
+          <el-input style="margin-left:0px"
+                    v-model.trim="formInlineChildren.basicMessage"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary"
+                     icon="el-icon-search"
+                     style="margin-left:20px"
+                     @click="onSubmitDetialChildren">查询</el-button>
+
+        </el-form-item>
+      </el-form>
+
+      <!-- 详情页点击新增弹出页面 -->
+      <!-- <el-dialog title="测试任务管理-脚本新增"
+                 style="text-align:left;height:100%"
+                 width="60%"
+                 top="20vh"
+                 :modal-append-to-body='false'
+                 append-to-body
+                 :visible.sync="dialogDetailsAdd">
+       
+        <div style="text-align:right">
+          <el-button @click="scriptSave()"
+                     icon="iconfont icon-baocun">保存</el-button>
+        </div>
+
+      </el-dialog> -->
+      <el-table :data="tableDataDetial"
+                style="width: 94%;margin-left:30px"
                 border
-                style="margin-top:30px">
-        <el-table-column type="index"
-                         label="序号"
-                         width="50"></el-table-column>
-        <el-table-column prop="taskname"
-                         label="子任务名称"
-                         width="auto"></el-table-column>
-        <el-table-column prop="description"
-                         label="任务说明"></el-table-column>
+                v-loading='loading'
+                :header-cell-style="{background:'#F2F2F2'}"
+                :cell-style="{padding:'2px'}">
+
+        <el-table-column fixed
+                         type="index"
+                         label="序号">
+          <template slot-scope="scope">
+            <span>{{scope.$index+(currpage - 1) * pagesizeDetial + 1}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="rdmsid"
+                         label="RDMSID">
+        </el-table-column>
+        <el-table-column prop="productid"
+                         label="产品名称">
+        </el-table-column>
+        <el-table-column prop="moduleid"
+                         label="模块名称">
+        </el-table-column>
+
+        <el-table-column prop="address"
+                         label="脚本名称">
+        </el-table-column>
+        <el-table-column prop="zip"
+                         label="脚本说明">
+        </el-table-column>
         <el-table-column prop="createuser"
-                         label="创建者"
-                         width="auto"></el-table-column>
+                         label="创建者">
+        </el-table-column>
         <el-table-column prop="createtime"
-                         label="创建时间"></el-table-column>
-        <el-table-column prop="status"
-                         label="执行状态"></el-table-column>
+                         label="创建时间">
+        </el-table-column>
+
       </el-table>
+
       <!-- 分页逻辑 -->
       <el-pagination layout="total,sizes,prev, pager, next"
                      :page-sizes="[5, 10, 15, 20]"
-                     :page-size="pagesize"
-                     :total="total"
-                     @current-change="handleCurrentChange"
-                     @size-change="handleSizeChange">
+                     :page-size="pagesizeDetial"
+                     :total="total1"
+                     @current-change="handleCurrentChangeDetial"
+                     @size-change="handleSizeChangeDetial">
       </el-pagination>
     </el-dialog>
-
   </div>
 </template>
 
@@ -702,8 +1040,6 @@ export default {
       if (!value && this.radio == 1) {
         callback(new Error('请选择时间'));
       } else {
-
-
         callback()
       }
     };
@@ -768,7 +1104,35 @@ export default {
         begintime: '',//开始时间
         email: '',//发送邮件填写的邮件
         tastDescDetial: '',//详情页的任务名称
-        tastNameDetial: ''//详情页的任务说明
+        tastNameDetial: '',//详情页的任务说明
+        issendemailDetial: '',//详情页的报告方式单选
+        emailDetial: '',//详情页的邮箱地址
+        rcycleflagDetial: '',//详情页的执行方式单选
+        begintimeDetial: '',//详情页的执行日期
+        remainingtimesDetial: '',//详情页执行次数
+        intervalDetial: ''//详情页的执行间隔
+      },
+      formInlineChildren: {
+        taskname: '',
+        taskid: '',
+        description: '',
+        basicMessage: '',
+        product: '',
+        moduleid: '',
+        rcycleflag: '2',//是否执行
+        remainingtimes: '',//执行次数
+        issendemail: '0',
+        interval: '',//执行间隔
+        begintime: '',//开始时间
+        email: '',//发送邮件填写的邮件
+        tastDescDetial: '',//详情页的任务名称
+        tastNameDetial: '',//详情页的任务说明
+        issendemailDetial: '',//详情页的报告方式单选
+        emailDetial: '',//详情页的邮箱地址
+        rcycleflagDetial: '',//详情页的执行方式单选
+        begintimeDetial: '',//详情页的执行日期
+        remainingtimesDetial: '',//详情页执行次数
+        intervalDetial: ''//详情页的执行间隔
       },
       // idValue: [],//保存穿梭框数剧
       productVal: '',//产品下拉选中的值
@@ -776,6 +1140,11 @@ export default {
       pagesize: 10,
       currpage: 1,
       total: 0,
+      pagesize1: 10,
+      total1: 0,
+      pagesize2: 10,
+      total2: 0,
+      pagesizeDetial: 10,
       type: 'B',
       show: false,
       Button: false,//保存和执行配置按钮的展示判断
@@ -785,10 +1154,12 @@ export default {
       regularly: false,//是否展示input框定时执行
       openIsDisabled: true,
       inputOpen: false,//选择发送邮件，显示的对话框
+      inputOpenDetail: false,//详情页发送邮件，显示对话框
       dialogCreatVisible: false,//创建任务页面是否弹窗的判断条件
       dialogFormVisible: false,//复制页面是否弹窗的判断条件
       dialogTableVisible: false,//日志详情页面是否弹窗的判断条件
       dialogDetailsVisible: false,//详情页面是否弹窗的判断条件
+      dialogDetailsChildren: false,//子任务详情页面列表
       dialogTableChildren: false,//子任务页面列表
       dialogDetailsAdd: false,//详情页新增
       formLabelWidth: '120px',
@@ -797,6 +1168,7 @@ export default {
       moduleData: [],//模块下拉数据存放
       tableDataMain: [],//主页表格
       tableDataDetial: [],//详情页表格
+      tableDataCopy: [],//详情页表格
       tableData: [],
       gridData: [{
         date: '2016-05-02',
@@ -865,15 +1237,35 @@ export default {
       this.pagesize = psize;
       this.search()
     },
+    //子任务表格分页
+    handleCurrentChangeChildren (cpage) {
+      this.currpage = cpage;
+      this.childrenSubmit()
+    },
+    handleSizeChangeChildren (psize) {
+      console.log(psize)
+      this.pagesize1 = psize;
+      this.childrenSubmit()
+    },
     //关于详情页表格分页的方法
     handleCurrentChangeDetial (cpage) {
       this.currpage = cpage;
-      this.getTaskDetialSearch()
+      this.onTaskDetialSearch()
     },
     handleSizeChangeDetial (psize) {
       console.log(psize)
-      this.pagesize = psize;
-      this.getTaskDetialSearch()
+      this.pagesizeDetial = psize;
+      this.onTaskDetialSearch()
+    },
+    //关于复制页表格分页的方法
+    handleCurrentChangeCopy (cpage) {
+      this.currpage = cpage;
+      this.onTaskCopySearch()
+    },
+    handleSizeChangeCopy (psize) {
+      console.log(psize)
+      this.pagesize2 = psize;
+      this.onTaskCopySearch()
     },
     //记录翻页数据事件
     handleSelectionChange (val) {
@@ -896,7 +1288,7 @@ export default {
     search () {
       console.log('search!');
       this.loading = true
-      this.$http.getTaskSearch(this.pagesize, this.currpage, '-createtime').then((res) => {
+      this.$http.getTaskSearch(this.pagesize, this.currpage, this.formInline.user, '-createtime').then((res) => {
         console.log(res.data.data);
         if (res.data.data && res.data.code == '0000') {
           this.loading = false
@@ -993,65 +1385,217 @@ export default {
       console.log(val)
     },
     // 创建页面第二页点击保存按钮
-    allocationSave () {
+    allocationSave (formName) {
       // if (this.formInline.remainingtimes == '') {
       //   console.log('执行次数为空')
       //   this.text = true
       // } else {
       //   this.text = false
       // }
-      console.log(1111)
-      if (this.report == '1') {
-        this.emailSplit = this.formInline.email.split(",")
-        this.formInline.email = this.emailSplit
-      } else {
-        this.formInline.email = []
-      }
-      this.formInline.cases = this.idValue
-      this.formInline.taskid = this.secondTaskid
-      this.$http.getTaskSecondAdd(this.formInline, this.idValue).then((res) => {
-        if (res.data.code == '0000') {
-          this.$message({
-            message: '保存成功',
-            type: 'success'
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          console.log(1111)
+          if (this.report == '1') {
+            this.emailSplit = this.formInline.email.split(",")
+            this.formInline.email = this.emailSplit
+          } else {
+            this.formInline.email = []
+          }
+          this.formInline.cases = this.idValue
+          this.formInline.taskid = this.secondTaskid
+          this.$http.getTaskSecondAdd(this.formInline, this.idValue).then((res) => {
+            if (res.data.code == '0000') {
+              this.$message({
+                message: '保存成功',
+                type: 'success'
+              });
+              this.$router.go(0)
+              this.dialogCreatVisible = false
+            } else {
+              this.$message.error(res.data.description);
+            }
           });
-          this.search()
-          this.dialogCreatVisible = false
-        } else {
-          this.$message.error(res.data.description);
         }
-      });
+      })
+
     },
-    onSubmit () {
-      console.log('submit!');
-      // this.dialogCreatVisible = true
-      // this.handleRole()
+    //点击详情页查询按钮
+    onSubmitDetial () {
+      console.log('详情页表格!');
+      this.onTaskDetialSearch()
     },
-    //详情事件按钮
-    handleClickDetails (row) {
-      console.log(row, '详情');
-      this.dialogDetailsVisible = true
-      this.formInline.tastNameDetial = row.taskname
-      this.formInline.tastDescDetial = row.description
-      this.taskid = row.taskid
-      this.$http.getTaskDetialSearch(this.pagesize, this.currpage, row.taskid, '-createtime').then((res) => {
+    //点击复制页查询按钮
+    onSubmitCopy () {
+      console.log('复制页表格!');
+      this.onTaskCopySearch()
+    },
+    //复制页表格
+    onTaskCopySearch () {
+      this.loading = true
+      this.$http.getTaskDetialSearch(this.pagesize2, this.currpage, this.taskid, '-createtime').then((res) => {
         if (res.data.code == '0000') {
           this.loading = false
-          this.tableDataDetial = res.data.task_cases
-          this.total = res.data.paging.total;//总信息条数从数据库获取;
+          this.tableDataCopy = res.data.task_cases
+          this.total2 = res.data.paging.total;//总信息条数从数据库获取;
           console.log(this.total)
         } else {
           this.$message.error(res.data.description)
-          this.tableDataDetial = []
+          this.tableDataCopy = []
+          this.loading = false
         }
       });
 
     },
-    //复制按钮事件
+    //复制事件按钮
     handleClickCopy (row) {
       console.log(row, '复制');
       this.dialogFormVisible = true
+      this.formInline.tastNameDetial = row.taskname
+      this.formInline.tastDescDetial1 = row.description
+      this.taskid = row.taskid
+      this.onTaskCopySearch()
+      //复制页的复制数据接口
+      this.$http.getTaskDetialDetail(row.taskid).then((res) => {
+        if (res.data.code == '0000') {
+          console.log(res.data.taskdetail, '复制页数据')
+          this.formInline.remainingtimesDetial = res.data.taskdetail.remainingtimes
+          if (res.data.taskdetail.interval !== 86400 && res.data.taskdetail.interval !== 604800
+            && res.data.taskdetail.interval !== 2592000 && res.data.taskdetail.interval !== 31536000) {
+            console.log(res.data.taskdetail.interval, '0987')
+            this.formInline.intervalDetial = res.data.taskdetail.interval
+          } else {
+            //判断时间间隔的数据
+            if (res.data.taskdetail.interval == '86400') {
+              this.formInline.intervalDetial = '一天'
+            } else if (res.data.taskdetail.interval == '604800') {
+              this.formInline.intervalDetial = '一周'
+            } else if (res.data.taskdetail.interval == '2592000') {
+              this.formInline.intervalDetial = '一月'
+            } else if (res.data.taskdetail.interval == '31536000 ') {
+              this.formInline.intervalDetial = '一年'
+            }
+          }
+
+
+          //判断报告方式的赋值
+          if (res.data.taskdetail.issendemail == 0) {
+            console.log('000')
+            this.inputOpenDetail = false
+            this.formInline.issendemailDetial = '0'
+          } else {
+            this.formInline.issendemailDetial = '1'
+            this.inputOpenDetail = true
+            // this.formInline.emailDetial =JSON.stringify(res.data.taskdetail.email) 
+            console.log(res.data.taskdetail.email)//邮箱
+            const stringValue = res.data.taskdetail.email.join(',')//数组转换成字符串形式进行赋值
+            console.log(stringValue)
+            this.formInline.emailDetial = stringValue
+          }
+          //判断执行方式的赋值
+          if (res.data.taskdetail.cycleflag == 2) {
+            this.regularly = false
+            this.formInline.rcycleflagDetial = '2'
+          } else if (res.data.taskdetail.cycleflag == 0) {
+            this.regularly = false
+            this.formInline.rcycleflagDetial = '0'
+          } else {
+            this.regularly = true
+            this.formInline.rcycleflagDetial = '1'
+            this.formInline.begintimeDetial = res.data.taskdetail.createtime
+          }
+
+        } else {
+          this.$message.error(res.data.description)
+        }
+      });
+
     },
+    //详情页表格方法
+    onTaskDetialSearch () {
+      this.loading = true
+      //详情页表格
+      this.$http.getTaskDetialSearch(this.pagesizeDetial, this.currpage, this.taskid, '-createtime').then((res) => {
+        if (res.data.code == '0000') {
+          this.loading = false
+          this.tableDataDetial = res.data.task_cases
+          this.total1 = res.data.paging.total;//总信息条数从数据库获取;
+          console.log(this.total)
+        } else {
+          this.loading = false
+          this.$message.error(res.data.description)
+          this.tableDataDetial = []
+        }
+      });
+    },
+    //详情按钮
+    handleClickDetial (row) {
+      console.log(row, '详情');
+      this.dialogDetailsVisible = true
+      this.formInline.tastNameDetial = row.taskname
+      this.formInline.tastDescDetial1 = row.description
+      this.taskid = row.taskid
+      this.onTaskDetialSearch()
+      //详情页的详情数据接口
+      this.$http.getTaskDetialDetail(row.taskid).then((res) => {
+        if (res.data.code == '0000') {
+          console.log(res.data.taskdetail, '详情页数据')
+          this.formInline.remainingtimesDetial = res.data.taskdetail.remainingtimes
+          if (res.data.taskdetail.interval !== 86400 && res.data.taskdetail.interval !== 604800
+            && res.data.taskdetail.interval !== 2592000 && res.data.taskdetail.interval !== 31536000) {
+            console.log(res.data.taskdetail.interval, '0987')
+            this.formInline.intervalDetial = res.data.taskdetail.interval
+          } else {
+            //判断时间间隔的数据
+            if (res.data.taskdetail.interval == '86400') {
+              this.formInline.intervalDetial = '一天'
+            } else if (res.data.taskdetail.interval == '604800') {
+              this.formInline.intervalDetial = '一周'
+            } else if (res.data.taskdetail.interval == '2592000') {
+              this.formInline.intervalDetial = '一月'
+            } else if (res.data.taskdetail.interval == '31536000 ') {
+              this.formInline.intervalDetial = '一年'
+            }
+
+          }
+
+
+          //判断报告方式的赋值
+          if (res.data.taskdetail.issendemail == 0) {
+            console.log('000')
+            this.inputOpenDetail = false
+            this.formInline.issendemailDetial = '0'
+          } else {
+            this.formInline.issendemailDetial = '1'
+            this.inputOpenDetail = true
+            // this.formInline.emailDetial =JSON.stringify(res.data.taskdetail.email) 
+            console.log(res.data.taskdetail.email)//邮箱
+            const stringValue = res.data.taskdetail.email.join(',')//数组转换成字符串形式进行赋值
+            console.log(stringValue)
+            this.formInline.emailDetial = stringValue
+          }
+          //判断执行方式的赋值
+          if (res.data.taskdetail.cycleflag == 2) {
+            this.regularly = false
+            this.formInline.rcycleflagDetial = '2'
+          } else if (res.data.taskdetail.cycleflag == 0) {
+            this.regularly = false
+            this.formInline.rcycleflagDetial = '0'
+          } else {
+            this.regularly = true
+            this.formInline.rcycleflagDetial = '1'
+            this.formInline.begintimeDetial = res.data.taskdetail.createtime
+          }
+
+        } else {
+          this.$message.error(res.data.description)
+        }
+      });
+
+    },
+    blurChange () {
+      console.log(this.formInline.begintimeDetial)
+    },
+
     //执行事件按钮
     handleClickExecute (item) {
       console.log(item.taskid)
@@ -1107,6 +1651,31 @@ export default {
 
       });
     },
+    //子任务列表删除
+    handleDeleteChildren (index, row) {
+      console.log(index, row);
+      this.$confirm('确定进行删除么?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$http.getTaskDelete(row.taskid).then((res) => {
+          console.log(res.data.code);
+          if (res.data.code == '0000') {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.childrenSubmit()
+          } else {
+            this.$message.error(res.data.description)
+          }
+        });
+
+      }).catch(() => {
+
+      });
+    },
     // 详情页多选删除事件
     handleDelete1 (index, row) {
       console.log(index, row);
@@ -1122,17 +1691,7 @@ export default {
               type: 'success',
               message: '删除成功!'
             });
-            this.$http.getTaskDetialSearch(this.pagesize, this.currpage, this.taskid, '-createtime').then((res) => {
-              if (res.data.code == '0000') {
-                this.loading = false
-                this.tableDataDetial = res.data.task_cases
-                this.total = res.data.paging.total;//总信息条数从数据库获取;
-                console.log(this.total)
-              } else {
-                this.$message.error(res.data.description)
-                this.tableDataDetial = []
-              }
-            });
+            this.onTaskCopySearch()
           } else {
             this.$message.error(res.data.description)
           }
@@ -1142,10 +1701,6 @@ export default {
 
       });
     },
-    //点击执行配置按钮
-    // allocation () {
-    //   this.type = 'C'
-    // },
     // 报告点击事件
     handleReport () {
       // window.open('https://element.eleme.io')
@@ -1159,6 +1714,18 @@ export default {
       if (this.report == '1') {
         this.inputOpen = true
 
+      } else {
+        this.inputOpen = false
+
+      }
+    },
+    //是否发送邮件事件详情页
+    handleChangeValue1 (report) {
+      console.log(report)
+      const report2 = report
+      this.report = report2
+      if (this.report == '1') {
+        this.inputOpen = true
       } else {
         this.inputOpen = false
 
@@ -1180,6 +1747,19 @@ export default {
             return false
           }
         })
+        this.regularly = false
+        this.formInline.begintime = ''
+      }
+    },
+    //详情页是否执行事件
+    handleChangeRadio1 (radio) {
+      console.log(radio)
+      const radio1 = radio
+      this.radio = radio1
+      if (this.radio == '1') {
+        this.regularly = true
+      } else {
+
         this.regularly = false
         this.formInline.begintime = ''
       }
@@ -1297,7 +1877,8 @@ export default {
             type: 'success',
             message: '保存成功',
           })
-          this.dialogDetailsVisible = false
+          this.dialogDetailsAdd = false
+          this.toData1 = []
         } else {
           this.$message.error(res.data.description)
         }
@@ -1322,42 +1903,131 @@ export default {
         return 'cell-blue'
       }
     },
+    //子任务表格查询接口
+    childrenSubmit () {
+      this.$http.getTaskChildrenSearch(this.pagesize, this.currpage, this.childrenTaskid).then((res) => {
+        if (res.data.code == '0000' && res.data.data.length > 0) {
+          console.log(res.data.data)
+          this.childrenData = res.data.data
+          for (var i = 0; i < this.childrenData.length; i++) {
+            if (res.data.data[i].status == 0) {
+              res.data.data[i].status = '待执行'
+            } else if (res.data.data[i].status == 1) {
+              res.data.data[i].status = '执行中'
+            } else if (res.data.data[i].status == 2) {
+              res.data.data[i].status = '任务暂停'
+            } else if (res.data.data[i].status == 3) {
+              res.data.data[i].status = '执行完成'
+            }
+            else if (res.data.data[i].status == 4) {
+              res.data.data[i].status = '任务取消'
+            }
+          }
+          this.total1 = res.data.paging.total;//总信息条数从数据库获取;
+          console.log(this.total1)
+
+          this.dialogTableChildren = true
+        } else if (res.data.data.length == 0) {
+          this.$message.error('该任务下没有子任务');
+        } else if (res.data.code !== '0000') {
+          this.$message.error(res.data.description);
+
+        }
+      });
+    },
     //点击任务名称那一列
     taskColumn (row, column,) {
       console.log(row, column)
+      let childrenTaskid = row.taskid
+      this.childrenTaskid = childrenTaskid
       if (column.label == '任务名称') {
         console.log('点击了任务名称')
-        this.$http.getTaskChildrenSearch(this.pagesize, this.currpage, row.taskid).then((res) => {
-          if (res.data.code == '0000' && res.data.data.length > 0) {
-            console.log(res.data.data)
-            this.childrenData = res.data.data
-            for (var i = 0; i < this.childrenData.length; i++) {
-              if (res.data.data[i].status == 0) {
-                res.data.data[i].status = '待执行'
-              } else if (res.data.data[i].status == 1) {
-                res.data.data[i].status = '执行中'
-              } else if (res.data.data[i].status == 2) {
-                res.data.data[i].status = '任务暂停'
-              } else if (res.data.data[i].status == 3) {
-                res.data.data[i].status = '执行完成'
-              }
-              else if (res.data.data[i].status == 4) {
-                res.data.data[i].status = '任务取消'
-              }
-            }
-            this.total = res.data.paging.total;//总信息条数从数据库获取;
-            console.log(this.total)
-
-            this.dialogTableChildren = true
-          } else if (res.data.data.length == 0) {
-            this.$message.error('该任务下没有子任务');
-          } else if (res.data.code !== '0000') {
-            this.$message.error(res.data.description);
-
-          }
-        });
+        this.childrenSubmit()
       }
     },
+    //子任务页面详情页面
+    handleDetialChildren (row) {
+      console.log(row, '子任务详情页面');
+      this.dialogDetailsChildren = true
+      this.formInlineChildren.tastNameDetial = row.taskname
+      this.formInlineChildren.tastDescDetial1 = row.description
+      this.taskid = row.taskid
+      this.onTaskDetialChildren()
+      //子任务的详情数据接口
+      this.$http.getTaskDetialDetail(row.taskid).then((res) => {
+        if (res.data.code == '0000') {
+          console.log(res.data.taskdetail, '子任务数据')
+          this.formInlineChildren.remainingtimesDetial = res.data.taskdetail.remainingtimes
+          if (res.data.taskdetail.interval !== 86400 && res.data.taskdetail.interval !== 604800
+            && res.data.taskdetail.interval !== 2592000 && res.data.taskdetail.interval !== 31536000) {
+            console.log(res.data.taskdetail.interval, '0987')
+            this.formInlineChildren.intervalDetial = res.data.taskdetail.interval
+          } else {
+            //判断时间间隔的数据
+            if (res.data.taskdetail.interval == '86400') {
+              this.formInlineChildren.intervalDetial = '一天'
+            } else if (res.data.taskdetail.interval == '604800') {
+              this.formInlineChildren.intervalDetial = '一周'
+            } else if (res.data.taskdetail.interval == '2592000') {
+              this.formInlineChildren.intervalDetial = '一月'
+            } else if (res.data.taskdetail.interval == '31536000 ') {
+              this.formInlineChildren.intervalDetial = '一年'
+            }
+
+          }
+          //判断报告方式的赋值
+          if (res.data.taskdetail.issendemail == 0) {
+            console.log('000')
+            this.inputOpenDetail = false
+            this.formInlineChildren.issendemailDetial = '0'
+          } else {
+            this.formInlineChildren.issendemailDetial = '1'
+            this.inputOpenDetail = true
+            // this.formInline.emailDetial =JSON.stringify(res.data.taskdetail.email) 
+            console.log(res.data.taskdetail.email)//邮箱
+            const stringValue = res.data.taskdetail.email.join(',')//数组转换成字符串形式进行赋值
+            console.log(stringValue)
+            this.formInlineChildren.emailDetial = stringValue
+          }
+          //判断执行方式的赋值
+          if (res.data.taskdetail.cycleflag == 2) {
+            this.regularly = false
+            this.formInlineChildren.rcycleflagDetial = '2'
+          } else if (res.data.taskdetail.cycleflag == 0) {
+            this.regularly = false
+            this.formInlineChildren.rcycleflagDetial = '0'
+          } else {
+            this.regularly = true
+            this.formInlineChildren.rcycleflagDetial = '1'
+            this.formInlineChildren.begintimeDetial = res.data.taskdetail.begintime
+          }
+
+        } else {
+          this.$message.error(res.data.description)
+        }
+      });
+    },
+    //子任务页表格方法
+    onTaskDetialChildren () {
+      this.loading = true
+      this.$http.getTaskDetialSearch(this.pagesizeDetial, this.currpage, this.taskid, '-createtime').then((res) => {
+        if (res.data.code == '0000') {
+          this.loading = false
+          this.tableDataDetial = res.data.task_cases
+          this.total1 = res.data.paging.total;//总信息条数从数据库获取;
+          console.log(this.total)
+        } else {
+          this.loading = false
+          this.$message.error(res.data.description)
+          this.tableDataDetial = []
+        }
+      });
+    },
+    //点击子任务详情页面按钮
+    onSubmitDetialChildren () {
+      console.log('点击子任务详情页面查询按钮')
+      this.onTaskDetialChildren()
+    }
   },
   components: { "tree-transfer": treeTransfer } // 注册穿梭框组件
 }

@@ -15,13 +15,14 @@ const getTaskModule = (productid) =>
     }
   });
 //主页表格查询
-const getTaskSearch = (size, page, ordering) =>
+const getTaskSearch = (size, page,search, ordering) =>
   axios.request({
-    url: `task/v1/list`,
+    url: `task/v1/searchTask`,
     method: 'get',
     params: {
       size,
       page,
+      search,
       ordering: ordering
 
     },
@@ -124,6 +125,15 @@ const getTaskDetialSearch = (size, page, taskid,ordering) =>
       ordering: ordering
     },
   });
+  //点击详情页查询详情数据
+const getTaskDetialDetail = (taskid) =>
+axios.request({
+  url: `task/v1/manage`,
+  method: 'get',
+  params: {
+    taskid: taskid,
+  },
+});
   //详情页面表格多选删除功能
 const getDetialTaskDelete = (taskid,deletelist) =>
 axios.request({
@@ -174,4 +184,4 @@ const getTaskChildrenSearch = (size, page, taskid) =>
 export { getTaskProduct, getTaskModule, getTasktransfer,
   getTaskSearch, getTaskAddSearch, getTaskAdd, getTaskSecondAdd,
   getTaskDelete, getTaskDetialSearch,getDetialTaskDelete,getTasktransferAdd ,
-  getTasktransferSearch,getTaskChildrenSearch,getTaskExecute};
+  getTasktransferSearch,getTaskChildrenSearch,getTaskExecute,getTaskDetialDetail};

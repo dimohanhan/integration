@@ -503,6 +503,14 @@
                        :value="item.value"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item>
+          <el-button size=""
+                     type=""
+                     icon=" iconfont icon-baocun"
+                     style="margin-left:30px;margin-bottom:20px"
+                     @click="handleCopySave()">保存</el-button>
+        </el-form-item>
+
       </el-form>
       <div id="listText">任务列表</div>
       <!-- 点击复制进去页面查询列表的表单 -->
@@ -1081,6 +1089,7 @@ export default {
       },
       text: false,
       emailSplit: '',//存放邮箱地址数据
+      emailSplit1: '',//存放邮箱地址数据
       mode: "transfer",
       fromData: [],
       fromData1: [],
@@ -1103,7 +1112,7 @@ export default {
         interval: '',//执行间隔
         begintime: '',//开始时间
         email: '',//发送邮件填写的邮件
-        tastDescDetial: '',//详情页的任务名称
+        tastDescDetial1: '',//详情页的任务名称
         tastNameDetial: '',//详情页的任务说明
         issendemailDetial: '',//详情页的报告方式单选
         emailDetial: '',//详情页的邮箱地址
@@ -1386,12 +1395,6 @@ export default {
     },
     // 创建页面第二页点击保存按钮
     allocationSave (formName) {
-      // if (this.formInline.remainingtimes == '') {
-      //   console.log('执行次数为空')
-      //   this.text = true
-      // } else {
-      //   this.text = false
-      // }
       this.$refs[formName].validate((valid) => {
         if (valid) {
           console.log(1111)
@@ -1418,6 +1421,41 @@ export default {
         }
       })
 
+    },
+    //复制页的保存按钮
+    handleCopySave () {
+      // this.formInline.taskid = this.taskid
+      console.log(this.formInline.emailDetial, '0000')
+
+      this.emailSplit1 = this.formInline.emailDetial.split(',')
+      console.log(this.emailSplit1, '0000')
+      // this.formInline.emailDetial = this.emailSplit1
+      if (this.formInline.intervalDetial == '一天') {
+        this.formInline.intervalDetial = 86400
+      } else if (this.formInline.intervalDetial == '一周') {
+        this.formInline.intervalDetial = 604800
+      }
+      else if (this.formInline.intervalDetial == '一月') {
+        this.formInline.intervalDetial = 2592000
+      }
+      else if (this.formInline.intervalDetial == '一年') {
+        this.formInline.intervalDetial = 31536000
+      }
+      this.$http.getTaskCopySave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
+        this.formInline.intervalDetial, this.formInline.issendemailDetial,
+        this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial).then((res) => {
+          if (res.data.code == '0000') {
+            console.log(res.data.data, '保存成功后返回的数据')
+            this.$message({
+              message: '保存成功',
+              type: 'success'
+            });
+            this.$router.go(0)
+            this.dialogFormVisible = false
+          } else {
+            this.$message.error(res.data.description);
+          }
+        });
     },
     //点击详情页查询按钮
     onSubmitDetial () {
@@ -1452,6 +1490,7 @@ export default {
       this.dialogFormVisible = true
       this.formInline.tastNameDetial = row.taskname
       this.formInline.tastDescDetial1 = row.description
+      this.formInline.emailDetial = row.email
       this.taskid = row.taskid
       this.onTaskCopySearch()
       //复制页的复制数据接口

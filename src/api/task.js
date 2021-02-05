@@ -113,7 +113,28 @@ axios.request({
     }
   }
 });
-//点击详情页表格查询
+//复制页的保存
+const getTaskCopySave = ( taskid,taskname, description, remainingtimes, interval, issendemail, email, rcycleflag,begintime) =>
+  axios.request({
+    url: `/task/v1/manage/`,
+    method: 'POST',
+    data: {
+      optype: '1',
+      data: {
+        taskid,
+        taskname,
+        description,
+        createuser: localStorage.getItem('uid'),
+        remainingtimes,//重试次数
+        interval,//执行间隔
+        issendemail,//是否发送邮件（0不发，1发）
+        email,//发送邮件
+        rcycleflag,//执行方式（0：立即执行1：定时执行 2:暂不执行）
+        begintime,//任务开始时间
+      }
+    }
+  });
+//点击复制页表格查询
 const getTaskDetialSearch = (size, page, taskid,ordering) =>
   axios.request({
     url: `task/v1/task_cases`,
@@ -125,7 +146,7 @@ const getTaskDetialSearch = (size, page, taskid,ordering) =>
       ordering: ordering
     },
   });
-  //点击详情页查询详情数据
+  //点击复制页查询详情数据
 const getTaskDetialDetail = (taskid) =>
 axios.request({
   url: `task/v1/manage`,
@@ -134,7 +155,7 @@ axios.request({
     taskid: taskid,
   },
 });
-  //详情页面表格多选删除功能
+  //复制页面表格多选删除功能
 const getDetialTaskDelete = (taskid,deletelist) =>
 axios.request({
   url: `task/v1/task_cases/`,
@@ -147,7 +168,7 @@ axios.request({
     }
   }
 });
-//详情页里的穿梭框保存
+//复制页里的穿梭框保存
 const getTasktransferAdd= (taskid, cases) =>
   axios.request({
     url: `task/v1/task_cases/`,
@@ -184,4 +205,4 @@ const getTaskChildrenSearch = (size, page, taskid) =>
 export { getTaskProduct, getTaskModule, getTasktransfer,
   getTaskSearch, getTaskAddSearch, getTaskAdd, getTaskSecondAdd,
   getTaskDelete, getTaskDetialSearch,getDetialTaskDelete,getTasktransferAdd ,
-  getTasktransferSearch,getTaskChildrenSearch,getTaskExecute,getTaskDetialDetail};
+  getTasktransferSearch,getTaskChildrenSearch,getTaskExecute,getTaskDetialDetail,getTaskCopySave};

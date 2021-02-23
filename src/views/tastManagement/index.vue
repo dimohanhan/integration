@@ -1073,7 +1073,8 @@ export default {
           { required: true, message: '请选择模块名称', trigger: 'change' }
         ],
         taskname: [
-          { required: true, message: '请输入任务名称', trigger: 'blur' }
+          { required: true, message: '请输入任务名称', trigger: 'blur' },
+          { required: true, min: 1, max: 30, message: '长度需在1 到 30 个字符之间', trigger: 'blur' }
         ],
         product: [
           { required: true, message: '请选择产品名称', trigger: 'change' }
@@ -1424,11 +1425,11 @@ export default {
     },
     //复制页的保存按钮
     handleCopySave () {
-      // this.formInline.taskid = this.taskid
       console.log(this.formInline.emailDetial, '0000')
-
-      this.emailSplit1 = this.formInline.emailDetial.split(',')
-      console.log(this.emailSplit1, '0000')
+      if (this.formInline.emailDetial !== null) {
+        this.emailSplit1 = this.formInline.emailDetial.split(',')
+        console.log(this.emailSplit1, '0000')
+      }
       // this.formInline.emailDetial = this.emailSplit1
       if (this.formInline.intervalDetial == '一天') {
         this.formInline.intervalDetial = 86400
@@ -2116,10 +2117,15 @@ export default {
 }
 .wl-transfer .transfer-center {
   left: 27% !important;
+  position: absolute;
+  top: 50%;
+  /* left: 32%; */
+  width: 20%;
+  transform: translateY(-50%);
+  text-align: center;
 }
 .wl-transfer .transfer-right {
-  right: 385px !important;
-  /* top: -20px !important; */
+  right: 32% !important;
 }
 .el-input--small {
   width: 138px !important;
@@ -2195,5 +2201,8 @@ export default {
 }
 .el-radio {
   margin-right: 7px !important;
+}
+.el-form-item__content {
+  width: auto;
 }
 </style>

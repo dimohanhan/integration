@@ -411,7 +411,7 @@
           <el-button @click="addMock">新增</el-button> -->
           <el-form-item label="备注说明:"
                         :label-width="formLabelWidth">
-            <el-input v-model="formInline.descDetails"></el-input>
+            <el-input v-model.trim="formInline.descDetails"></el-input>
           </el-form-item>
           <el-form-item label="测试依赖Excel文件:"
                         label-width="150px">

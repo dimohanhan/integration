@@ -100,6 +100,11 @@ const routes = [
         name: 'ImportScript',
         component: () => import('@/views/ImportScript'),
       },
+      {
+        path: '/Scripting',
+        name: 'Scripting',
+        component: () => import('@/views/Scripting'),
+      },
     ]
   }
 ]

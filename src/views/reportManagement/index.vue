@@ -13,9 +13,9 @@
                    style="text-align: left;margin-left: 30px;"
                    class="demo-form-inline">
 
-            <el-form-item label="任务ID">
-              <el-input v-model="formInline.taskid"
-                        placeholder="请输入任务ID"
+            <el-form-item label="任务名称">
+              <el-input v-model="formInline.taskname"
+                        placeholder="请输入任务名称"
                         @keyup.enter.native="onSubmit()"></el-input>
             </el-form-item>
             <el-form-item label="创建者">
@@ -24,9 +24,20 @@
                         @keyup.enter.native="onSubmit()"></el-input>
             </el-form-item>
             <el-form-item label="执行结果">
-              <el-input placeholder="请输入执行结果"
+              <!-- <el-input placeholder="请输入执行结果"
                         v-model="formInline.failure"
-                        @keyup.enter.native="onSubmit()"></el-input>
+                        @keyup.enter.native="onSubmit()"></el-input> -->
+              <el-select v-model="formInline.flag"
+                         style="width: 100%"
+                         filterable
+                         @keyup.enter.native="onSubmit()">
+                <el-option label="全部成功"
+                           value=1></el-option>
+                <el-option label="全部失败"
+                           value=0></el-option>
+                <el-option label="部分成功"
+                           value=2></el-option>
+              </el-select>
             </el-form-item>
             <el-form-item>
               <el-button type=""
@@ -61,7 +72,7 @@
                              width="auto">
             </el-table-column>
 
-            <el-table-column prop="address"
+            <el-table-column prop="email"
                              label="发送邮件"
                              width="auto">
             </el-table-column>
@@ -70,7 +81,7 @@
                              label="包含接口数量"
                              width="auto">
             </el-table-column>
-            <el-table-column prop="mobile"
+            <el-table-column prop="duration"
                              label="执行时长"
                              width="auto">
             </el-table-column>
@@ -142,7 +153,8 @@
           <el-table-column prop="amount1">
             <template slot-scope="scope">
               <el-button size="mini"
-                         v-if='(scope.$index)==(tableData3.length-1)'>查看报告</el-button>
+                         v-if='(scope.$index)==(tableData3.length-1)'
+                         @click="seeReport(scope.row)">查看报告</el-button>
               <span prop="amount1"
                     v-else>{{scope.row.amount1}}</span>
             </template>
@@ -174,10 +186,11 @@ export default {
       dataForm: {},
       formInline: {
         createuser: '',
-        taskid: '',
+        taskname: '',
         roleName: '',
         rolePlay: '',
         roleText: '',
+        flag: '',
         domains: [{
           value: ''
         }],
@@ -187,6 +200,12 @@ export default {
         rolePlayEdit: '',
         roleTextEdit: ''
       },
+      descriptionD: '',
+      remainingtimesD: '',
+      modulenameD: '',
+      cyclefalgD: '',
+      intervalD: '',
+      emailD: '',
       tableData: [],
       tableData1: [{
         name: '1',
@@ -267,7 +286,7 @@ export default {
       return [
         {
           name: "执行编号",
-          amount1: this.taskname,
+          amount1: this.taskid,
 
         },
         {
@@ -276,38 +295,43 @@ export default {
         },
         {
           name: "任务说明",
-          amount1: '会员名称',
+          amount1: this.descriptionD,
         },
         {
-          name: "基础信息",
-          amount1: '用户来源',
+          name: "模块名称",
+          amount1: this.modulenameD,
         },
         {
           name: "执行方式",
-          amount1: '用户来源',
+          amount1: this.cyclefalgD,
         },
         {
           name: "执行间隔",
-          amount1: '用户来源',
+          amount1: this.intervalD,
+        },
+        {
+          name: "执行时长",
+          amount1: this.durationD,
         },
         {
           name: "执行次数",
-          amount1: '用户来源',
+          amount1: this.remainingtimesD,
         },
         {
           name: "发送邮件",
-          amount1: '用户来源',
+          amount1: this.emailD,
         },
         {
           name: "执行状态",
-          amount1: '用户来源',
+          amount1: this.statusD,
         },
         {
           name: "执行结果",
-          amount1: '用户来源',
+          amount1: this.countD,
         },
         {
-          name: "测试报告",
+          name: '测试报告',
+
         },
       ];
     }
@@ -316,7 +340,9 @@ export default {
     this.onSubmit()
   },
   methods: {
-
+    seeReport () {
+      window.open('http://10.1.61.34/show/report/' + this.reportD)
+    },
     // 自定义列背景色
     columnStyle ({ rowIndex }) {
       // console.log(row, column, rowIndex, columnIndex)
@@ -347,7 +373,7 @@ export default {
     onSubmit () {
       // console.log('submit!');
       this.loading = true
-      this.$http.getReportSearch(this.pagesize, this.currpage, this.formInline.createuser, this.formInline.taskid, this.formInline.failure).then((res) => {
+      this.$http.getReportSearch(this.pagesize, this.currpage, this.formInline.createuser, this.formInline.taskname, this.formInline.flag, '-createtime').then((res) => {
         console.log(res.data.data);
         if (res.data.data && res.data.code == '0000') {
           this.tableData = res.data.data
@@ -365,7 +391,6 @@ export default {
             }
           }
         }
-
       }).catch(() => {
         //请求失败关闭；
         this.loading = false
@@ -436,17 +461,26 @@ export default {
       });
     },
     //执行事件按钮
-    handleClickExecute () {
-      //  console.log(index, row);
+    handleClickExecute (row) {
+      console.log(row);
       this.$confirm('确定要立即执行此任务所有用例吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '创建成功!'
+        this.$http.getReportExecute(row.origin).then((res) => {
+          console.log(res.data.code);
+          if (res.data.code == '0000') {
+            this.$message({
+              type: 'success',
+              message: '执行成功!'
+            });
+            this.onSubmit()
+          } else {
+            this.$message.error(res.data.description)
+          }
         });
+
       }).catch(() => {
 
       });
@@ -455,10 +489,41 @@ export default {
     //详情事件按钮
     handleClickDetails (row) {
       console.log(row, '详情');
-      this.taskname = row.taskname,
-        this.province = row.province,
-        this.dialogDetailsVisible = true
 
+      this.taskname = row.taskname,
+        this.taskid = row.taskid,
+        this.province = row.province,
+        this.emailD = row.email
+      this.countD = row.count
+      this.cyclefalgD = row.cycleflag
+      this.intervalD = row.interval
+      this.reportD = row.report
+      this.descriptionD = row.description
+      this.modulenameD = row.modulename
+      this.remainingtimesD = row.remainingtimes
+      this.statusD = row.status
+      this.durationD = row.duration
+      this.dialogDetailsVisible = true
+      if (this.statusD == 0) {
+        this.statusD = '待执行'
+
+      } else if (this.statusD == 1) {
+        this.statusD = '执行中'
+
+      } else if (this.statusD == 2) {
+        this.statusD = '任务暂停'
+
+      } else if (this.statusD == 3) {
+        this.statusD = '执行完成'
+
+      }
+      else if (this.statusD == 4) {
+        this.statusD = '任务取消'
+
+      } else if (this.statusD == 5) {
+        this.statusD = '待配置'
+
+      }
     },
     // 报告点击事件
     handleReport (index, row) {

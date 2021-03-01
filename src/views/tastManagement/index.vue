@@ -84,26 +84,86 @@
                          label="操作"
                          width="230">
           <template slot-scope="scope">
-            <el-button @click="handleClickCopy(scope.row)"
+            <!-- <el-button @click="handleClickCopy(scope.row)"
                        type="text"
                        size="small"
-                       style="background-color:transparent;color:#1369c2">复制</el-button>
+                       style="background-color:transparent;color:#1369c2">复制</el-button> -->
             <el-button @click="handleClickDetial(scope.row)"
                        type="text"
                        size="small"
                        style="background-color:transparent;color:#1369c2">详情</el-button>
-            <el-button type="text"
-                       @click="handleClickExecute(scope.row)"
-                       size="small"
-                       style="background-color:transparent;color:#1369c2">执行</el-button>
-            <el-button type="text"
+            <el-tooltip class="item"
+                        effect="dark"
+                        content="请先完成配置"
+                        placement="top-start">
+              <div style="display: inline-block;">
+                <el-button type="text"
+                           @click="handleClickExecute(scope.row)"
+                           size="small"
+                           v-if="scope.row.status == '待配置'"
+                           :disabled="scope.row.status == '待配置'"
+                           style="background-color:transparent;color:#ccc;margin-left: 10px;">执行</el-button>
+              </div>
+            </el-tooltip>
+            <el-tooltip class="item"
+                        effect="dark"
+                        content="Top Left 提示文字"
+                        disabled
+                        placement="top-start">
+              <div style="display: inline-block;">
+                <el-button type="text"
+                           @click="handleClickExecute(scope.row)"
+                           size="small"
+                           v-if="scope.row.status !== '待配置'"
+                           style="background-color:transparent;color:#1369c2;margin-left: 10px;">执行</el-button>
+              </div>
+            </el-tooltip>
+            <!-- <el-button type="text"
                        size="small"
                        @click="handleDelete(scope.$index, scope.row)"
-                       style="background-color:transparent;color:#1369c2">删除</el-button>
-            <el-button type="text"
+                       style="background-color:transparent;color:#1369c2">删除</el-button> -->
+            <!-- <el-button type="text"
                        size="small"
                        @click="handleReport(scope.$index, scope.row)"
-                       style="background-color:transparent;color:#1369c2">报告</el-button>
+                       style="background-color:transparent;color:#1369c2">报告</el-button> -->
+            <el-dropdown trigger="click"
+                         @command="handleCommand">
+              <span class="el-dropdown-link"
+                    style="background-color:transparent;color:#1369c2;cursor:pointer;font-size: 12px;margin-left:10px"
+                    @click="more(scope.row)">更多</span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="copy"
+                                  @click="handleClickCopy(scope.row)">复制</el-dropdown-item>
+                <el-dropdown-item command="delete"
+                                  @click="handleDelete(scope.$index, scope.row)">删除</el-dropdown-item>
+                <el-tooltip placement="top"
+                            content="请完成配置">
+                  <div style="display:inline">
+                    <el-dropdown-item command="resert"
+                                      v-if="scope.row.status=='执行中'
+                                  ||scope.row.status=='任务暂停'
+                                  ||scope.row.status=='执行完成'
+                                  ||scope.row.status=='任务取消'"
+                                      :disabled="scope.row.status=='执行中'
+                                  ||scope.row.status=='任务暂停'
+                                  ||scope.row.status=='执行完成'
+                                  ||scope.row.status=='任务取消'"
+                                      @click="handleDetail(scope.$index, scope.row)">编辑</el-dropdown-item>
+                  </div>
+                </el-tooltip>
+                <el-tooltip placement="top"
+                            content="请完成配置"
+                            disabled>
+                  <div style="display:inline">
+                    <el-dropdown-item command="resert"
+                                      v-if="scope.row.status=='待配置'
+                                  ||scope.row.status=='待执行'"
+                                      @click="handleDetail(scope.$index, scope.row)">编辑</el-dropdown-item>
+                  </div>
+                </el-tooltip>
+              </el-dropdown-menu>
+
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -203,86 +263,6 @@
                        icon=" iconfont icon-baocun"
                        @click="save('formInline')">仅保存</el-button>
           </div>
-          <!-- <div id="listText">脚本列表</div> -->
-          <!-- 查询列表的表单 -->
-          <!-- <el-form :inline="true"
-                   :model="formInline"
-                   style="width: 100%;margin-bottom:10px"
-                   class="demo-form-inline">
-            <el-form-item label="接口名称"
-                          style="margin-left:30px">
-              <el-select v-model="formInline.basicMessage">
-                <el-option label="请选择"
-                           value=""></el-option>
-                <el-option label="1"
-                           value="zhengchang"></el-option>
-                <el-option label="2"
-                           value="zanting"></el-option>
-                <el-option label="3"
-                           value="xiaohu"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="脚本名称:"
-                          :label-width="formLabelWidth">
-              <el-select v-model="formInline.basicMessage">
-                <el-option label="请选择"
-                           value=""></el-option>
-                <el-option label="1"
-                           value="zhengchang"></el-option>
-                <el-option label="2"
-                           value="zanting"></el-option>
-                <el-option label="3"
-                           value="xiaohu"></el-option>
-              </el-select>
-            </el-form-item>
-
-            <el-form-item>
-              <el-button type="primary"
-                         icon="el-icon-search"
-                         style="margin-left:20px"
-                         @click="onSubmit">查询</el-button>
-            </el-form-item>
-          </el-form>
-          <el-table :data="tableData.slice((currpage - 1) * pagesize, currpage * pagesize)"
-                    row-key="date"
-                    v-if="show"
-                    style="width: 94%;margin-left:30px;margin-top: 20px;"
-                    @selection-change="handleSelectionChange"
-                    border
-                    :header-cell-style="{background:'#F2F2F2'}"
-                    :cell-style="{padding:'2px'}">
-            <el-table-column type="selection"
-                             width="55"
-                             :reserve-selection='true'>
-            </el-table-column>
-            <el-table-column fixed
-                             prop="date"
-                             label="序号">
-            </el-table-column>
-            <el-table-column prop="name"
-                             label="RDMSID">
-            </el-table-column>
-            <el-table-column prop="province"
-                             label="模块名称">
-            </el-table-column>
-            <el-table-column prop="city"
-                             label="接口名称">
-            </el-table-column>
-            <el-table-column prop="address"
-                             label="脚本名称">
-            </el-table-column>
-            <el-table-column prop="zip"
-                             label="脚本说明"
-                             w>
-            </el-table-column>
-            <el-table-column prop="mobile"
-                             label="创建者">
-            </el-table-column>
-            <el-table-column prop="status"
-                             label="创建时间">
-            </el-table-column>
-
-          </el-table> -->
         </div>
         <!-- 第二页内容 -->
         <div class="thridPageContent"
@@ -372,7 +352,11 @@
                   style="margin-top:30px">
           <el-table-column type="index"
                            label="序号"
-                           width="50"></el-table-column>
+                           width="50">
+            <template slot-scope="scope">
+              <span>{{scope.$index+(currpageChildren - 1) * pagesize1 + 1}}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="taskname"
                            label="子任务名称"
                            width="auto"></el-table-column>
@@ -397,10 +381,29 @@
                          size="small"
                          @click="handleDeleteChildren(scope.$index, scope.row)"
                          style="background-color:transparent;color:#1369c2">删除</el-button>
-              <el-button type="text"
-                         size="small"
-                         @click="handleReportChildren(scope.$index, scope.row)"
-                         style="background-color:transparent;color:#1369c2">报告</el-button>
+              <el-tooltip placement="top"
+                          content="请先完成配置">
+                <div style="display: inline-block;">
+                  <el-button type="text"
+                             size="small"
+                             @click="handleReportChildren(scope.$index, scope.row)"
+                             :disabled="scope.row.status !== '执行完成'"
+                             v-if="scope.row.status !== '执行完成'"
+                             style="background-color:transparent;color:#ccc;margin-left:10px">报告</el-button>
+                </div>
+              </el-tooltip>
+              <el-tooltip placement="top"
+                          disabled
+                          content="请先完成配置">
+                <div style="display: inline-block;">
+                  <el-button type="text"
+                             size="small"
+                             @click="handleReportChildren(scope.$index, scope.row)"
+                             :disabled="scope.row.status !== '执行完成'"
+                             v-if="scope.row.status == '执行完成'"
+                             style="background-color:transparent;color:#1369c2;margin-left:10px">报告</el-button>
+                </div>
+              </el-tooltip>
             </template>
           </el-table-column>
         </el-table>
@@ -595,7 +598,7 @@
                          type="index"
                          label="序号">
           <template slot-scope="scope">
-            <span>{{scope.$index+(currpage - 1) * pagesize1 + 1}}</span>
+            <span>{{scope.$index+(currpageCopy - 1) * pagesize2 + 1}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="rdmsid"
@@ -608,7 +611,7 @@
                          label="模块名称">
         </el-table-column>
 
-        <el-table-column prop="address"
+        <el-table-column prop="filename"
                          label="脚本名称">
         </el-table-column>
         <el-table-column prop="zip"
@@ -773,7 +776,7 @@
                          type="index"
                          label="序号">
           <template slot-scope="scope">
-            <span>{{scope.$index+(currpage - 1) * pagesizeDetial + 1}}</span>
+            <span>{{scope.$index+(currpageDetial - 1) * pagesizeDetial + 1}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="rdmsid"
@@ -786,7 +789,7 @@
                          label="模块名称">
         </el-table-column>
 
-        <el-table-column prop="address"
+        <el-table-column prop="filename"
                          label="脚本名称">
         </el-table-column>
         <el-table-column prop="zip"
@@ -998,7 +1001,7 @@
                          label="模块名称">
         </el-table-column>
 
-        <el-table-column prop="address"
+        <el-table-column prop="filename"
                          label="脚本名称">
         </el-table-column>
         <el-table-column prop="zip"
@@ -1149,6 +1152,9 @@ export default {
       multipleSelection: [],
       pagesize: 10,
       currpage: 1,
+      currpageChildren: 1,
+      currpageDetial: 1,
+      currpageCopy: 1,
       total: 0,
       pagesize1: 10,
       total1: 0,
@@ -1212,7 +1218,172 @@ export default {
     this.$forceUpdate()
   },
   methods: {
+    //点击更多获取当前行的信息
+    more (item) {
+      console.log(item)
+      let taskidMore = item.taskid
+      this.taskidMore = taskidMore//任务id
+      let tasknameMore = item.taskname
+      this.tasknameMore = tasknameMore//任务名称
+      let descriptionMore = item.description
+      this.descriptionMore = descriptionMore//描述
+      let emailMore = item.email
+      this.emailMore = emailMore//描述
 
+    },
+    handleCommand (command) {
+      console.log(command, '点击更多得到的每一项')
+      if (command == 'delete') {
+        this.$confirm('确定进行删除么?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http.getTaskDelete(this.taskidMore).then((res) => {
+            console.log(res.data.code);
+            if (res.data.code == '0000') {
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              });
+              this.search()
+            } else {
+              this.$message.error(res.data.description)
+            }
+          });
+
+        }).catch(() => {
+
+        });
+      }
+      else if (command == 'copy') {
+        console.log('复制');
+        this.dialogFormVisible = true
+        this.formInline.tastNameDetial = this.tasknameMore
+        this.formInline.tastDescDetial1 = this.descriptionMore
+        this.formInline.emailDetial = this.emailMore
+        this.taskid = this.taskidMore
+        this.onTaskCopySearch()
+        //复制页的复制数据接口
+        this.$http.getTaskDetialDetail(this.taskidMore).then((res) => {
+          if (res.data.code == '0000') {
+            console.log(res.data.taskdetail, '复制页数据')
+            this.formInline.remainingtimesDetial = res.data.taskdetail.remainingtimes
+            if (res.data.taskdetail.interval !== 86400 && res.data.taskdetail.interval !== 604800
+              && res.data.taskdetail.interval !== 2592000 && res.data.taskdetail.interval !== 31536000) {
+              console.log(res.data.taskdetail.interval, '0987')
+              this.formInline.intervalDetial = res.data.taskdetail.interval
+            } else {
+              //判断时间间隔的数据
+              if (res.data.taskdetail.interval == '86400') {
+                this.formInline.intervalDetial = '一天'
+              } else if (res.data.taskdetail.interval == '604800') {
+                this.formInline.intervalDetial = '一周'
+              } else if (res.data.taskdetail.interval == '2592000') {
+                this.formInline.intervalDetial = '一月'
+              } else if (res.data.taskdetail.interval == '31536000 ') {
+                this.formInline.intervalDetial = '一年'
+              }
+            }
+
+
+            //判断报告方式的赋值
+            if (res.data.taskdetail.issendemail == 0) {
+              console.log('000')
+              this.inputOpenDetail = false
+              this.formInline.issendemailDetial = '0'
+            } else {
+              this.formInline.issendemailDetial = '1'
+              this.inputOpenDetail = true
+              // this.formInline.emailDetial =JSON.stringify(res.data.taskdetail.email) 
+              console.log(res.data.taskdetail.email)//邮箱
+              const stringValue = res.data.taskdetail.email.join(',')//数组转换成字符串形式进行赋值
+              console.log(stringValue)
+              this.formInline.emailDetial = stringValue
+            }
+            //判断执行方式的赋值
+            if (res.data.taskdetail.cycleflag == 2) {
+              this.regularly = false
+              this.formInline.rcycleflagDetial = '2'
+            } else if (res.data.taskdetail.cycleflag == 0) {
+              this.regularly = false
+              this.formInline.rcycleflagDetial = '0'
+            } else {
+              this.regularly = true
+              this.formInline.rcycleflagDetial = '1'
+              this.formInline.begintimeDetial = res.data.taskdetail.createtime
+            }
+
+          } else {
+            this.$message.error(res.data.description)
+          }
+        });
+
+      } else if (command == 'resert') {
+        console.log(command, '编辑');
+        this.command = command
+        this.dialogFormVisible = true
+        this.formInline.tastNameDetial = this.tasknameMore
+        this.formInline.tastDescDetial1 = this.descriptionMore
+        this.formInline.emailDetial = this.emailMore
+        this.taskid = this.taskidMore
+        this.onTaskCopySearch()
+        //编辑页的编辑数据接口
+        this.$http.getTaskDetialDetail(this.taskidMore).then((res) => {
+          if (res.data.code == '0000') {
+            console.log(res.data.taskdetail, '编辑页数据')
+            this.formInline.remainingtimesDetial = res.data.taskdetail.remainingtimes
+            if (res.data.taskdetail.interval !== 86400 && res.data.taskdetail.interval !== 604800
+              && res.data.taskdetail.interval !== 2592000 && res.data.taskdetail.interval !== 31536000) {
+              console.log(res.data.taskdetail.interval, '0987')
+              this.formInline.intervalDetial = res.data.taskdetail.interval
+            } else {
+              //判断时间间隔的数据
+              if (res.data.taskdetail.interval == '86400') {
+                this.formInline.intervalDetial = '一天'
+              } else if (res.data.taskdetail.interval == '604800') {
+                this.formInline.intervalDetial = '一周'
+              } else if (res.data.taskdetail.interval == '2592000') {
+                this.formInline.intervalDetial = '一月'
+              } else if (res.data.taskdetail.interval == '31536000 ') {
+                this.formInline.intervalDetial = '一年'
+              }
+            }
+
+
+            //判断报告方式的赋值
+            if (res.data.taskdetail.issendemail == 0) {
+              console.log('000')
+              this.inputOpenDetail = false
+              this.formInline.issendemailDetial = '0'
+            } else {
+              this.formInline.issendemailDetial = '1'
+              this.inputOpenDetail = true
+              // this.formInline.emailDetial =JSON.stringify(res.data.taskdetail.email) 
+              console.log(res.data.taskdetail.email)//邮箱
+              const stringValue = res.data.taskdetail.email.join(',')//数组转换成字符串形式进行赋值
+              console.log(stringValue)
+              this.formInline.emailDetial = stringValue
+            }
+            //判断执行方式的赋值
+            if (res.data.taskdetail.cycleflag == 2) {
+              this.regularly = false
+              this.formInline.rcycleflagDetial = '2'
+            } else if (res.data.taskdetail.cycleflag == 0) {
+              this.regularly = false
+              this.formInline.rcycleflagDetial = '0'
+            } else {
+              this.regularly = true
+              this.formInline.rcycleflagDetial = '1'
+              this.formInline.begintimeDetial = res.data.taskdetail.createtime
+            }
+
+          } else {
+            this.$message.error(res.data.description)
+          }
+        });
+      }
+    },
     // 切换模式 现有树形穿梭框模式transfer 和通讯录模式addressList
     changeMode () {
       if (this.mode == "transfer") {
@@ -1249,7 +1420,7 @@ export default {
     },
     //子任务表格分页
     handleCurrentChangeChildren (cpage) {
-      this.currpage = cpage;
+      this.currpageChildren = cpage;
       this.childrenSubmit()
     },
     handleSizeChangeChildren (psize) {
@@ -1259,7 +1430,7 @@ export default {
     },
     //关于详情页表格分页的方法
     handleCurrentChangeDetial (cpage) {
-      this.currpage = cpage;
+      this.currpageDetial = cpage;
       this.onTaskDetialSearch()
     },
     handleSizeChangeDetial (psize) {
@@ -1269,7 +1440,7 @@ export default {
     },
     //关于复制页表格分页的方法
     handleCurrentChangeCopy (cpage) {
-      this.currpage = cpage;
+      this.currpageCopy = cpage;
       this.onTaskCopySearch()
     },
     handleSizeChangeCopy (psize) {
@@ -1315,6 +1486,8 @@ export default {
             }
             else if (res.data.data[i].status == 4) {
               res.data.data[i].status = '任务取消'
+            } else if (res.data.data[i].status == 5) {
+              res.data.data[i].status = '待配置'
             }
           }
 
@@ -1442,21 +1615,40 @@ export default {
       else if (this.formInline.intervalDetial == '一年') {
         this.formInline.intervalDetial = 31536000
       }
-      this.$http.getTaskCopySave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
-        this.formInline.intervalDetial, this.formInline.issendemailDetial,
-        this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial).then((res) => {
-          if (res.data.code == '0000') {
-            console.log(res.data.data, '保存成功后返回的数据')
-            this.$message({
-              message: '保存成功',
-              type: 'success'
-            });
-            this.$router.go(0)
-            this.dialogFormVisible = false
-          } else {
-            this.$message.error(res.data.description);
-          }
-        });
+      if (this.command == 'resert') {
+        this.$http.getTaskResertSave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
+          this.formInline.intervalDetial, this.formInline.issendemailDetial,
+          this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial).then((res) => {
+            if (res.data.code == '0000') {
+              console.log(res.data.data, '保存成功后返回的数据')
+              this.$message({
+                message: '保存成功',
+                type: 'success'
+              });
+              this.$router.go(0)
+              this.dialogFormVisible = false
+            } else {
+              this.$message.error(res.data.description);
+            }
+          });
+      } else {
+        this.$http.getTaskCopySave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
+          this.formInline.intervalDetial, this.formInline.issendemailDetial,
+          this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial).then((res) => {
+            if (res.data.code == '0000') {
+              console.log(res.data.data, '保存成功后返回的数据')
+              this.$message({
+                message: '保存成功',
+                type: 'success'
+              });
+              this.$router.go(0)
+              this.dialogFormVisible = false
+            } else {
+              this.$message.error(res.data.description);
+            }
+          });
+      }
+
     },
     //点击详情页查询按钮
     onSubmitDetial () {
@@ -1471,7 +1663,7 @@ export default {
     //复制页表格
     onTaskCopySearch () {
       this.loading = true
-      this.$http.getTaskDetialSearch(this.pagesize2, this.currpage, this.taskid, '-createtime').then((res) => {
+      this.$http.getTaskDetialSearch(this.pagesize2, this.currpageCopy, this.taskid, '-createtime').then((res) => {
         if (res.data.code == '0000') {
           this.loading = false
           this.tableDataCopy = res.data.task_cases
@@ -1649,7 +1841,7 @@ export default {
           if (res.data.code == '0000') {
             this.$message({
               type: 'success',
-              message: '执行成功!'
+              message: '已经开始执行!'
             });
             //环境信息的查询
             this.search()
@@ -1666,31 +1858,31 @@ export default {
       console.log(row);
       this.dialogTableVisible = true
     },
-    // 主页表格删除事件
-    handleDelete (index, row) {
-      console.log(index, row);
-      this.$confirm('确定进行删除么?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$http.getTaskDelete(row.taskid).then((res) => {
-          console.log(res.data.code);
-          if (res.data.code == '0000') {
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            });
-            this.search()
-          } else {
-            this.$message.error(res.data.description)
-          }
-        });
+    // // 主页表格删除事件
+    // handleDelete (index, row) {
+    //   console.log(index, row);
+    //   this.$confirm('确定进行删除么?', '提示', {
+    //     confirmButtonText: '确定',
+    //     cancelButtonText: '取消',
+    //     type: 'warning'
+    //   }).then(() => {
+    //     this.$http.getTaskDelete(row.taskid).then((res) => {
+    //       console.log(res.data.code);
+    //       if (res.data.code == '0000') {
+    //         this.$message({
+    //           type: 'success',
+    //           message: '删除成功!'
+    //         });
+    //         this.search()
+    //       } else {
+    //         this.$message.error(res.data.description)
+    //       }
+    //     });
 
-      }).catch(() => {
+    //   }).catch(() => {
 
-      });
-    },
+    //   });
+    // },
     //子任务列表删除
     handleDeleteChildren (index, row) {
       console.log(index, row);
@@ -1741,10 +1933,21 @@ export default {
 
       });
     },
-    // 报告点击事件
+    // 主页面报告点击事件
     handleReport () {
       // window.open('https://element.eleme.io')
       this.$message.warning('当前无法下载')
+    },
+    // 子页面报告点击事件
+    handleReportChildren (index, data) {
+      // window.open('https://element.eleme.io')
+      console.log(index, data)
+      var reportTaskid = data.taskid
+      if (data.status == '执行完成') {
+        window.open('http://10.1.61.34/show/report/' + reportTaskid + '.html')
+      } else {
+        this.$message.warning('当前无法下载')
+      }
     },
     //是否发送邮件事件
     handleChangeValue (report) {
@@ -1917,6 +2120,7 @@ export default {
             type: 'success',
             message: '保存成功',
           })
+          this.onTaskCopySearch()
           this.dialogDetailsAdd = false
           this.toData1 = []
         } else {
@@ -1945,24 +2149,33 @@ export default {
     },
     //子任务表格查询接口
     childrenSubmit () {
-      this.$http.getTaskChildrenSearch(this.pagesize, this.currpage, this.childrenTaskid).then((res) => {
+      this.$http.getTaskChildrenSearch(this.pagesize1, this.currpageChildren, this.childrenTaskid).then((res) => {
         if (res.data.code == '0000' && res.data.data.length > 0) {
           console.log(res.data.data)
           this.childrenData = res.data.data
           for (var i = 0; i < this.childrenData.length; i++) {
             if (res.data.data[i].status == 0) {
               res.data.data[i].status = '待执行'
+
             } else if (res.data.data[i].status == 1) {
               res.data.data[i].status = '执行中'
+
             } else if (res.data.data[i].status == 2) {
               res.data.data[i].status = '任务暂停'
+
             } else if (res.data.data[i].status == 3) {
               res.data.data[i].status = '执行完成'
+
             }
             else if (res.data.data[i].status == 4) {
               res.data.data[i].status = '任务取消'
+
+            } else if (res.data.data[i].status == 5) {
+              res.data.data[i].status = '待配置'
+
             }
           }
+
           this.total1 = res.data.paging.total;//总信息条数从数据库获取;
           console.log(this.total1)
 
@@ -1971,7 +2184,6 @@ export default {
           this.$message.error('该任务下没有子任务');
         } else if (res.data.code !== '0000') {
           this.$message.error(res.data.description);
-
         }
       });
     },
@@ -1983,8 +2195,10 @@ export default {
       if (column.label == '任务名称') {
         console.log('点击了任务名称')
         this.childrenSubmit()
+
       }
     },
+
     //子任务页面详情页面
     handleDetialChildren (row) {
       console.log(row, '子任务详情页面');
@@ -2139,6 +2353,15 @@ export default {
 }
 </style>
 <style lang="less" scoped>
+// .a {
+//   background-color: transparent;
+//   color: #1369c2 !important;
+// }
+// .b {
+//   background-color: transparent;
+//   color: red !important;
+// }
+
 .borderContent {
   width: 5px;
   height: 22px;

@@ -99,8 +99,9 @@
                       <span>测试脚本管理</span></i>
                   </template>
                   <el-menu-item-group>
+                    <!-- <el-menu-item index="/Scripting">脚本编写</el-menu-item> -->
                     <el-menu-item index="/ImportScript">脚本导入</el-menu-item>
-                    <!-- <el-menu-item index="3-2">选项2</el-menu-item> -->
+
                   </el-menu-item-group>
                 </el-submenu>
                 <el-submenu index="4">
@@ -246,7 +247,6 @@ export default {
       } else {
         this.handleUserDetail()
         this.$router.push('/home/personal')
-
       }
     },
     getUserSearch () {

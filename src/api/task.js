@@ -113,13 +113,13 @@ axios.request({
     }
   }
 });
-//复制页的保存
+//复制页的保存getTaskResertSave
 const getTaskCopySave = ( taskid,taskname, description, remainingtimes, interval, issendemail, email, rcycleflag,begintime) =>
   axios.request({
     url: `/task/v1/manage/`,
     method: 'POST',
     data: {
-      optype: '1',
+      optype: '0',
       data: {
         taskid,
         taskname,
@@ -134,6 +134,27 @@ const getTaskCopySave = ( taskid,taskname, description, remainingtimes, interval
       }
     }
   });
+  //编辑页的保存
+const getTaskResertSave = ( taskid,taskname, description, remainingtimes, interval, issendemail, email, rcycleflag,begintime) =>
+axios.request({
+  url: `/task/v1/manage/`,
+  method: 'POST',
+  data: {
+    optype: '1',
+    data: {
+      taskid,
+      taskname,
+      description,
+      createuser: localStorage.getItem('uid'),
+      remainingtimes,//重试次数
+      interval,//执行间隔
+      issendemail,//是否发送邮件（0不发，1发）
+      email,//发送邮件
+      rcycleflag,//执行方式（0：立即执行1：定时执行 2:暂不执行）
+      begintime,//任务开始时间
+    }
+  }
+});
 //点击复制页表格查询
 const getTaskDetialSearch = (size, page, taskid,ordering) =>
   axios.request({
@@ -205,4 +226,4 @@ const getTaskChildrenSearch = (size, page, taskid) =>
 export { getTaskProduct, getTaskModule, getTasktransfer,
   getTaskSearch, getTaskAddSearch, getTaskAdd, getTaskSecondAdd,
   getTaskDelete, getTaskDetialSearch,getDetialTaskDelete,getTasktransferAdd ,
-  getTasktransferSearch,getTaskChildrenSearch,getTaskExecute,getTaskDetialDetail,getTaskCopySave};
+  getTasktransferSearch,getTaskChildrenSearch,getTaskExecute,getTaskDetialDetail,getTaskCopySave,getTaskResertSave};

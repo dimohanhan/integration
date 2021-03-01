@@ -1,10 +1,12 @@
 <template>
   <div>
+    <!-- 页面头部 -->
     <div class="header"
          style="width:270px; margin-left: 200px;">
       <div class="borderContent"></div>
       <div style=" margin-right: 80px;">脚本管理-脚本文件导入</div>
     </div>
+    <!-- 页面主要内容 -->
     <div class="mainContent">
       <el-row :gutter="10">
         <el-form :inline="true"

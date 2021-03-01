@@ -114,7 +114,7 @@ axios.request({
   }
 });
 //复制页的保存getTaskResertSave
-const getTaskCopySave = ( taskid,taskname, description, remainingtimes, interval, issendemail, email, rcycleflag,begintime) =>
+const getTaskCopySave = ( taskid,taskname, description, remainingtimes, interval, issendemail, email, rcycleflag,begintime,moduleid) =>
   axios.request({
     url: `/task/v1/manage/`,
     method: 'POST',
@@ -131,6 +131,7 @@ const getTaskCopySave = ( taskid,taskname, description, remainingtimes, interval
         email,//发送邮件
         rcycleflag,//执行方式（0：立即执行1：定时执行 2:暂不执行）
         begintime,//任务开始时间
+        moduleid
       }
     }
   });

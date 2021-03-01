@@ -25,16 +25,18 @@
                    class="demo-form"
                    style="width: 400px;">
             <el-form-item label="旧密码"
+                          prop="pass"
                           :label-width="formLabelWidth">
 
-              <el-input v-model="form.name"></el-input>
+              <el-input type="password"
+                        v-model="form.pass"></el-input>
 
             </el-form-item>
             <el-form-item label="密码"
                           prop="pass"
                           :label-width="formLabelWidth">
               <el-input type="password"
-                        v-model="form.pass"
+                        v-model="form.passNew"
                         autocomplete="off"></el-input>
             </el-form-item>
             <el-form-item label="确认密码"
@@ -154,7 +156,7 @@ export default {
     var validatePass2 = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码'));
-      } else if (value !== this.form.pass) {
+      } else if (value !== this.form.passNew) {
         callback(new Error('两次输入密码不一致!'));
       } else {
         callback();
@@ -172,6 +174,8 @@ export default {
         type: [],
         pass: '',
         checkPass: '',
+        passNew: '',
+        passAgin: ''
       },
 
       rules: {

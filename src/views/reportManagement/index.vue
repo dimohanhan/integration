@@ -78,7 +78,7 @@
             </el-table-column>
 
             <el-table-column prop="totalcase"
-                             label="包含接口数量"
+                             label="包含脚本数量"
                              width="auto">
             </el-table-column>
             <el-table-column prop="duration"
@@ -206,6 +206,8 @@ export default {
       cyclefalgD: '',
       intervalD: '',
       emailD: '',
+      failureD: '',
+      errorD: '',
       tableData: [],
       tableData1: [{
         name: '1',
@@ -327,7 +329,7 @@ export default {
         },
         {
           name: "执行结果",
-          amount1: this.countD,
+          amount1: this.failureD,
         },
         {
           name: '测试报告',
@@ -341,7 +343,7 @@ export default {
   },
   methods: {
     seeReport () {
-      window.open('http://10.1.61.34/show/report/' + this.reportD)
+      window.open('http://10.1.61.34' + this.reportD)
     },
     // 自定义列背景色
     columnStyle ({ rowIndex }) {
@@ -374,9 +376,10 @@ export default {
       // console.log('submit!');
       this.loading = true
       this.$http.getReportSearch(this.pagesize, this.currpage, this.formInline.createuser, this.formInline.taskname, this.formInline.flag, '-createtime').then((res) => {
-        console.log(res.data.data);
+
         if (res.data.data && res.data.code == '0000') {
           this.tableData = res.data.data
+          console.log(this.tableData);
           this.loading = false
           this.total = res.data.paging.total;//总信息条数从数据库获取;
           for (var i = 0; i < this.tableData.length; i++) {
@@ -384,10 +387,12 @@ export default {
               this.tableData[i].failure = '全部成功'
             } else if (this.tableData[i].failure !== 0 && this.tableData[i].error !== 0) {
               this.tableData[i].failure = '错误' + this.tableData[i].error + '次' + '/' + '失败' + this.tableData[i].failure + '次'
-            } else if (this.tableData[i].failure !== 0 && this.tableData[i].error == 0) {
+            } else if (this.tableData[i].success !== 0 && this.tableData[i].failure !== 0 && this.tableData[i].error == 0) {
               this.tableData[i].failure = '失败' + this.tableData[i].failure + '次'
             } else if (this.tableData[i].failure == 0 && this.tableData[i].error !== 0) {
               this.tableData[i].failure = '错误' + this.tableData[i].error + '次'
+            } else if (this.tableData[i].success == 0) {
+              this.tableData[i].failure = '全部失败'
             }
           }
         }
@@ -489,7 +494,6 @@ export default {
     //详情事件按钮
     handleClickDetails (row) {
       console.log(row, '详情');
-
       this.taskname = row.taskname,
         this.taskid = row.taskid,
         this.province = row.province,
@@ -503,6 +507,8 @@ export default {
       this.remainingtimesD = row.remainingtimes
       this.statusD = row.status
       this.durationD = row.duration
+      this.failureD = row.failure
+      // this.errorD = row.error
       this.dialogDetailsVisible = true
       if (this.statusD == 0) {
         this.statusD = '待执行'
@@ -524,6 +530,7 @@ export default {
         this.statusD = '待配置'
 
       }
+
     },
     // 报告点击事件
     handleReport (index, row) {

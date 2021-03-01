@@ -304,7 +304,9 @@
                               type="datetime"
                               v-if="regularly"
                               placeholder="选择执行日期"
-                              value-format="yyyy-MM-dd HH:mm:ss">
+                              value-format="yyyy-MM-dd HH:mm:ss"
+                              :default-value='new
+                          Date()'>
               </el-date-picker>
             </el-form-item>
             <el-form-item label="时间间隔:"
@@ -1114,7 +1116,7 @@ export default {
         remainingtimes: '',//执行次数
         issendemail: '0',
         interval: '',//执行间隔
-        begintime: '',//开始时间
+        begintime: new Date(),//开始时间
         email: '',//发送邮件填写的邮件
         tastDescDetial1: '',//详情页的任务名称
         tastNameDetial: '',//详情页的任务说明
@@ -1206,7 +1208,9 @@ export default {
       childrenData: [],//子任务列表
       loading: false,
       taskid: '',
-      secondMoudleid: ''//新增第一页保存成功后存储返回的模块id
+      secondMoudleid: '',//新增第一页保存成功后存储返回的模块id
+      copyModuleid: '',
+      command: ''
     }
   },
 
@@ -1264,10 +1268,12 @@ export default {
         this.formInline.emailDetial = this.emailMore
         this.taskid = this.taskidMore
         this.onTaskCopySearch()
+
         //复制页的复制数据接口
         this.$http.getTaskDetialDetail(this.taskidMore).then((res) => {
           if (res.data.code == '0000') {
             console.log(res.data.taskdetail, '复制页数据')
+            this.copyModuleid = res.data.taskdetail.moduleid
             this.formInline.remainingtimesDetial = res.data.taskdetail.remainingtimes
             if (res.data.taskdetail.interval !== 86400 && res.data.taskdetail.interval !== 604800
               && res.data.taskdetail.interval !== 2592000 && res.data.taskdetail.interval !== 31536000) {
@@ -1289,9 +1295,11 @@ export default {
 
             //判断报告方式的赋值
             if (res.data.taskdetail.issendemail == 0) {
-              console.log('000')
+              console.log('报告方式W为不发送邮件')
               this.inputOpenDetail = false
               this.formInline.issendemailDetial = '0'
+              this.formInline.emailDetial = []
+              console.log(this.formInline.emailDetial)
             } else {
               this.formInline.issendemailDetial = '1'
               this.inputOpenDetail = true
@@ -1311,7 +1319,7 @@ export default {
             } else {
               this.regularly = true
               this.formInline.rcycleflagDetial = '1'
-              this.formInline.begintimeDetial = res.data.taskdetail.createtime
+              this.formInline.begintimeDetial = res.data.taskdetail.begintime
             }
 
           } else {
@@ -1320,14 +1328,21 @@ export default {
         });
 
       } else if (command == 'resert') {
-        console.log(command, '编辑');
+
         this.command = command
+        console.log(this.command, '编辑');
         this.dialogFormVisible = true
         this.formInline.tastNameDetial = this.tasknameMore
         this.formInline.tastDescDetial1 = this.descriptionMore
         this.formInline.emailDetial = this.emailMore
         this.taskid = this.taskidMore
         this.onTaskCopySearch()
+        // if (this.formInline.emailDetial.length == null) {
+        //   this.emailSplit1 = this.formInline.emailDetial.split(',')
+        //   console.log(this.emailSplit1, '0000')
+        // } else {
+        //   this.emailSplit1 = []
+        // }
         //编辑页的编辑数据接口
         this.$http.getTaskDetialDetail(this.taskidMore).then((res) => {
           if (res.data.code == '0000') {
@@ -1349,11 +1364,16 @@ export default {
                 this.formInline.intervalDetial = '一年'
               }
             }
-
+            // if (res.data.taskdetail.emailDetial.length == null) {
+            //   this.emailSplit1 = res.data.taskdetail.emailDetial.split(',')
+            //   console.log(this.emailSplit1, '0000')
+            // } else {
+            //   this.emailSplit1 = []
+            // }
 
             //判断报告方式的赋值
             if (res.data.taskdetail.issendemail == 0) {
-              console.log('000')
+
               this.inputOpenDetail = false
               this.formInline.issendemailDetial = '0'
             } else {
@@ -1375,13 +1395,14 @@ export default {
             } else {
               this.regularly = true
               this.formInline.rcycleflagDetial = '1'
-              this.formInline.begintimeDetial = res.data.taskdetail.createtime
+              this.formInline.begintimeDetial = res.data.taskdetail.begintime
             }
 
           } else {
             this.$message.error(res.data.description)
           }
         });
+
       }
     },
     // 切换模式 现有树形穿梭框模式transfer 和通讯录模式addressList
@@ -1598,11 +1619,9 @@ export default {
     },
     //复制页的保存按钮
     handleCopySave () {
-      console.log(this.formInline.emailDetial, '0000')
-      if (this.formInline.emailDetial !== null) {
-        this.emailSplit1 = this.formInline.emailDetial.split(',')
-        console.log(this.emailSplit1, '0000')
-      }
+      console.log(this.command)
+
+
       // this.formInline.emailDetial = this.emailSplit1
       if (this.formInline.intervalDetial == '一天') {
         this.formInline.intervalDetial = 86400
@@ -1616,6 +1635,7 @@ export default {
         this.formInline.intervalDetial = 31536000
       }
       if (this.command == 'resert') {
+        console.log(1111)
         this.$http.getTaskResertSave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
           this.formInline.intervalDetial, this.formInline.issendemailDetial,
           this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial).then((res) => {
@@ -1625,24 +1645,31 @@ export default {
                 message: '保存成功',
                 type: 'success'
               });
-              this.$router.go(0)
+              this.search()
               this.dialogFormVisible = false
             } else {
               this.$message.error(res.data.description);
             }
           });
       } else {
+        if (this.formInline.emailDetial.length !== 0) {
+          this.emailSplit1 = this.formInline.emailDetial.split(',')
+          console.log(this.emailSplit1, '0000')
+        } else {
+          this.emailSplit1 = []
+        }
         this.$http.getTaskCopySave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
           this.formInline.intervalDetial, this.formInline.issendemailDetial,
-          this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial).then((res) => {
+          this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial, this.copyModuleid).then((res) => {
             if (res.data.code == '0000') {
               console.log(res.data.data, '保存成功后返回的数据')
               this.$message({
                 message: '保存成功',
                 type: 'success'
               });
-              this.$router.go(0)
+              // this.$router.go(0)
               this.dialogFormVisible = false
+              this.search()
             } else {
               this.$message.error(res.data.description);
             }
@@ -1733,7 +1760,7 @@ export default {
           } else {
             this.regularly = true
             this.formInline.rcycleflagDetial = '1'
-            this.formInline.begintimeDetial = res.data.taskdetail.createtime
+            this.formInline.begintimeDetial = res.data.taskdetail.begintime
           }
 
         } else {
@@ -1815,7 +1842,7 @@ export default {
           } else {
             this.regularly = true
             this.formInline.rcycleflagDetial = '1'
-            this.formInline.begintimeDetial = res.data.taskdetail.createtime
+            this.formInline.begintimeDetial = res.data.taskdetail.begintime
           }
 
         } else {
@@ -1898,9 +1925,17 @@ export default {
               type: 'success',
               message: '删除成功!'
             });
-            this.childrenSubmit()
-          } else {
-            this.$message.error(res.data.description)
+            this.$http.getTaskChildrenSearch(this.pagesize1, this.currpageChildren, this.childrenTaskid).then((res) => {
+              if (res.data.code == '0000' && res.data.data.length == 0) {
+                console.log(res.data.data)
+                this.childrenData = res.data.data
+                this.childrenData = []
+
+
+
+
+              }
+            });
           }
         });
 
@@ -1969,8 +2004,11 @@ export default {
       this.report = report2
       if (this.report == '1') {
         this.inputOpen = true
+        this.inputOpenDetail = true
+        this.formInline.emailDetial = ''
       } else {
         this.inputOpen = false
+        this.inputOpenDetail = false
 
       }
     },
@@ -2002,9 +2040,9 @@ export default {
       if (this.radio == '1') {
         this.regularly = true
       } else {
-
         this.regularly = false
         this.formInline.begintime = ''
+        this.formInline.begintimeDetial = ''
       }
     },
     //选中模块名称显示表格
@@ -2078,7 +2116,7 @@ export default {
       this.dialogDetailsAdd = true
       axios.get('/script/v1/distinct/?taskid=' + this.taskid)
         .then(function (res) {
-          console.log(res.data.data);
+          // console.log(res.data.data);
           that.fromData1 = res.data.data
           //循环拿到的数据进行添加id和pid字段
           that.fromData1.forEach((item1, index) => {
@@ -2087,7 +2125,7 @@ export default {
             item1.children.forEach((item2) => {
               item2.pid = index + 1
               item2.id = item2.scriptid
-              console.log(item2.scriptid)
+              // console.log(item2.scriptid)
             })
 
           })
@@ -2182,6 +2220,7 @@ export default {
           this.dialogTableChildren = true
         } else if (res.data.data.length == 0) {
           this.$message.error('该任务下没有子任务');
+          this.childrenData = []
         } else if (res.data.code !== '0000') {
           this.$message.error(res.data.description);
         }

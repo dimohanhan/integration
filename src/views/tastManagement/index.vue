@@ -348,6 +348,7 @@
                  width="60%"
                  top="25vh"
                  :visible.sync="dialogTableChildren"
+                 @close='closeReturn'
                  append-to-body>
         <el-table :data="childrenData"
                   border
@@ -421,7 +422,7 @@
     </div>
     <!-- 关于弹窗的主要内容 -->
     <!-- 点击复制弹出页面 -->
-    <el-dialog title="测试任务管理-复制"
+    <el-dialog :title='title'
                style="text-align:left"
                width="90%"
                top="10vh"
@@ -431,6 +432,8 @@
                :visible.sync="dialogFormVisible">
       <el-form style="margin-top:10px"
                :inline='true'
+               ref="formInline"
+               :rules="rules"
                :model="formInline">
         <el-form-item label="任务名称:"
                       :label-width="formLabelWidth">
@@ -446,8 +449,7 @@
           </el-radio-group>
 
         </el-form-item>
-
-        <el-form-item prop="email"
+        <el-form-item prop="emailDetial"
                       label=""
                       v-if="inputOpenDetail">
           <el-input v-model="formInline.emailDetial"
@@ -470,7 +472,9 @@
                           v-if="regularly"
                           @blur=blurChange
                           placeholder="选择执行日期"
-                          value-format="yyyy-MM-dd HH:mm:ss">
+                          value-format="yyyy-MM-dd HH:mm:ss"
+                          :default-value='new
+                          Date()'>
           </el-date-picker>
         </el-form-item>
         <el-form-item label="任务说明:"
@@ -513,7 +517,7 @@
                      type=""
                      icon=" iconfont icon-baocun"
                      style="margin-left:30px;margin-bottom:20px"
-                     @click="handleCopySave()">保存</el-button>
+                     @click="handleCopySave('formInline')">保存</el-button>
         </el-form-item>
 
       </el-form>
@@ -840,7 +844,6 @@
                top="10vh"
                :modal-append-to-body='false'
                append-to-body
-               @close="closeDetialsMessage"
                :visible.sync="dialogDetailsChildren">
       <el-form style="margin-top:10px"
                :inline='true'
@@ -1037,10 +1040,9 @@ export default {
   data () {
     //配置管理的时候针对邮箱地址进行校验
     const validatePass = (rule, value, callback) => {
-      console.log(value, 'value')
+      console.log(value, '邮箱的值')
       // eslint-disable-next-line no-useless-escape
       let reg = /^((([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6}\,))*(([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})))$/;
-      console.log(reg)
       if (!reg.test(value)) {
         callback(new Error('请输入正确的邮箱格式,多个邮箱地址需用逗号分隔'));
       } else {
@@ -1050,7 +1052,8 @@ export default {
     //配置管理的时候针对时间进行校验
     const validatetime = (rule, value, callback) => {
       console.log(value, 'value')
-      if (!value && this.radio == 1) {
+      console.log(this.radio, 'this.radio')
+      if (!value && this.formInline.begintime !== '' && this.radio == 1) {
         callback(new Error('请选择时间'));
       } else {
         callback()
@@ -1088,11 +1091,15 @@ export default {
         email: [
           { required: true, validator: validatePass, trigger: 'blur' }
         ],
+        emailDetial: [
+          { required: true, validator: validatePass, trigger: 'blur' }
+        ],
         begintime: [
           { required: true, validator: validatetime, trigger: 'blur' }
         ],
 
       },
+      title: '',
       text: false,
       emailSplit: '',//存放邮箱地址数据
       emailSplit1: '',//存放邮箱地址数据
@@ -1123,7 +1130,7 @@ export default {
         issendemailDetial: '',//详情页的报告方式单选
         emailDetial: '',//详情页的邮箱地址
         rcycleflagDetial: '',//详情页的执行方式单选
-        begintimeDetial: '',//详情页的执行日期
+        begintimeDetial: new Date(),//详情页的执行日期
         remainingtimesDetial: '',//详情页执行次数
         intervalDetial: ''//详情页的执行间隔
       },
@@ -1262,6 +1269,7 @@ export default {
       }
       else if (command == 'copy') {
         console.log('复制');
+        this.title = '任务管理-复制'
         this.dialogFormVisible = true
         this.formInline.tastNameDetial = this.tasknameMore
         this.formInline.tastDescDetial1 = this.descriptionMore
@@ -1328,7 +1336,7 @@ export default {
         });
 
       } else if (command == 'resert') {
-
+        this.title = '任务管理-编辑'
         this.command = command
         console.log(this.command, '编辑');
         this.dialogFormVisible = true
@@ -1618,63 +1626,65 @@ export default {
 
     },
     //复制页的保存按钮
-    handleCopySave () {
-      console.log(this.command)
-
-
-      // this.formInline.emailDetial = this.emailSplit1
-      if (this.formInline.intervalDetial == '一天') {
-        this.formInline.intervalDetial = 86400
-      } else if (this.formInline.intervalDetial == '一周') {
-        this.formInline.intervalDetial = 604800
-      }
-      else if (this.formInline.intervalDetial == '一月') {
-        this.formInline.intervalDetial = 2592000
-      }
-      else if (this.formInline.intervalDetial == '一年') {
-        this.formInline.intervalDetial = 31536000
-      }
-      if (this.command == 'resert') {
-        console.log(1111)
-        this.$http.getTaskResertSave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
-          this.formInline.intervalDetial, this.formInline.issendemailDetial,
-          this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial).then((res) => {
-            if (res.data.code == '0000') {
-              console.log(res.data.data, '保存成功后返回的数据')
-              this.$message({
-                message: '保存成功',
-                type: 'success'
+    handleCopySave (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          console.log(this.command)
+          // this.formInline.emailDetial = this.emailSplit1
+          if (this.formInline.intervalDetial == '一天') {
+            this.formInline.intervalDetial = 86400
+          } else if (this.formInline.intervalDetial == '一周') {
+            this.formInline.intervalDetial = 604800
+          }
+          else if (this.formInline.intervalDetial == '一月') {
+            this.formInline.intervalDetial = 2592000
+          }
+          else if (this.formInline.intervalDetial == '一年') {
+            this.formInline.intervalDetial = 31536000
+          }
+          if (this.command == 'resert') {
+            console.log(1111)
+            this.$http.getTaskResertSave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
+              this.formInline.intervalDetial, this.formInline.issendemailDetial,
+              this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial).then((res) => {
+                if (res.data.code == '0000') {
+                  console.log(res.data.data, '保存成功后返回的数据')
+                  this.$message({
+                    message: '保存成功',
+                    type: 'success'
+                  });
+                  this.search()
+                  this.dialogFormVisible = false
+                } else {
+                  this.$message.error(res.data.description);
+                }
               });
-              this.search()
-              this.dialogFormVisible = false
+          } else {
+            if (this.formInline.emailDetial.length !== 0) {
+              this.emailSplit1 = this.formInline.emailDetial.split(',')
+              console.log(this.emailSplit1, '0000')
             } else {
-              this.$message.error(res.data.description);
+              this.emailSplit1 = []
             }
-          });
-      } else {
-        if (this.formInline.emailDetial.length !== 0) {
-          this.emailSplit1 = this.formInline.emailDetial.split(',')
-          console.log(this.emailSplit1, '0000')
-        } else {
-          this.emailSplit1 = []
+            this.$http.getTaskCopySave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
+              this.formInline.intervalDetial, this.formInline.issendemailDetial,
+              this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial, this.copyModuleid).then((res) => {
+                if (res.data.code == '0000') {
+                  console.log(res.data.data, '保存成功后返回的数据')
+                  this.$message({
+                    message: '保存成功',
+                    type: 'success'
+                  });
+                  // this.$router.go(0)
+                  this.dialogFormVisible = false
+                  this.search()
+                } else {
+                  this.$message.error(res.data.description);
+                }
+              });
+          }
         }
-        this.$http.getTaskCopySave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
-          this.formInline.intervalDetial, this.formInline.issendemailDetial,
-          this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial, this.copyModuleid).then((res) => {
-            if (res.data.code == '0000') {
-              console.log(res.data.data, '保存成功后返回的数据')
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              });
-              // this.$router.go(0)
-              this.dialogFormVisible = false
-              this.search()
-            } else {
-              this.$message.error(res.data.description);
-            }
-          });
-      }
+      })
 
     },
     //点击详情页查询按钮
@@ -1930,11 +1940,12 @@ export default {
                 console.log(res.data.data)
                 this.childrenData = res.data.data
                 this.childrenData = []
-
-
-
-
               }
+            });
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.data.description
             });
           }
         });
@@ -2003,11 +2014,9 @@ export default {
       const report2 = report
       this.report = report2
       if (this.report == '1') {
-        this.inputOpen = true
         this.inputOpenDetail = true
         this.formInline.emailDetial = ''
       } else {
-        this.inputOpen = false
         this.inputOpenDetail = false
 
       }
@@ -2019,6 +2028,7 @@ export default {
       this.radio = radio1
       if (this.radio == '1') {
         this.regularly = true
+        this.formInline.begintime = new Date()
       } else {
         //找到要清除的执行方式的校验结果
         let _field = this.$refs['formInline'].fields /*当然，你可以打印一下fields*/
@@ -2039,7 +2049,16 @@ export default {
       this.radio = radio1
       if (this.radio == '1') {
         this.regularly = true
+        this.formInline.begintimeDetial = new Date()
       } else {
+        //找到要清除的执行方式的校验结果
+        let _field = this.$refs['formInline'].fields /*当然，你可以打印一下fields*/
+        _field.map(i => {
+          if (i.prop === 'begintime') {  //通过prop属性值相同来判断是哪个输入框，比如：要移除prop为'user'
+            i.resetField()
+            return false
+          }
+        })
         this.regularly = false
         this.formInline.begintime = ''
         this.formInline.begintimeDetial = ''
@@ -2073,11 +2092,15 @@ export default {
       this.formInline = ''
       this.$router.go(0)
     },
+
     //详情页面弹窗关闭前的回调
     closeDetialsMessage () {
-      // this.formInline = ''
-      // this.$router.go(0)
+      // this.search()
       console.log('详情页面的关闭回调')
+    },
+    closeReturn () {
+      console.log(1111)
+      this.search()
     },
     //穿梭框右侧数据
     handleChange () {
@@ -2234,7 +2257,6 @@ export default {
       if (column.label == '任务名称') {
         console.log('点击了任务名称')
         this.childrenSubmit()
-
       }
     },
 

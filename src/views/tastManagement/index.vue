@@ -272,7 +272,7 @@
                    :inline="true"
                    ref="formInline"
                    :rules="rules"
-                   style="width: 47%;margin-bottom:10px;">
+                   style="width: 700px;margin-bottom:10px;">
             <el-form-item label="报告方式:"
                           :label-width="formLabelWidth">
               <el-radio-group v-model="formInline.issendemail"
@@ -305,12 +305,12 @@
                               v-if="regularly"
                               placeholder="选择执行日期"
                               value-format="yyyy-MM-dd HH:mm:ss"
-                              :default-value='new
-                          Date()'>
+                              :default-value='new Date()'
+                              :picker-options="pickerOptions">
               </el-date-picker>
             </el-form-item>
             <el-form-item label="时间间隔:"
-                          placeholder="请换算为分钟填写"
+                          prop="interval"
                           :label-width="formLabelWidth">
               <el-select v-model="formInline.interval"
                          style="width: 100%"
@@ -318,20 +318,21 @@
                          allow-create
                          default-first-option
                          @change="onChangeMoudle"
-                         placeholder="请选择">
+                         placeholder="请换算为分钟填写">
                 <el-option v-for="item in options"
                            :key="item.value"
                            :label="item.label"
                            :value="item.value"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="执行次数:"
+            <el-form-item label="待执行次数:"
+                          prop="remainingtimes"
                           :class="[text==true?'is-error':'']"
                           :label-width="formLabelWidth">
               <el-input style="margin-left:0px"
                         v-model.trim="formInline.remainingtimes"></el-input>
-              <!-- <div v-show="text"
-                   style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">请输入执行次数</div> -->
+              <div v-show="text"
+                   style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">执行次数不能小于1</div>
             </el-form-item>
 
             <div class="dialog-footer">
@@ -474,7 +475,8 @@
                           placeholder="选择执行日期"
                           value-format="yyyy-MM-dd HH:mm:ss"
                           :default-value='new
-                          Date()'>
+                          Date()'
+                          :picker-options="pickerOptions">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="任务说明:"
@@ -487,17 +489,18 @@
                     v-model.trim="formInline.tastDescDetial1">
           </el-input>
         </el-form-item>
-        <el-form-item label="执行次数:"
+        <el-form-item label="待执行次数:"
+                      prop="remainingtimesDetial"
                       :class="[text==true?'is-error':'']"
                       :label-width="formLabelWidth">
           <el-input style="margin-left:0px"
                     v-model.trim="formInline.remainingtimesDetial"></el-input>
-          <!-- <div v-show="text"
-                   style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">请输入执行次数</div> -->
+
         </el-form-item>
 
         <el-form-item label="时间间隔:"
-                      placeholder="请换算为分钟填写"
+                      prop="intervalDetial"
+                      placeholder="以分钟为单位填写"
                       :label-width="formLabelWidth">
           <el-select v-model="formInline.intervalDetial"
                      style="width: 100%"
@@ -505,7 +508,7 @@
                      allow-create
                      default-first-option
                      @change="onChangeMoudle"
-                     placeholder="请选择">
+                     placeholder="以分钟为单位填写">
             <el-option v-for="item in options"
                        :key="item.value"
                        :label="item.label"
@@ -610,9 +613,6 @@
         <el-table-column prop="rdmsid"
                          label="RDMSID">
         </el-table-column>
-        <el-table-column prop="productid"
-                         label="产品名称">
-        </el-table-column>
         <el-table-column prop="moduleid"
                          label="模块名称">
         </el-table-column>
@@ -713,7 +713,7 @@
                     v-model.trim="formInline.tastDescDetial1">
           </el-input>
         </el-form-item>
-        <el-form-item label="执行次数:"
+        <el-form-item label="待执行次数:"
                       :class="[text==true?'is-error':'']"
                       :label-width="formLabelWidth">
           <el-input style="margin-left:0px"
@@ -787,9 +787,6 @@
         </el-table-column>
         <el-table-column prop="rdmsid"
                          label="RDMSID">
-        </el-table-column>
-        <el-table-column prop="productid"
-                         label="产品名称">
         </el-table-column>
         <el-table-column prop="moduleid"
                          label="模块名称">
@@ -908,7 +905,7 @@
                     v-model.trim="formInlineChildren.tastDescDetial1">
           </el-input>
         </el-form-item>
-        <el-form-item label="执行次数:"
+        <el-form-item label="待执行次数:"
                       :class="[text==true?'is-error':'']"
                       :label-width="formLabelWidth">
           <el-input style="margin-left:0px"
@@ -999,9 +996,6 @@
         <el-table-column prop="rdmsid"
                          label="RDMSID">
         </el-table-column>
-        <el-table-column prop="productid"
-                         label="产品名称">
-        </el-table-column>
         <el-table-column prop="moduleid"
                          label="模块名称">
         </el-table-column>
@@ -1059,22 +1053,51 @@ export default {
         callback()
       }
     };
+    //执行次数不能小于1进行校验
+    const validatenum = (rule, value, callback) => {
+      console.log(value, 'value')
+      if (value < 1) {
+        callback(new Error('执行次数不能小于1'));
+      } else {
+        callback()
+      }
+    };
+    //执行间隔不能小于1进行校验
+    const validateinterval = (rule, value, callback) => {
+      console.log(value, 'value')
+      if (value < 0) {
+        callback(new Error('执行间隔不能小于0'));
+      } else {
+        callback()
+      }
+    };
     // eslint-disable-next-line no-unused-vars
     return {
-      options: [{
-        value: '86400',
-        label: '一天'
-      }, {
-        value: '604800',
-        label: '一周'
-      }, {
-        value: '2592000',
-        label: '一月'
+      //设置日期选择范围
+      pickerOptions: {
+        disabledDate (time) {
+          return time.getTime() > Date.now();
+        },
       },
-      {
-        value: '31536000 ',
-        label: '一年'
-      }],
+      options: [
+        {
+          value: '',
+          label: '默认无间隔'
+        },
+        {
+          value: '86400',
+          label: '一天'
+        }, {
+          value: '604800',
+          label: '一周'
+        }, {
+          value: '2592000',
+          label: '一月'
+        },
+        {
+          value: '31536000 ',
+          label: '一年'
+        }],
       titleTransfer: ["用例列表", "已选中的用例列表"],
       rules: {
         moduleid: [
@@ -1087,7 +1110,12 @@ export default {
         product: [
           { required: true, message: '请选择产品名称', trigger: 'change' }
         ],
-
+        intervalDetial: [
+          { required: true, validator: validateinterval, trigger: 'change' }
+        ],
+        interval: [
+          { required: true, validator: validateinterval, trigger: 'change' }
+        ],
         email: [
           { required: true, validator: validatePass, trigger: 'blur' }
         ],
@@ -1097,7 +1125,9 @@ export default {
         begintime: [
           { required: true, validator: validatetime, trigger: 'blur' }
         ],
-
+        remainingtimesDetial: [
+          { required: true, validator: validatenum, trigger: 'blur' }
+        ],
       },
       title: '',
       text: false,
@@ -1141,7 +1171,7 @@ export default {
         basicMessage: '',
         product: '',
         moduleid: '',
-        rcycleflag: '2',//是否执行
+        rcycleflag: '1',//是否执行
         remainingtimes: '',//执行次数
         issendemail: '0',
         interval: '',//执行间隔
@@ -1551,7 +1581,6 @@ export default {
       // this.type = 'C'
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          console.log(111)
           const idValue = []
           this.idValue = idValue
           console.log(this.toData, '点击保存拿到的穿梭框的选中值')
@@ -1559,7 +1588,6 @@ export default {
             this.$message.warning('脚本列表为必填项')
             return
           }
-
           for (var i = 0; i < this.toData.length; i++) {
             for (var j = 0; j < this.toData[i].children.length; j++) {
               console.log(this.toData[i].children[j].id)
@@ -1598,6 +1626,11 @@ export default {
     },
     // 创建页面第二页点击保存按钮
     allocationSave (formName) {
+      if (this.formInline.remainingtimes < 0) {
+        this.text = true
+      } else {
+        this.text = false
+      }
       this.$refs[formName].validate((valid) => {
         if (valid) {
           console.log(1111)
@@ -1895,31 +1928,7 @@ export default {
       console.log(row);
       this.dialogTableVisible = true
     },
-    // // 主页表格删除事件
-    // handleDelete (index, row) {
-    //   console.log(index, row);
-    //   this.$confirm('确定进行删除么?', '提示', {
-    //     confirmButtonText: '确定',
-    //     cancelButtonText: '取消',
-    //     type: 'warning'
-    //   }).then(() => {
-    //     this.$http.getTaskDelete(row.taskid).then((res) => {
-    //       console.log(res.data.code);
-    //       if (res.data.code == '0000') {
-    //         this.$message({
-    //           type: 'success',
-    //           message: '删除成功!'
-    //         });
-    //         this.search()
-    //       } else {
-    //         this.$message.error(res.data.description)
-    //       }
-    //     });
 
-    //   }).catch(() => {
-
-    //   });
-    // },
     //子任务列表删除
     handleDeleteChildren (index, row) {
       console.log(index, row);
@@ -1936,10 +1945,13 @@ export default {
               message: '删除成功!'
             });
             this.$http.getTaskChildrenSearch(this.pagesize1, this.currpageChildren, this.childrenTaskid).then((res) => {
-              if (res.data.code == '0000' && res.data.data.length == 0) {
+              if (res.data.code == '0000') {
                 console.log(res.data.data)
                 this.childrenData = res.data.data
-                this.childrenData = []
+                if (res.data.data.length == 0) {
+                  this.childrenData = []
+                }
+
               }
             });
           } else {
@@ -2126,11 +2138,19 @@ export default {
     //选中产品模块下拉值时调取模块名称下拉
     productChange (val) {
       if (val) {
-        console.log(val)
+        this.formInline.moduleid = ''
+        let _field = this.$refs['formInline'].fields /*当然，你可以打印一下fields*/
+        _field.map(i => {
+          if (i.prop === 'moduleid') {  //通过prop属性值相同来判断是哪个输入框，比如：要移除prop为'user'
+            i.resetField()
+            return false
+          }
+        })
         this.$http.getTaskModule(val).then((res) => {
           console.log(res.data.data);
           this.moduleData = res.data.data
         });
+
       }
     },
     //详情页面中 点击新增进行脚本新增

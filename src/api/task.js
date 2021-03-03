@@ -61,7 +61,7 @@ const getTaskAdd = (taskname, description, moduleid, cases) =>
         description,
         createuser: localStorage.getItem('uid'),
         moduleid,
-        cases
+        cases,
       }
     }
   });

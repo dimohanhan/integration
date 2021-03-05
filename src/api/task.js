@@ -116,7 +116,7 @@ axios.request({
 //复制页的保存getTaskResertSave
 const getTaskCopySave = ( taskid,taskname, description, remainingtimes, interval, issendemail, email, rcycleflag,begintime,moduleid) =>
   axios.request({
-    url: `/task/v1/manage/`,
+    url: `/task/v1/taskCopy/`,
     method: 'POST',
     data: {
       optype: '0',

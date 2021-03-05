@@ -509,7 +509,7 @@
                      default-first-option
                      @change="onChangeMoudle"
                      placeholder="以分钟为单位填写">
-            <el-option v-for="item in options"
+            <el-option v-for="item in options1"
                        :key="item.value"
                        :label="item.label"
                        :value="item.value"></el-option>
@@ -524,122 +524,125 @@
         </el-form-item>
 
       </el-form>
-      <div id="listText">任务列表</div>
-      <!-- 点击复制进去页面查询列表的表单 -->
-      <el-form :inline="true"
-               :model="formInline"
-               style="width: 100%;margin-bottom:10px"
-               class="demo-form-inline">
-        <el-form-item label="模块名称:"
-                      :label-width="formLabelWidth">
-          <el-input style="margin-left:0px"
-                    v-model.trim="formInline.basicMessage"></el-input>
-        </el-form-item>
-        <el-form-item label="接口名称:"
-                      :label-width="formLabelWidth">
-          <el-input style="margin-left:0px"
-                    v-model.trim="formInline.basicMessage"></el-input>
-        </el-form-item>
-        <el-form-item label="用例名称:"
-                      :label-width="formLabelWidth">
+      <!-- 控制脚本列表的是否隐藏 -->
+      <div v-if="footList">
+        <div id="listText">脚本列表</div>
+        <!-- 点击复制进去页面查询列表的表单 -->
+        <el-form :inline="true"
+                 :model="formInline"
+                 style="width: 100%;margin-bottom:10px"
+                 class="demo-form-inline">
+          <el-form-item label="模块名称:"
+                        :label-width="formLabelWidth">
+            <el-input style="margin-left:0px"
+                      v-model.trim="formInline.basicMessage"></el-input>
+          </el-form-item>
+          <el-form-item label="接口名称:"
+                        :label-width="formLabelWidth">
+            <el-input style="margin-left:0px"
+                      v-model.trim="formInline.basicMessage"></el-input>
+          </el-form-item>
+          <el-form-item label="用例名称:"
+                        :label-width="formLabelWidth">
 
-          <el-input style="margin-left:0px"
-                    v-model.trim="formInline.basicMessage"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary"
-                     icon="el-icon-search"
-                     style="margin-left:20px"
-                     @click="onSubmitCopy">查询</el-button>
-          <el-button type="primary"
-                     icon="el-icon-plus"
-                     style="margin-left:20px"
-                     @click="scriptAdd">新增</el-button>
-        </el-form-item>
-      </el-form>
-      <el-button size=""
-                 type="danger"
-                 :disabled="openIsDisabled"
-                 style="margin-left:30px;margin-bottom:20px"
-                 @click="handleDelete1()">删除</el-button>
-      <!-- 复制页点击新增弹出页面 -->
-      <el-dialog title="测试任务管理-脚本新增"
-                 style="text-align:left;height:100%"
-                 width="60%"
-                 top="20vh"
-                 :modal-append-to-body='false'
-                 append-to-body
-                 :visible.sync="dialogDetailsAdd">
-        <!-- <div id="listText">脚本列表</div> -->
-        <!-- 点击复制新增进去页面查询穿梭框 -->
-        <tree-transfer :from_data='fromData1'
-                       :to_data='toData1'
-                       v-model="toData1"
-                       :title="titleTransfer"
-                       :defaultProps="{label:'label',children:'children'}"
-                       @add-btn='add1'
-                       @remove-btn='remove1'
-                       :mode='mode'
-                       height='450px'
-                       style="width:100%; margin-top: 10px;"
-                       @change="aaaaa"
-                       filter
-                       openAll>
-        </tree-transfer>
-        <div style="text-align:right">
-          <el-button @click="scriptSave()"
-                     icon="iconfont icon-baocun">保存</el-button>
-        </div>
+            <el-input style="margin-left:0px"
+                      v-model.trim="formInline.basicMessage"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary"
+                       icon="el-icon-search"
+                       style="margin-left:20px"
+                       @click="onSubmitCopy">查询</el-button>
+            <el-button type="primary"
+                       icon="el-icon-plus"
+                       style="margin-left:20px"
+                       @click="scriptAdd">新增</el-button>
+          </el-form-item>
+        </el-form>
+        <el-button size=""
+                   type="danger"
+                   :disabled="openIsDisabled"
+                   style="margin-left:30px;margin-bottom:20px"
+                   @click="handleDelete1()">删除</el-button>
+        <!-- 复制页点击新增弹出页面 -->
+        <el-dialog title="测试任务管理-脚本新增"
+                   style="text-align:left;height:100%"
+                   width="60%"
+                   top="20vh"
+                   :modal-append-to-body='false'
+                   append-to-body
+                   :visible.sync="dialogDetailsAdd">
+          <!-- <div id="listText">脚本列表</div> -->
+          <!-- 点击复制新增进去页面查询穿梭框 -->
+          <tree-transfer :from_data='fromData1'
+                         :to_data='toData1'
+                         v-model="toData1"
+                         :title="titleTransfer"
+                         :defaultProps="{label:'label',children:'children'}"
+                         @add-btn='add1'
+                         @remove-btn='remove1'
+                         :mode='mode'
+                         height='450px'
+                         style="width:100%; margin-top: 10px;"
+                         @change="aaaaa"
+                         filter
+                         openAll>
+          </tree-transfer>
+          <div style="text-align:right">
+            <el-button @click="scriptSave()"
+                       icon="iconfont icon-baocun">保存</el-button>
+          </div>
 
-      </el-dialog>
-      <el-table :data="tableDataCopy"
-                style="width: 94%;margin-left:30px"
-                border
-                v-loading="loading"
-                @selection-change="handleSelectionChange"
-                :header-cell-style="{background:'#F2F2F2'}"
-                :cell-style="{padding:'2px'}">
-        <el-table-column type="selection"
-                         width="55">
+        </el-dialog>
+        <el-table :data="tableDataCopy"
+                  style="width: 94%;margin-left:30px"
+                  border
+                  v-loading="loading"
+                  @selection-change="handleSelectionChange"
+                  :header-cell-style="{background:'#F2F2F2'}"
+                  :cell-style="{padding:'2px'}">
+          <el-table-column type="selection"
+                           width="55">
 
-        </el-table-column>
-        <el-table-column fixed
-                         type="index"
-                         label="序号">
-          <template slot-scope="scope">
-            <span>{{scope.$index+(currpageCopy - 1) * pagesize2 + 1}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="rdmsid"
-                         label="RDMSID">
-        </el-table-column>
-        <el-table-column prop="moduleid"
-                         label="模块名称">
-        </el-table-column>
+          </el-table-column>
+          <el-table-column fixed
+                           type="index"
+                           label="序号">
+            <template slot-scope="scope">
+              <span>{{scope.$index+(currpageCopy - 1) * pagesize2 + 1}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="rdmsid"
+                           label="RDMSID">
+          </el-table-column>
+          <el-table-column prop="moduleid"
+                           label="模块名称">
+          </el-table-column>
 
-        <el-table-column prop="filename"
-                         label="脚本名称">
-        </el-table-column>
-        <el-table-column prop="zip"
-                         label="脚本说明">
-        </el-table-column>
-        <el-table-column prop="createuser"
-                         label="创建者">
-        </el-table-column>
-        <el-table-column prop="createtime"
-                         label="创建时间">
-        </el-table-column>
+          <el-table-column prop="filename"
+                           label="脚本名称">
+          </el-table-column>
+          <el-table-column prop="zip"
+                           label="脚本说明">
+          </el-table-column>
+          <el-table-column prop="createuser"
+                           label="创建者">
+          </el-table-column>
+          <el-table-column prop="createtime"
+                           label="创建时间">
+          </el-table-column>
 
-      </el-table>
+        </el-table>
+        <!-- 分页逻辑 -->
+        <el-pagination layout="total,sizes,prev, pager, next"
+                       :page-sizes="[5, 10, 15, 20]"
+                       :page-size="pagesize2"
+                       :total="total2"
+                       @current-change="handleCurrentChangeCopy"
+                       @size-change="handleSizeChangeCopy">
+        </el-pagination>
+      </div>
 
-      <!-- 分页逻辑 -->
-      <el-pagination layout="total,sizes,prev, pager, next"
-                     :page-sizes="[5, 10, 15, 20]"
-                     :page-size="pagesize2"
-                     :total="total2"
-                     @current-change="handleCurrentChangeCopy"
-                     @size-change="handleSizeChangeCopy">
-      </el-pagination>
     </el-dialog>
     <!-- 点击详情弹出页面 -->
     <el-dialog title="测试任务管理-详情"
@@ -1085,17 +1088,32 @@ export default {
           label: '默认无间隔'
         },
         {
-          value: '86400',
+          value: 86400,
           label: '一天'
         }, {
-          value: '604800',
+          value: 604800,
           label: '一周'
         }, {
-          value: '2592000',
+          value: 2592000,
           label: '一月'
         },
         {
-          value: '31536000 ',
+          value: 31536000,
+          label: '一年'
+        }],
+      options1: [
+        {
+          value: 86400,
+          label: '一天'
+        }, {
+          value: 604800,
+          label: '一周'
+        }, {
+          value: 2592000,
+          label: '一月'
+        },
+        {
+          value: 31536000,
           label: '一年'
         }],
       titleTransfer: ["用例列表", "已选中的用例列表"],
@@ -1129,6 +1147,7 @@ export default {
           { required: true, validator: validatenum, trigger: 'blur' }
         ],
       },
+      footList: false,
       title: '',
       text: false,
       emailSplit: '',//存放邮箱地址数据
@@ -1300,12 +1319,13 @@ export default {
       else if (command == 'copy') {
         console.log('复制');
         this.title = '任务管理-复制'
+        this.footList = false
         this.dialogFormVisible = true
         this.formInline.tastNameDetial = this.tasknameMore
         this.formInline.tastDescDetial1 = this.descriptionMore
         this.formInline.emailDetial = this.emailMore
         this.taskid = this.taskidMore
-        this.onTaskCopySearch()
+        // this.onTaskCopySearch()
 
         //复制页的复制数据接口
         this.$http.getTaskDetialDetail(this.taskidMore).then((res) => {
@@ -1369,6 +1389,7 @@ export default {
         this.title = '任务管理-编辑'
         this.command = command
         console.log(this.command, '编辑');
+        this.footList = true
         this.dialogFormVisible = true
         this.formInline.tastNameDetial = this.tasknameMore
         this.formInline.tastDescDetial1 = this.descriptionMore
@@ -1558,6 +1579,7 @@ export default {
         //请求失败关闭；
         this.loading = false
         this.$message.error('请求出错了哦');
+
       })
 
     },
@@ -1663,6 +1685,7 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           console.log(this.command)
+          this.dialogFormVisible = true
           // this.formInline.emailDetial = this.emailSplit1
           if (this.formInline.intervalDetial == '一天') {
             this.formInline.intervalDetial = 86400
@@ -1676,6 +1699,7 @@ export default {
             this.formInline.intervalDetial = 31536000
           }
           if (this.command == 'resert') {
+
             console.log(1111)
             this.$http.getTaskResertSave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
               this.formInline.intervalDetial, this.formInline.issendemailDetial,
@@ -1703,14 +1727,29 @@ export default {
               this.formInline.intervalDetial, this.formInline.issendemailDetial,
               this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial, this.copyModuleid).then((res) => {
                 if (res.data.code == '0000') {
-                  console.log(res.data.data, '保存成功后返回的数据')
+                  console.log(res.data.taskid, '保存成功后返回的数据')
                   this.$message({
                     message: '保存成功',
                     type: 'success'
                   });
+                  this.footList = true
                   // this.$router.go(0)
-                  this.dialogFormVisible = false
-                  this.search()
+                  console.log(this.dialogFormVisible, '是否关闭弹窗的标识')
+                  this.dialogFormVisible = true
+                  // this.search()
+                  this.$http.getTaskDetialSearch(this.pagesize2, this.currpageCopy, res.data.taskid, '-createtime').then((res) => {
+                    if (res.data.code == '0000') {
+                      // this.loading = false
+                      this.tableDataCopy = res.data.task_cases
+                      this.total2 = res.data.paging.total;//总信息条数从数据库获取;
+                      console.log(this.total)
+                    } else {
+                      this.$message.error(res.data.description)
+                      this.tableDataCopy = []
+                      // this.loading = false
+                    }
+                  });
+
                 } else {
                   this.$message.error(res.data.description);
                 }
@@ -1728,7 +1767,7 @@ export default {
     //点击复制页查询按钮
     onSubmitCopy () {
       console.log('复制页表格!');
-      this.onTaskCopySearch()
+      // this.onTaskCopySearch()
     },
     //复制页表格
     onTaskCopySearch () {
@@ -1755,7 +1794,7 @@ export default {
       this.formInline.tastDescDetial1 = row.description
       this.formInline.emailDetial = row.email
       this.taskid = row.taskid
-      this.onTaskCopySearch()
+      // this.onTaskCopySearch()
       //复制页的复制数据接口
       this.$http.getTaskDetialDetail(row.taskid).then((res) => {
         if (res.data.code == '0000') {
@@ -2107,7 +2146,7 @@ export default {
 
     //详情页面弹窗关闭前的回调
     closeDetialsMessage () {
-      // this.search()
+      this.search()
       console.log('详情页面的关闭回调')
     },
     closeReturn () {

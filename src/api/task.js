@@ -66,7 +66,7 @@ const getTaskAdd = (taskname, description, moduleid, cases) =>
     }
   });
 //创建任务管理第二页面的保存
-const getTaskSecondAdd = ({ taskid,taskname, description, moduleid, remainingtimes, interval, issendemail, email, begintime, rcycleflag, cases }) =>
+const getTaskSecondAdd = ( taskid,taskname, description, moduleid, remainingtimes, interval, issendemail, email, begintime, rcycleflag,timeunit, cases ) =>
   axios.request({
     url: `/task/v1/manage/`,
     method: 'POST',
@@ -85,6 +85,7 @@ const getTaskSecondAdd = ({ taskid,taskname, description, moduleid, remainingtim
         email,//发送邮件
         rcycleflag,//执行方式（0：立即执行1：定时执行 2:暂不执行）
         begintime,//任务开始时间
+        timeunit
       }
     }
   });
@@ -113,10 +114,10 @@ axios.request({
     }
   }
 });
-//复制页的保存getTaskResertSave
-const getTaskCopySave = ( taskid,taskname, description, remainingtimes, interval, issendemail, email, rcycleflag,begintime,moduleid) =>
+//复制页的保存
+const getTaskCopySave = ( taskid,taskname, description, remainingtimes, interval, timeunit,issendemail, email, rcycleflag,begintime,moduleid,cases) =>
   axios.request({
-    url: `/task/v1/taskCopy/`,
+    url: `/task/v1/manage/`,
     method: 'POST',
     data: {
       optype: '0',
@@ -127,16 +128,18 @@ const getTaskCopySave = ( taskid,taskname, description, remainingtimes, interval
         createuser: localStorage.getItem('uid'),
         remainingtimes,//重试次数
         interval,//执行间隔
+        timeunit,
         issendemail,//是否发送邮件（0不发，1发）
         email,//发送邮件
         rcycleflag,//执行方式（0：立即执行1：定时执行 2:暂不执行）
         begintime,//任务开始时间
-        moduleid
+        moduleid,
+        cases
       }
     }
   });
   //编辑页的保存
-const getTaskResertSave = ( taskid,taskname, description, remainingtimes, interval, issendemail, email, rcycleflag,begintime) =>
+const getTaskResertSave = ( taskid,taskname, description, remainingtimes, interval, timeunit,issendemail, email, rcycleflag,begintime) =>
 axios.request({
   url: `/task/v1/manage/`,
   method: 'POST',
@@ -149,6 +152,7 @@ axios.request({
       createuser: localStorage.getItem('uid'),
       remainingtimes,//重试次数
       interval,//执行间隔
+      timeunit,
       issendemail,//是否发送邮件（0不发，1发）
       email,//发送邮件
       rcycleflag,//执行方式（0：立即执行1：定时执行 2:暂不执行）

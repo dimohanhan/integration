@@ -883,7 +883,6 @@ export default {
         if (res.data.code == '0000') {
           this.productData = res.data.data
         }
-
       });
     },
     //选中产品下拉得到的值

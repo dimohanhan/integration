@@ -140,13 +140,13 @@
                             content="请完成配置">
                   <div style="display:inline">
                     <el-dropdown-item command="resert"
-                                      v-if="scope.row.status=='执行中'
+                                      v-if="scope.row.status=='处理中'
                                   ||scope.row.status=='任务暂停'
-                                  ||scope.row.status=='执行完成'
+                                  ||scope.row.status=='处理完成'
                                   ||scope.row.status=='任务取消'"
-                                      :disabled="scope.row.status=='执行中'
+                                      :disabled="scope.row.status=='处理中'
                                   ||scope.row.status=='任务暂停'
-                                  ||scope.row.status=='执行完成'
+                                  ||scope.row.status=='处理完成'
                                   ||scope.row.status=='任务取消'"
                                       @click="handleDetail(scope.$index, scope.row)">编辑</el-dropdown-item>
                   </div>
@@ -157,7 +157,7 @@
                   <div style="display:inline">
                     <el-dropdown-item command="resert"
                                       v-if="scope.row.status=='待配置'
-                                  ||scope.row.status=='待执行'"
+                                  ||scope.row.status=='待处理'"
                                       @click="handleDetail(scope.$index, scope.row)">编辑</el-dropdown-item>
                   </div>
                 </el-tooltip>
@@ -312,29 +312,57 @@
             <el-form-item label="时间间隔:"
                           prop="interval"
                           :label-width="formLabelWidth">
+              <el-input v-model="formInline.interval"
+                        placeholder=""></el-input>
+              <el-select v-model="formInline.timeunit"
+                         style="width: 100%;  top: -40px;left:205px;margin-bottom: -20px;"
+                         @change="onChangeMoudle"
+                         placeholder="请选择单位">
+                <el-option label="分钟"
+                           value=0></el-option>
+                <el-option label="小时"
+                           value=1></el-option>
+                <el-option label="天"
+                           value=2></el-option>
+                <el-option label="周"
+                           value=3></el-option>
+              </el-select>
+            </el-form-item>
+            <!-- <el-form-item label="时间间隔:"
+                          prop="interval"
+                          :label-width="formLabelWidth">
               <el-select v-model="formInline.interval"
                          style="width: 100%"
                          filterable
                          allow-create
                          default-first-option
                          @change="onChangeMoudle"
-                         placeholder="请换算为分钟填写">
+                         placeholder="以分钟为单位填写">
                 <el-option v-for="item in options"
                            :key="item.value"
                            :label="item.label"
                            :value="item.value"></el-option>
               </el-select>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="待执行次数:"
                           prop="remainingtimes"
                           :class="[text==true?'is-error':'']"
-                          :label-width="formLabelWidth">
-              <el-input style="margin-left:0px"
+                          :label-width="formLabelWidth"
+                          style=" margin-top: -42px;">
+              <el-input style="margin-left:0px;   "
                         v-model.trim="formInline.remainingtimes"></el-input>
               <div v-show="text"
                    style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">执行次数不能小于1</div>
             </el-form-item>
-
+            <!-- <el-form-item label="待执行次数:"
+                          prop="remainingtimes"
+                          :class="[text==true?'is-error':'']"
+                          :label-width="formLabelWidth">
+              <el-input style="margin-left:0px;"
+                        v-model.trim="formInline.remainingtimes"></el-input>
+              <div v-show="text"
+                   style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">执行次数不能小于1</div>
+            </el-form-item> -->
             <div class="dialog-footer">
               <el-button type="primary"
                          icon=" iconfont icon-baocun"
@@ -371,6 +399,8 @@
                            width="auto"></el-table-column>
           <el-table-column prop="createtime"
                            label="创建时间"></el-table-column>
+          <el-table-column prop="begintime"
+                           label="执行开始时间"></el-table-column>
           <el-table-column prop="status"
                            label="执行状态"></el-table-column>
           <el-table-column fixed="right"
@@ -429,7 +459,6 @@
                top="10vh"
                :modal-append-to-body='false'
                append-to-body
-               @close="closeDetialsMessage"
                :visible.sync="dialogFormVisible">
       <el-form style="margin-top:10px"
                :inline='true'
@@ -497,29 +526,30 @@
                     v-model.trim="formInline.remainingtimesDetial"></el-input>
 
         </el-form-item>
-
         <el-form-item label="时间间隔:"
                       prop="intervalDetial"
-                      placeholder="以分钟为单位填写"
+                      placeholder=""
                       :label-width="formLabelWidth">
-          <el-select v-model="formInline.intervalDetial"
-                     style="width: 100%"
-                     filterable
-                     allow-create
-                     default-first-option
+          <el-input v-model="formInline.intervalDetial"
+                    placeholder=""></el-input>
+          <el-select v-model="formInline.timeunit"
+                     style="width: 100%;top: -40px;left:205px;margin-bottom: -20px;"
                      @change="onChangeMoudle"
-                     placeholder="以分钟为单位填写">
-            <el-option v-for="item in options1"
-                       :key="item.value"
-                       :label="item.label"
-                       :value="item.value"></el-option>
+                     placeholder="请选择单位">
+            <el-option label="分钟"
+                       value=0></el-option>
+            <el-option label="小时"
+                       value=1></el-option>
+            <el-option label="天"
+                       value=2></el-option>
+            <el-option label="周"
+                       value=3></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item>
+        <el-form-item v-if="saveResert">
           <el-button size=""
                      type=""
                      icon=" iconfont icon-baocun"
-                     style="margin-left:30px;margin-bottom:20px"
                      @click="handleCopySave('formInline')">保存</el-button>
         </el-form-item>
 
@@ -642,7 +672,33 @@
                        @size-change="handleSizeChangeCopy">
         </el-pagination>
       </div>
+      <!-- 复制页面显示穿梭框，编辑页不显示 -->
+      <div v-if="transferCopy">
+        <div id="listText">脚本列表</div>
+        <!-- // 使用树形穿梭框组件 -->
+        <tree-transfer :from_data='fromDataCopy'
+                       :to_data='toDataCopy'
+                       :title="titleTransfer"
+                       v-model="toDataCopy"
+                       :defaultProps="{label:'label'}"
+                       :props="{key:'id',label:'label'}"
+                       @add-btn='add'
+                       @remove-btn='remove'
+                       :mode='mode'
+                       height='450px'
+                       style="width:85%; margin-top: 10px;"
+                       @change="aaaaa"
+                       filter
+                       openAll>
+        </tree-transfer>
 
+        <el-button size=""
+                   type=""
+                   icon=" iconfont icon-baocun"
+                   style="position: relative;left:70%;"
+                   @click="handleCopySave('formInline')">保存</el-button>
+
+      </div>
     </el-dialog>
     <!-- 点击详情弹出页面 -->
     <el-dialog title="测试任务管理-详情"
@@ -729,7 +785,24 @@
         <el-form-item label="时间间隔:"
                       placeholder="请换算为分钟填写"
                       :label-width="formLabelWidth">
-          <el-select v-model="formInline.intervalDetial"
+          <el-input v-model="formInline.intervalDetial"
+                    :disabled="true"
+                    placeholder=""></el-input>
+          <el-select v-model="formInline.timeunit"
+                     style="width: 100%;top: -40px;left:205px;margin-bottom: -20px;"
+                     :disabled="true"
+                     @change="onChangeMoudle"
+                     placeholder="请选择单位">
+            <el-option label="分钟"
+                       value=0></el-option>
+            <el-option label="小时"
+                       value=1></el-option>
+            <el-option label="天"
+                       value=2></el-option>
+            <el-option label="周"
+                       value=3></el-option>
+          </el-select>
+          <!-- <el-select v-model="formInline.intervalDetial"
                      style="width: 100%"
                      filterable
                      :disabled="true"
@@ -741,10 +814,10 @@
                        :key="item.value"
                        :label="item.label"
                        :value="item.value"></el-option>
-          </el-select>
+          </el-select> -->
         </el-form-item>
       </el-form>
-      <div id="listText">任务列表</div>
+      <div id="listText">脚本列表</div>
       <!-- 点击详情进去页面查询列表的表单 -->
       <el-form :inline="true"
                :model="formInline"
@@ -846,7 +919,6 @@
                append-to-body
                :visible.sync="dialogDetailsChildren">
       <el-form style="margin-top:10px"
-               :inline='true'
                :model="formInlineChildren">
         <el-form-item label="任务名称:"
                       :label-width="formLabelWidth">
@@ -854,7 +926,7 @@
                     :disabled="true"
                     v-model.trim="formInlineChildren.tastNameDetial"></el-input>
         </el-form-item>
-        <el-form-item label="报告方式:"
+        <!-- <el-form-item label="报告方式:"
                       :label-width="formLabelWidth">
           <el-radio-group v-model="formInlineChildren.issendemailDetial"
                           @change='handleChangeValue1(formInlineChildren.issendemailDetial)'>
@@ -872,9 +944,9 @@
           <el-input v-model="formInlineChildren.emailDetial"
                     :disabled="true"
                     placeholder="请输入邮箱地址"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <!-- 选择发送邮件时，显示input框 -->
-        <el-form-item label="执行方式:"
+        <!-- <el-form-item label="执行方式:"
                       :label-width="formLabelWidth">
           <el-radio-group v-model="formInlineChildren.rcycleflagDetial"
                           @change='handleChangeRadio1(formInlineChildren.rcycleflagDetial)'>
@@ -896,7 +968,7 @@
                           placeholder="选择执行日期"
                           value-format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="任务说明:"
                       :label-width="formLabelWidth">
           <el-input type="textarea"
@@ -908,35 +980,33 @@
                     v-model.trim="formInlineChildren.tastDescDetial1">
           </el-input>
         </el-form-item>
-        <el-form-item label="待执行次数:"
+        <!-- <el-form-item label="待执行次数:"
                       :class="[text==true?'is-error':'']"
                       :label-width="formLabelWidth">
           <el-input style="margin-left:0px"
                     :disabled="true"
                     v-model.trim="formInlineChildren.remainingtimesDetial"></el-input>
-          <!-- <div v-show="text"
-                   style="position: absolute;top: 100%;left: 0;font-size:12px;color:#F56C6C">请输入执行次数</div> -->
-        </el-form-item>
-
-        <el-form-item label="时间间隔:"
+        </el-form-item> -->
+        <!-- <el-form-item label="时间间隔:"
                       placeholder="请换算为分钟填写"
                       :label-width="formLabelWidth">
-          <el-select v-model="formInlineChildren.intervalDetial"
-                     style="width: 100%"
-                     filterable
+          <el-input v-model="formInlineChildren.intervalDetial"
+                    placeholder=""
+                    :disabled="true"></el-input>
+          <el-select v-model="formInlineChildren.timeunit"
+                     style="width: 100%;top: -40px;left:205px;margin-bottom: -20px;"
                      :disabled="true"
-                     allow-create
-                     default-first-option
                      @change="onChangeMoudle"
-                     placeholder="请选择">
-            <el-option v-for="item in options"
-                       :key="item.value"
-                       :label="item.label"
-                       :value="item.value"></el-option>
+                     placeholder="请选择单位">
+            <el-option label="分钟"
+                       value=0></el-option>
+            <el-option label="小时"
+                       value=1></el-option>
           </el-select>
-        </el-form-item>
+
+        </el-form-item> -->
       </el-form>
-      <div id="listText">任务列表</div>
+      <div id="listText">脚本列表</div>
       <!-- 点击子任务进去页面查询列表的表单 -->
       <el-form :inline="true"
                :model="formInline"
@@ -1065,11 +1135,12 @@ export default {
         callback()
       }
     };
-    //执行间隔不能小于1进行校验
+    //执行间隔只能为正整数进行校验
     const validateinterval = (rule, value, callback) => {
       console.log(value, 'value')
-      if (value < 0) {
-        callback(new Error('执行间隔不能小于0'));
+      let regg = /^(0|\+?[1-9][0-9]*)$/
+      if (!regg.test(value) && value) {
+        callback(new Error('执行间隔只允许为正整数'));
       } else {
         callback()
       }
@@ -1147,7 +1218,9 @@ export default {
           { required: true, validator: validatenum, trigger: 'blur' }
         ],
       },
-      footList: false,
+      footList: false,//编辑页面的脚本列表展示内容
+      transferCopy: false,//复制页面的脚本列表显示穿梭框
+      saveResert: false,
       title: '',
       text: false,
       emailSplit: '',//存放邮箱地址数据
@@ -1155,8 +1228,10 @@ export default {
       mode: "transfer",
       fromData: [],
       fromData1: [],
+      fromDataCopy: [],
       toData: [],
       toData1: [],
+      toDataCopy: [],
       generateData: [],
       checked: [], //穿梭框绑定的数据，选定到右侧框中的数据项的value组成的数组
       value: [],
@@ -1181,7 +1256,8 @@ export default {
         rcycleflagDetial: '',//详情页的执行方式单选
         begintimeDetial: new Date(),//详情页的执行日期
         remainingtimesDetial: '',//详情页执行次数
-        intervalDetial: ''//详情页的执行间隔
+        intervalDetial: '',//详情页的执行间隔
+        timeunit: '0'//时间间隔单位
       },
       formInlineChildren: {
         taskname: '',
@@ -1203,7 +1279,8 @@ export default {
         rcycleflagDetial: '',//详情页的执行方式单选
         begintimeDetial: '',//详情页的执行日期
         remainingtimesDetial: '',//详情页执行次数
-        intervalDetial: ''//详情页的执行间隔
+        intervalDetial: '',//详情页的执行间隔
+        timeunit: '0'//时间间隔单位
       },
       // idValue: [],//保存穿梭框数剧
       productVal: '',//产品下拉选中的值
@@ -1317,10 +1394,14 @@ export default {
         });
       }
       else if (command == 'copy') {
-        console.log('复制');
+
+        this.command = command
+        console.log(this.command, '复制');
         this.title = '任务管理-复制'
         this.footList = false
+        this.transferCopy = true
         this.dialogFormVisible = true
+        this.saveResert = false
         this.formInline.tastNameDetial = this.tasknameMore
         this.formInline.tastDescDetial1 = this.descriptionMore
         this.formInline.emailDetial = this.emailMore
@@ -1333,23 +1414,16 @@ export default {
             console.log(res.data.taskdetail, '复制页数据')
             this.copyModuleid = res.data.taskdetail.moduleid
             this.formInline.remainingtimesDetial = res.data.taskdetail.remainingtimes
-            if (res.data.taskdetail.interval !== 86400 && res.data.taskdetail.interval !== 604800
-              && res.data.taskdetail.interval !== 2592000 && res.data.taskdetail.interval !== 31536000) {
-              console.log(res.data.taskdetail.interval, '0987')
-              this.formInline.intervalDetial = res.data.taskdetail.interval
-            } else {
-              //判断时间间隔的数据
-              if (res.data.taskdetail.interval == '86400') {
-                this.formInline.intervalDetial = '一天'
-              } else if (res.data.taskdetail.interval == '604800') {
-                this.formInline.intervalDetial = '一周'
-              } else if (res.data.taskdetail.interval == '2592000') {
-                this.formInline.intervalDetial = '一月'
-              } else if (res.data.taskdetail.interval == '31536000 ') {
-                this.formInline.intervalDetial = '一年'
-              }
+            this.formInline.timeunit = String(res.data.taskdetail.timeunit)
+            if (res.data.taskdetail.timeunit == 0) {
+              this.formInline.intervalDetial = (res.data.taskdetail.interval) / 60
+            } else if (res.data.taskdetail.timeunit == 1) {
+              this.formInline.intervalDetial = (res.data.taskdetail.interval) / 60 / 60
+            } else if (res.data.taskdetail.timeunit == 2) {
+              this.formInline.intervalDetial = (res.data.taskdetail.interval) / 24 / 60 / 60
+            } else if (res.data.taskdetail.timeunit == 3) {
+              this.formInline.intervalDetial = (res.data.taskdetail.interval) / 7 / 24 / 60 / 60
             }
-
 
             //判断报告方式的赋值
             if (res.data.taskdetail.issendemail == 0) {
@@ -1384,44 +1458,37 @@ export default {
             this.$message.error(res.data.description)
           }
         });
-
+        //编辑页面的接口
       } else if (command == 'resert') {
         this.title = '任务管理-编辑'
         this.command = command
         console.log(this.command, '编辑');
         this.footList = true
+        this.transferCopy = false
+        this.saveResert = true
         this.dialogFormVisible = true
         this.formInline.tastNameDetial = this.tasknameMore
         this.formInline.tastDescDetial1 = this.descriptionMore
         this.formInline.emailDetial = this.emailMore
         this.taskid = this.taskidMore
         this.onTaskCopySearch()
-        // if (this.formInline.emailDetial.length == null) {
-        //   this.emailSplit1 = this.formInline.emailDetial.split(',')
-        //   console.log(this.emailSplit1, '0000')
-        // } else {
-        //   this.emailSplit1 = []
-        // }
+
         //编辑页的编辑数据接口
         this.$http.getTaskDetialDetail(this.taskidMore).then((res) => {
           if (res.data.code == '0000') {
             console.log(res.data.taskdetail, '编辑页数据')
             this.formInline.remainingtimesDetial = res.data.taskdetail.remainingtimes
-            if (res.data.taskdetail.interval !== 86400 && res.data.taskdetail.interval !== 604800
-              && res.data.taskdetail.interval !== 2592000 && res.data.taskdetail.interval !== 31536000) {
-              console.log(res.data.taskdetail.interval, '0987')
-              this.formInline.intervalDetial = res.data.taskdetail.interval
-            } else {
-              //判断时间间隔的数据
-              if (res.data.taskdetail.interval == '86400') {
-                this.formInline.intervalDetial = '一天'
-              } else if (res.data.taskdetail.interval == '604800') {
-                this.formInline.intervalDetial = '一周'
-              } else if (res.data.taskdetail.interval == '2592000') {
-                this.formInline.intervalDetial = '一月'
-              } else if (res.data.taskdetail.interval == '31536000 ') {
-                this.formInline.intervalDetial = '一年'
-              }
+            this.formInline.timeunit = String(res.data.taskdetail.timeunit)
+            if (res.data.taskdetail.timeunit == '0') {
+              this.formInline.intervalDetial = (res.data.taskdetail.interval) / 60
+            } else if (res.data.taskdetail.timeunit == '1') {
+              this.formInline.intervalDetial = (res.data.taskdetail.interval) / 60 / 60
+            }
+            else if (res.data.taskdetail.timeunit == '2') {
+              this.formInline.intervalDetial = (res.data.taskdetail.interval) / 24 / 60 / 60
+            }
+            else if (res.data.taskdetail.timeunit == '3') {
+              this.formInline.intervalDetial = (res.data.taskdetail.interval) / 7 / 24 / 60 / 60
             }
             // if (res.data.taskdetail.emailDetial.length == null) {
             //   this.emailSplit1 = res.data.taskdetail.emailDetial.split(',')
@@ -1463,6 +1530,52 @@ export default {
         });
 
       }
+      //复制页面右侧的穿梭框数据
+      this.copyTransfer()
+      const vmR = this
+      axios.get('/script/v1/distinct/?taskid=' + this.taskid)
+        .then(function (res) {
+          // console.log(res.data.data);
+          vmR.toDataCopy = res.data.script_owned_list
+          //循环拿到的数据进行添加id和pid字段
+          vmR.toDataCopy.forEach((item1, index) => {
+            item1.id = index + 1;
+            item1.pid = 0;
+            item1.children.forEach((item2) => {
+              item2.pid = index + 1
+              item2.id = item2.scriptid
+              // console.log(item2.scriptid)
+            })
+
+          })
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
+    //复制页左侧穿梭框数据
+    copyTransfer () {
+      const vm = this
+      axios.get('/script/v1/distinct/?taskid=' + this.taskid)
+        .then(function (res) {
+          // console.log(res.data.data);
+          vm.fromDataCopy = res.data.data
+          //循环拿到的左侧数据进行添加id和pid字段
+          vm.fromDataCopy.forEach((item1, index) => {
+            item1.id = index + 1;
+            item1.pid = 0;
+            item1.children.forEach((item2) => {
+              item2.pid = index + 1
+              item2.id = item2.scriptid
+              // console.log(item2.scriptid)
+            })
+
+          })
+
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     },
     // 切换模式 现有树形穿梭框模式transfer 和通讯录模式addressList
     changeMode () {
@@ -1556,13 +1669,13 @@ export default {
           this.tableDataMain = res.data.data
           for (var i = 0; i < this.tableDataMain.length; i++) {
             if (res.data.data[i].status == 0) {
-              res.data.data[i].status = '待执行'
+              res.data.data[i].status = '待处理'
             } else if (res.data.data[i].status == 1) {
-              res.data.data[i].status = '执行中'
+              res.data.data[i].status = '处理中'
             } else if (res.data.data[i].status == 2) {
               res.data.data[i].status = '任务暂停'
             } else if (res.data.data[i].status == 3) {
-              res.data.data[i].status = '执行完成'
+              res.data.data[i].status = '处理完成'
             }
             else if (res.data.data[i].status == 4) {
               res.data.data[i].status = '任务取消'
@@ -1626,6 +1739,7 @@ export default {
                   type: 'success'
                 }).then(() => {
                   this.type = 'C'
+                  this.regularly = false
                 }).catch(() => {
                   this.$router.go(0)
                   this.dialogCreatVisible = false
@@ -1645,9 +1759,28 @@ export default {
     //改变时间间隔的选中值（对时间得处理）
     onChangeMoudle (val) {
       console.log(val)
+      if (val == '1') {
+        this.formInline.intervalq = this.formInline.interval * 60
+        console.log(this.formInline.interval)
+      } else {
+        this.formInline.intervalq = this.formInline.interval * 60 * 60
+      }
+
+
     },
     // 创建页面第二页点击保存按钮
     allocationSave (formName) {
+      console.log(this.formInline.interval, '当前选中的单位为分钟')
+      if (this.formInline.timeunit == '0') {
+        console.log(this.formInline.interval, '当前选中的单位为分钟')
+        this.formInline.intervalq = this.formInline.interval * 60
+      } else if (this.formInline.timeunit == '1') {
+        this.formInline.intervalq = this.formInline.interval * 60 * 60
+      } else if (this.formInline.timeunit == '2') {
+        this.formInline.intervalq = this.formInline.interval * 24 * 60 * 60
+      } else if (this.formInline.timeunit == '3') {
+        this.formInline.intervalq = this.formInline.interval * 7 * 24 * 60 * 60
+      }
       if (this.formInline.remainingtimes < 0) {
         this.text = true
       } else {
@@ -1655,7 +1788,6 @@ export default {
       }
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          console.log(1111)
           if (this.report == '1') {
             this.emailSplit = this.formInline.email.split(",")
             this.formInline.email = this.emailSplit
@@ -1664,45 +1796,63 @@ export default {
           }
           this.formInline.cases = this.idValue
           this.formInline.taskid = this.secondTaskid
-          this.$http.getTaskSecondAdd(this.formInline, this.idValue).then((res) => {
-            if (res.data.code == '0000') {
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              });
-              this.$router.go(0)
-              this.dialogCreatVisible = false
-            } else {
-              this.$message.error(res.data.description);
-            }
-          });
+          this.$http.getTaskSecondAdd(this.formInline.taskid, this.formInline.taskname, this.formInline.description,
+            this.formInline.moduleid, this.formInline.remainingtimes, this.formInline.intervalq, this.formInline.issendemail, this.formInline.email,
+            this.formInline.begintime,
+            this.formInline.rcycleflag,
+            Number(this.formInline.timeunit),
+            this.idValue).then((res) => {
+              if (res.data.code == '0000') {
+                this.$message({
+                  message: '保存成功',
+                  type: 'success'
+                });
+                this.$router.go(0)
+                this.dialogCreatVisible = false
+              } else {
+                this.$message.error(res.data.description);
+              }
+            });
         }
       })
 
     },
     //复制页的保存按钮
     handleCopySave (formName) {
+      //时间间隔的判断
+      if (this.formInline.timeunit == '0') {
+        this.formInline.intervalq = this.formInline.intervalDetial * 60
+      } else if (this.formInline.timeunit == '1') {
+        this.formInline.intervalq = this.formInline.intervalDetial * 60 * 60
+      } else if (this.formInline.timeunit == '2') {
+        this.formInline.intervalq = this.formInline.intervalDetial * 24 * 60 * 60
+      } else if (this.formInline.timeunit == '3') {
+        this.formInline.intervalq = this.formInline.intervalDetial * 7 * 24 * 60 * 60
+      }
+      //穿梭框的数据处理
+      const idValueCopy = []
+      this.idValueCopy = idValueCopy
+      console.log(this.toDataCopy, '点击保存拿到的穿梭框的选中值')
+      if (this.toDataCopy.length == '0') {
+        this.$message.warning('脚本列表为必填项')
+        return
+      }
+      for (var i = 0; i < this.toDataCopy.length; i++) {
+        for (var j = 0; j < this.toDataCopy[i].children.length; j++) {
+          console.log(this.toDataCopy[i].children[j].id)
+          this.idValueCopy.push(this.toDataCopy[i].children[j].id)
+        }
+      }
+      console.log(this.idValueCopy, '穿给后端的 处理好的穿梭框数据')
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          console.log(this.command)
+          console.log(this.command, '当前保存的接口页面')
           this.dialogFormVisible = true
-          // this.formInline.emailDetial = this.emailSplit1
-          if (this.formInline.intervalDetial == '一天') {
-            this.formInline.intervalDetial = 86400
-          } else if (this.formInline.intervalDetial == '一周') {
-            this.formInline.intervalDetial = 604800
-          }
-          else if (this.formInline.intervalDetial == '一月') {
-            this.formInline.intervalDetial = 2592000
-          }
-          else if (this.formInline.intervalDetial == '一年') {
-            this.formInline.intervalDetial = 31536000
-          }
           if (this.command == 'resert') {
 
             console.log(1111)
-            this.$http.getTaskResertSave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
-              this.formInline.intervalDetial, this.formInline.issendemailDetial,
+            this.$http.getTaskResertSave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, Number(this.formInline.remainingtimesDetial),
+              this.formInline.intervalq, Number(this.formInline.timeunit), this.formInline.issendemailDetial,
               this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial).then((res) => {
                 if (res.data.code == '0000') {
                   console.log(res.data.data, '保存成功后返回的数据')
@@ -1723,33 +1873,19 @@ export default {
             } else {
               this.emailSplit1 = []
             }
-            this.$http.getTaskCopySave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, this.formInline.remainingtimesDetial,
-              this.formInline.intervalDetial, this.formInline.issendemailDetial,
-              this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial, this.copyModuleid).then((res) => {
+            this.$http.getTaskCopySave(this.taskid, this.formInline.tastNameDetial, this.formInline.tastDescDetial1, Number(this.formInline.remainingtimesDetial),
+              this.formInline.intervalq, Number(this.formInline.timeunit), this.formInline.issendemailDetial,
+              this.emailSplit1, this.formInline.rcycleflagDetial, this.formInline.begintimeDetial, this.copyModuleid, this.idValueCopy).then((res) => {
                 if (res.data.code == '0000') {
-                  console.log(res.data.taskid, '保存成功后返回的数据')
+                  const copyTaskid = res.data.taskid
+                  this.copyTaskid = copyTaskid
+                  console.log(this.copyTaskid, '保存成功后返回的数据')
                   this.$message({
                     message: '保存成功',
                     type: 'success'
                   });
-                  this.footList = true
-                  // this.$router.go(0)
-                  console.log(this.dialogFormVisible, '是否关闭弹窗的标识')
-                  this.dialogFormVisible = true
-                  // this.search()
-                  this.$http.getTaskDetialSearch(this.pagesize2, this.currpageCopy, res.data.taskid, '-createtime').then((res) => {
-                    if (res.data.code == '0000') {
-                      // this.loading = false
-                      this.tableDataCopy = res.data.task_cases
-                      this.total2 = res.data.paging.total;//总信息条数从数据库获取;
-                      console.log(this.total)
-                    } else {
-                      this.$message.error(res.data.description)
-                      this.tableDataCopy = []
-                      // this.loading = false
-                    }
-                  });
-
+                  this.dialogFormVisible = false
+                  this.search()
                 } else {
                   this.$message.error(res.data.description);
                 }
@@ -1790,6 +1926,7 @@ export default {
     handleClickCopy (row) {
       console.log(row, '复制');
       this.dialogFormVisible = true
+      this.transferCopy = true
       this.formInline.tastNameDetial = row.taskname
       this.formInline.tastDescDetial1 = row.description
       this.formInline.emailDetial = row.email
@@ -1800,23 +1937,17 @@ export default {
         if (res.data.code == '0000') {
           console.log(res.data.taskdetail, '复制页数据')
           this.formInline.remainingtimesDetial = res.data.taskdetail.remainingtimes
-          if (res.data.taskdetail.interval !== 86400 && res.data.taskdetail.interval !== 604800
-            && res.data.taskdetail.interval !== 2592000 && res.data.taskdetail.interval !== 31536000) {
-            console.log(res.data.taskdetail.interval, '0987')
-            this.formInline.intervalDetial = res.data.taskdetail.interval
-          } else {
-            //判断时间间隔的数据
-            if (res.data.taskdetail.interval == '86400') {
-              this.formInline.intervalDetial = '一天'
-            } else if (res.data.taskdetail.interval == '604800') {
-              this.formInline.intervalDetial = '一周'
-            } else if (res.data.taskdetail.interval == '2592000') {
-              this.formInline.intervalDetial = '一月'
-            } else if (res.data.taskdetail.interval == '31536000 ') {
-              this.formInline.intervalDetial = '一年'
-            }
+          this.formInline.timeunit = String(res.data.taskdetail.timeunit)
+          if (res.data.taskdetail.timeunit == '0') {
+            console.log(this.formInline.timeunit, '单位分钟')
+            this.formInline.interval = (res.data.taskdetail.interval) / 60
+          } else if (res.data.taskdetail.timeunit == '1') {
+            this.formInline.interval = (res.data.taskdetail.interval) / 60 / 60
+          } else if (res.data.taskdetail.timeunit == '2') {
+            this.formInline.interval = (res.data.taskdetail.interval) / 24 / 60 / 60
+          } else if (res.data.taskdetail.timeunit == '3') {
+            this.formInline.interval = (res.data.taskdetail.interval) / 7 / 24 / 60 / 60
           }
-
 
           //判断报告方式的赋值
           if (res.data.taskdetail.issendemail == 0) {
@@ -1880,26 +2011,17 @@ export default {
       this.$http.getTaskDetialDetail(row.taskid).then((res) => {
         if (res.data.code == '0000') {
           console.log(res.data.taskdetail, '详情页数据')
+          this.formInline.timeunit = String(res.data.taskdetail.timeunit)
           this.formInline.remainingtimesDetial = res.data.taskdetail.remainingtimes
-          if (res.data.taskdetail.interval !== 86400 && res.data.taskdetail.interval !== 604800
-            && res.data.taskdetail.interval !== 2592000 && res.data.taskdetail.interval !== 31536000) {
-            console.log(res.data.taskdetail.interval, '0987')
-            this.formInline.intervalDetial = res.data.taskdetail.interval
-          } else {
-            //判断时间间隔的数据
-            if (res.data.taskdetail.interval == '86400') {
-              this.formInline.intervalDetial = '一天'
-            } else if (res.data.taskdetail.interval == '604800') {
-              this.formInline.intervalDetial = '一周'
-            } else if (res.data.taskdetail.interval == '2592000') {
-              this.formInline.intervalDetial = '一月'
-            } else if (res.data.taskdetail.interval == '31536000 ') {
-              this.formInline.intervalDetial = '一年'
-            }
-
+          if (res.data.taskdetail.timeunit == '0') {
+            this.formInline.intervalDetial = (res.data.taskdetail.interval) / 60
+          } else if (res.data.taskdetail.timeunit == '1') {
+            this.formInline.intervalDetial = (res.data.taskdetail.interval) / 60 / 60
+          } else if (res.data.taskdetail.timeunit == '2') {
+            this.formInline.intervalDetial = (res.data.taskdetail.interval) / 24 / 60 / 60
+          } else if (res.data.taskdetail.timeunit == '3') {
+            this.formInline.intervalDetial = (res.data.taskdetail.interval) / 7 / 24 / 60 / 60
           }
-
-
           //判断报告方式的赋值
           if (res.data.taskdetail.issendemail == 0) {
             console.log('000')
@@ -2123,6 +2245,7 @@ export default {
         console.log(res.data.data);
         if (res.data.code == '0000') {
           this.fromData = res.data.data
+          // this.toData = res.data.data
           this.fromData.forEach((item1, index) => {
             item1.id = index + 1;
             item1.pid = 0;
@@ -2133,6 +2256,7 @@ export default {
             })
 
           })
+
         }
       });
 
@@ -2240,7 +2364,18 @@ export default {
             type: 'success',
             message: '保存成功',
           })
-          this.onTaskCopySearch()
+          this.$http.getTaskDetialSearch(this.pagesize2, this.currpageCopy, this.taskid, '-createtime').then((res) => {
+            if (res.data.code == '0000') {
+              this.loading = false
+              this.tableDataCopy = res.data.task_cases
+              this.total2 = res.data.paging.total;//总信息条数从数据库获取;
+              console.log(this.total)
+            } else {
+              this.$message.error(res.data.description)
+              this.tableDataCopy = []
+              this.loading = false
+            }
+          });
           this.dialogDetailsAdd = false
           this.toData1 = []
         } else {
@@ -2256,6 +2391,18 @@ export default {
     },
     // 详情页监听穿梭框组件移除
     remove1 (fromData1, toData1, obj) {
+      console.log("fromData:", fromData1);
+      console.log("toData:", toData1);
+      console.log("obj:", obj);
+    },
+    // 复制页监听穿梭框组件添加
+    addCopy (fromData1, toData1, obj) {
+      console.log("fromData1:", fromData1);
+      console.log("toData1:", toData1);
+      console.log("obj:", obj);
+    },
+    // 复制页监听穿梭框组件移除
+    removeCopy (fromData1, toData1, obj) {
       console.log("fromData:", fromData1);
       console.log("toData:", toData1);
       console.log("obj:", obj);
@@ -2276,10 +2423,8 @@ export default {
           for (var i = 0; i < this.childrenData.length; i++) {
             if (res.data.data[i].status == 0) {
               res.data.data[i].status = '待执行'
-
             } else if (res.data.data[i].status == 1) {
               res.data.data[i].status = '执行中'
-
             } else if (res.data.data[i].status == 2) {
               res.data.data[i].status = '任务暂停'
 
@@ -2315,6 +2460,7 @@ export default {
       this.childrenTaskid = childrenTaskid
       if (column.label == '任务名称') {
         console.log('点击了任务名称')
+        // this.$router.push('/productManagement')
         this.childrenSubmit()
       }
     },
@@ -2332,22 +2478,15 @@ export default {
         if (res.data.code == '0000') {
           console.log(res.data.taskdetail, '子任务数据')
           this.formInlineChildren.remainingtimesDetial = res.data.taskdetail.remainingtimes
-          if (res.data.taskdetail.interval !== 86400 && res.data.taskdetail.interval !== 604800
-            && res.data.taskdetail.interval !== 2592000 && res.data.taskdetail.interval !== 31536000) {
-            console.log(res.data.taskdetail.interval, '0987')
-            this.formInlineChildren.intervalDetial = res.data.taskdetail.interval
-          } else {
-            //判断时间间隔的数据
-            if (res.data.taskdetail.interval == '86400') {
-              this.formInlineChildren.intervalDetial = '一天'
-            } else if (res.data.taskdetail.interval == '604800') {
-              this.formInlineChildren.intervalDetial = '一周'
-            } else if (res.data.taskdetail.interval == '2592000') {
-              this.formInlineChildren.intervalDetial = '一月'
-            } else if (res.data.taskdetail.interval == '31536000 ') {
-              this.formInlineChildren.intervalDetial = '一年'
-            }
-
+          this.formInlineChildren.timeunit = String(res.data.taskdetail.timeunit)
+          if (res.data.taskdetail.timeunit == '0') {
+            this.formInlineChildren.intervalDetial = (res.data.taskdetail.interval) / 60
+          } else if (res.data.taskdetail.timeunit == '1') {
+            this.formInlineChildren.intervalDetial = (res.data.taskdetail.interval) / 60 / 60
+          } else if (res.data.taskdetail.timeunit == '2') {
+            this.formInlineChildren.intervalDetial = (res.data.taskdetail.interval) / 24 / 60 / 60
+          } else if (res.data.taskdetail.timeunit == '3') {
+            this.formInlineChildren.intervalDetial = (res.data.taskdetail.interval) / 7 / 24 / 60 / 60
           }
           //判断报告方式的赋值
           if (res.data.taskdetail.issendemail == 0) {
@@ -2471,17 +2610,17 @@ export default {
   bottom: -9px;
   background-color: transparent !important;
 }
+.el-select-dropdown {
+  min-width: 100px !important;
+}
+.el-input .el-input--suffix {
+  width: 100px !important;
+}
+.wl-transfer .transfer-title {
+  margin: 0 !important;
+}
 </style>
 <style lang="less" scoped>
-// .a {
-//   background-color: transparent;
-//   color: #1369c2 !important;
-// }
-// .b {
-//   background-color: transparent;
-//   color: red !important;
-// }
-
 .borderContent {
   width: 5px;
   height: 22px;
@@ -2546,6 +2685,6 @@ export default {
   margin-right: 7px !important;
 }
 .el-form-item__content {
-  width: auto;
+  width: auto !important;
 }
 </style>
